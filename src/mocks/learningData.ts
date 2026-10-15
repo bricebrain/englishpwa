@@ -70,6 +70,41 @@ export const lingvistCardsMock: LingvistCard[] = [
 
 export const preparedContentMock: PreparedContent[] = [
   {
+    // Forme publiée par l'atelier English Fluency (metadata.schemaVersion 2)
+    id: 'atelier-figure-out',
+    title: 'Why the tournament calendar changed',
+    source: 'culture',
+    durationLabel: '4 min',
+    language: 'Anglais',
+    level: 'B1',
+    topic: 'culture',
+    publishedAt: '2026-10-16',
+    body: 'Hello everyone. The African Football Confederation has announced a major change.\nMany supporters were taken aback by this decision.\nWe need to figure out what went wrong.',
+    audioUrl: undefined,
+    audioR2Key: null,
+    type: 'podcast',
+    metadata: {
+      schemaVersion: 2,
+      audioLanguage: 'en',
+      transcriptLanguage: 'fr',
+      durationLabel: '4 min',
+      textEn: 'Hello everyone. The African Football Confederation has announced a major change.\nMany supporters were taken aback by this decision.\nWe need to figure out what went wrong.',
+      textFr: 'Bonjour à tous. La Confédération africaine de football a annoncé un changement majeur.\nBeaucoup de supporters ont été décontenancés par cette décision.\nNous devons comprendre ce qui n’a pas fonctionné.',
+      segments: [
+        { id: 's001', en: 'Hello everyone. The African Football Confederation has announced a major change.', fr: 'Bonjour à tous. La Confédération africaine de football a annoncé un changement majeur.' },
+        { id: 's002', en: 'Many supporters were taken aback by this decision.', fr: 'Beaucoup de supporters ont été décontenancés par cette décision.' },
+        { id: 's003', en: 'We need to figure out what went wrong.', fr: 'Nous devons comprendre ce qui n’a pas fonctionné.' },
+      ],
+      chunks: [
+        { id: 'c001', expression: 'taken aback', meaningFr: 'décontenancé, surpris', exampleEn: 'I was taken aback by his answer.', exampleFr: 'Sa réponse m’a décontenancé.', level: 'B2', type: 'idiom', explanationFr: 'Exprime une surprise désagréable.', sourceSegmentId: 's002' },
+        { id: 'c002', expression: 'figure out', meaningFr: 'comprendre, trouver', exampleEn: "I can't figure it out.", exampleFr: 'Je n’arrive pas à comprendre.', level: 'B1', type: 'phrasal_verb', sourceSegmentId: 's003' },
+      ],
+      grammarPoints: [
+        { id: 'g001', title: 'Need to + infinitif', explanationFr: 'Cette construction exprime une nécessité.', sourceExcerpt: 'We need to figure out what went wrong.', exampleEn: 'You need to check the details.', exampleFr: 'Tu dois vérifier les détails.', level: 'A2', sourceSegmentId: 's003' },
+      ],
+    },
+  },
+  {
     id: 'medicaments-mondial',
     title: 'Médicaments : un marché mondial',
     source: 'ARTE · Le Dessous des cartes',

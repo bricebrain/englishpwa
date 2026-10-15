@@ -167,3 +167,103 @@ export function getContentSummary(item: PreparedContent, maxLength = 220): strin
   const compact = summary.replace(/\s+/g, ' ').trim();
   return compact.length > maxLength ? `${compact.slice(0, maxLength).trim()}…` : compact;
 }
+
+/* ---------- Contenus bilingues de l'atelier (metadata.schemaVersion 2) ---------- */
+
+export interface ContentSegment {
+  id: string;
+  en: string;
+  fr: string | null;
+}
+
+export interface ContentChunk {
+  id: string;
+  expression: string;
+  meaningFr: string;
+  exampleEn: string | null;
+  exampleFr: string | null;
+  level: string | null;
+  type: string | null;
+  context: string | null;
+  explanationFr: string | null;
+  sourceSegmentId: string | null;
+}
+
+export interface ContentGrammarPoint {
+  id: string;
+  title: string;
+  explanationFr: string;
+  sourceExcerpt: string | null;
+  exampleEn: string | null;
+  exampleFr: string | null;
+  level: string | null;
+  sourceSegmentId: string | null;
+}
+
+export const CHUNK_TYPE_LABELS: Record<string, string> = {
+  vocabulary: 'Vocabulaire',
+  collocation: 'Collocation',
+  phrasal_verb: 'Phrasal verb',
+  idiom: 'Expression idiomatique',
+  useful_expression: 'Expression utile',
+  grammar_pattern: 'Structure',
+};
+
+type MetadataRecord = Record<string, unknown>;
+
+function metadataList(item: PreparedContent, key: string): MetadataRecord[] {
+  const value = item.metadata?.[key];
+  return Array.isArray(value)
+    ? value.filter((entry): entry is MetadataRecord => Boolean(entry) && typeof entry === 'object')
+    : [];
+}
+
+export function getContentSegments(item: PreparedContent): ContentSegment[] {
+  return metadataList(item, 'segments').flatMap((entry, index) => {
+    const en = clean(entry.en);
+    if (!en) return [];
+    return [{ id: clean(entry.id) ?? `s${index + 1}`, en, fr: clean(entry.fr) }];
+  });
+}
+
+export function getContentChunks(item: PreparedContent): ContentChunk[] {
+  return metadataList(item, 'chunks').flatMap((entry, index) => {
+    const expression = clean(entry.expression);
+    const meaningFr = clean(entry.meaningFr);
+    if (!expression || !meaningFr) return [];
+    return [{
+      id: clean(entry.id) ?? `c${index + 1}`,
+      expression,
+      meaningFr,
+      exampleEn: clean(entry.exampleEn) ?? clean(entry.example),
+      exampleFr: clean(entry.exampleFr),
+      level: clean(entry.level),
+      type: clean(entry.type),
+      context: clean(entry.context),
+      explanationFr: clean(entry.explanationFr),
+      sourceSegmentId: clean(entry.sourceSegmentId),
+    }];
+  });
+}
+
+export function getContentGrammarPoints(item: PreparedContent): ContentGrammarPoint[] {
+  return metadataList(item, 'grammarPoints').flatMap((entry, index) => {
+    const title = clean(entry.title);
+    const explanationFr = clean(entry.explanationFr);
+    if (!title || !explanationFr) return [];
+    return [{
+      id: clean(entry.id) ?? `g${index + 1}`,
+      title,
+      explanationFr,
+      sourceExcerpt: clean(entry.sourceExcerpt),
+      exampleEn: clean(entry.exampleEn),
+      exampleFr: clean(entry.exampleFr),
+      level: clean(entry.level),
+      sourceSegmentId: clean(entry.sourceSegmentId),
+    }];
+  });
+}
+
+export function getContentDurationLabel(item: PreparedContent): string | null {
+  return metadataText(item, ['durationLabel']);
+}

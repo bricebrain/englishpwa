@@ -1,21 +1,31 @@
+import AutoStoriesRounded from '@mui/icons-material/AutoStoriesRounded';
 import DeleteOutlineRounded from '@mui/icons-material/DeleteOutlineRounded';
 import GraphicEqRounded from '@mui/icons-material/GraphicEqRounded';
+import LightbulbOutlined from '@mui/icons-material/LightbulbOutlined';
 import NotesRounded from '@mui/icons-material/NotesRounded';
 import ExpandLessRounded from '@mui/icons-material/ExpandLessRounded';
 import ExpandMoreRounded from '@mui/icons-material/ExpandMoreRounded';
+import SchoolOutlined from '@mui/icons-material/SchoolOutlined';
 import TranslateRounded from '@mui/icons-material/TranslateRounded';
 import VolumeUpRounded from '@mui/icons-material/VolumeUpRounded';
 import { Box, Button, Card, CardContent, Chip, Collapse, IconButton, Stack, Typography } from '@mui/material';
 import { useState } from 'react';
+import type { ReactNode } from 'react';
 
 import { AudioPlayerBar } from '@/components/audio/AudioPlayerBar';
 import {
+  CHUNK_TYPE_LABELS,
   getContentAudioLanguage,
+  getContentChunks,
+  getContentDurationLabel,
+  getContentGrammarPoints,
   getContentLanguage,
+  getContentSegments,
   getContentSummary,
   getEnglishScript,
   getFrenchTranslation,
 } from '@/helpers/preparedContent';
+import type { ContentChunk, ContentGrammarPoint, ContentSegment } from '@/helpers/preparedContent';
 import type { AudioTrack } from '@/hooks/useAudioPlayer';
 import { IconTile } from '@/components/ui/SessionChrome';
 import { speakEnglish } from '@/services/speechPlaybackService';
@@ -44,16 +54,119 @@ const TYPE_LABELS: Record<string, string> = {
   youtube_import: 'YouTube',
 };
 
+type Section = 'script' | 'translation' | 'bilingual' | 'chunks' | 'grammar';
+
+function Panel({ color, title, children }: { color: string; title: string; children: ReactNode }) {
+  return (
+    <Box sx={{ mt: 1.75, p: 2, borderRadius: 4, background: `${color}12`, borderLeft: `3px solid ${color}` }}>
+      <Typography variant="overline" color={color}>{title}</Typography>
+      {children}
+    </Box>
+  );
+}
+
+function SpeakButton({ text }: { text: string }) {
+  return (
+    <IconButton size="small" aria-label="Écouter l’exemple" onClick={() => speakEnglish(text)} sx={{ ml: 0.25, color: tokens.textFaint, '&:hover': { color: tokens.violet } }}>
+      <VolumeUpRounded fontSize="inherit" />
+    </IconButton>
+  );
+}
+
+function BilingualPanel({ segments }: { segments: ContentSegment[] }) {
+  return (
+    <Panel color={tokens.violet} title="Lecture bilingue">
+      <Stack mt={0.75} divider={<Box sx={{ borderTop: `1px solid ${tokens.border}` }} />}>
+        {segments.map((segment) => (
+          <Box key={segment.id} py={1.1}>
+            <Typography lineHeight={1.7} fontSize={15.5}>{segment.en}</Typography>
+            {segment.fr ? <Typography lineHeight={1.6} fontSize={13.5} color="text.secondary" mt={0.35}>{segment.fr}</Typography> : null}
+          </Box>
+        ))}
+      </Stack>
+    </Panel>
+  );
+}
+
+function ChunksPanel({ chunks }: { chunks: ContentChunk[] }) {
+  return (
+    <Panel color={tokens.coral} title="Chunks à retenir">
+      <Stack gap={1.25} mt={1}>
+        {chunks.map((chunk) => (
+          <Box key={chunk.id} sx={{ p: 1.5, borderRadius: 3, background: tokens.surface, border: `1px solid ${tokens.border}` }}>
+            <Stack direction="row" alignItems="center" gap={0.75} flexWrap="wrap" useFlexGap>
+              <Typography fontWeight={750} fontSize={15.5}>{chunk.expression}</Typography>
+              {chunk.level ? <Chip size="small" label={chunk.level} /> : null}
+              {chunk.type ? <Chip size="small" variant="outlined" label={CHUNK_TYPE_LABELS[chunk.type] ?? chunk.type} /> : null}
+            </Stack>
+            <Typography color="text.secondary" fontSize={14} mt={0.25}>{chunk.meaningFr}</Typography>
+            {chunk.exampleEn ? (
+              <Stack direction="row" alignItems="center" mt={0.75}>
+                <Typography fontStyle="italic" fontSize={14}>« {chunk.exampleEn} »</Typography>
+                <SpeakButton text={chunk.exampleEn} />
+              </Stack>
+            ) : null}
+            {chunk.exampleFr ? <Typography fontSize={13} color="text.secondary">{chunk.exampleFr}</Typography> : null}
+            {chunk.explanationFr || chunk.context ? (
+              <Typography fontSize={13} color={tokens.textMuted} mt={0.75} lineHeight={1.55}>
+                {[chunk.explanationFr, chunk.context].filter(Boolean).join(' — ')}
+              </Typography>
+            ) : null}
+          </Box>
+        ))}
+      </Stack>
+    </Panel>
+  );
+}
+
+function GrammarPanel({ points }: { points: ContentGrammarPoint[] }) {
+  return (
+    <Panel color={tokens.mint} title="Points de grammaire">
+      <Stack gap={1.25} mt={1}>
+        {points.map((point) => (
+          <Box key={point.id} sx={{ p: 1.5, borderRadius: 3, background: tokens.surface, border: `1px solid ${tokens.border}` }}>
+            <Stack direction="row" alignItems="center" gap={0.75} flexWrap="wrap" useFlexGap>
+              <Typography fontWeight={750} fontSize={15}>{point.title}</Typography>
+              {point.level ? <Chip size="small" label={point.level} /> : null}
+            </Stack>
+            <Typography fontSize={14} mt={0.5} lineHeight={1.6}>{point.explanationFr}</Typography>
+            {point.sourceExcerpt ? (
+              <Typography fontSize={13} color="text.secondary" mt={0.75}>Dans le texte : « {point.sourceExcerpt} »</Typography>
+            ) : null}
+            {point.exampleEn ? (
+              <Stack direction="row" alignItems="center" mt={0.5}>
+                <Typography fontStyle="italic" fontSize={14}>« {point.exampleEn} »</Typography>
+                <SpeakButton text={point.exampleEn} />
+              </Stack>
+            ) : null}
+            {point.exampleFr ? <Typography fontSize={13} color="text.secondary">{point.exampleFr}</Typography> : null}
+          </Box>
+        ))}
+      </Stack>
+    </Panel>
+  );
+}
+
 export function PreparedContentCard({ item, player, onDelete }: {
   item: PreparedContent;
   player: PlayerProps;
   onDelete: (item: PreparedContent) => void;
 }) {
-  const [expanded, setExpanded] = useState(false);
-  const [translationVisible, setTranslationVisible] = useState(false);
+  const [open, setOpen] = useState<Set<Section>>(new Set());
   const englishScript = getEnglishScript(item);
   const frenchTranslation = getFrenchTranslation(item);
+  const segments = getContentSegments(item);
+  const chunks = getContentChunks(item);
+  const grammarPoints = getContentGrammarPoints(item);
+  const durationLabel = getContentDurationLabel(item);
   const track = item.audioUrl ? { id: item.id, title: item.title, url: item.audioUrl } : null;
+  const isOpen = (section: Section) => open.has(section);
+  const toggle = (section: Section) => setOpen((current) => {
+    const next = new Set(current);
+    if (next.has(section)) next.delete(section);
+    else next.add(section);
+    return next;
+  });
 
   return (
     <Card sx={{ height: '100%' }}>
@@ -65,6 +178,7 @@ export function PreparedContentCard({ item, player, onDelete }: {
             <Stack direction="row" gap={0.5} flexWrap="wrap" useFlexGap mt={0.75}>
               <Chip size="small" label={TYPE_LABELS[item.type ?? ''] ?? item.type ?? 'Contenu'} sx={{ background: 'rgba(139,108,255,0.15)', color: tokens.violetSoft }} />
               {item.level ? <Chip size="small" label={item.level} /> : null}
+              {durationLabel ? <Chip size="small" label={durationLabel} /> : null}
               {getContentLanguage(item) ? <Chip size="small" label={getContentLanguage(item)} /> : null}
               {getContentAudioLanguage(item) ? <Chip size="small" label={`audio ${getContentAudioLanguage(item)}`} /> : null}
               {item.topic ?? item.source ? <Chip size="small" label={item.topic ?? item.source} /> : null}
@@ -76,7 +190,7 @@ export function PreparedContentCard({ item, player, onDelete }: {
         </Stack>
 
         <Typography color="text.secondary" lineHeight={1.65} mt={1.75} fontSize={14.5}>
-          {getContentSummary(item, expanded ? 600 : 200)}
+          {getContentSummary(item, isOpen('script') ? 600 : 200)}
         </Typography>
 
         <Box mt={2}>
@@ -92,28 +206,53 @@ export function PreparedContentCard({ item, player, onDelete }: {
         </Box>
 
         <Stack direction="row" gap={1} flexWrap="wrap" useFlexGap mt={1.75}>
-          <Button size="small" variant={expanded ? 'contained' : 'outlined'} startIcon={expanded ? <ExpandLessRounded /> : <ExpandMoreRounded />} onClick={() => setExpanded((value) => !value)} disabled={!englishScript}>
+          {segments.length ? (
+            <Button size="small" variant={isOpen('bilingual') ? 'contained' : 'outlined'} startIcon={<AutoStoriesRounded />} onClick={() => toggle('bilingual')}>
+              Bilingue
+            </Button>
+          ) : null}
+          <Button size="small" variant={isOpen('script') ? 'contained' : 'outlined'} startIcon={isOpen('script') ? <ExpandLessRounded /> : <ExpandMoreRounded />} onClick={() => toggle('script')} disabled={!englishScript}>
             Script
           </Button>
           {frenchTranslation ? (
-            <Button size="small" variant={translationVisible ? 'contained' : 'outlined'} startIcon={<TranslateRounded />} onClick={() => setTranslationVisible((value) => !value)}>
+            <Button size="small" variant={isOpen('translation') ? 'contained' : 'outlined'} startIcon={<TranslateRounded />} onClick={() => toggle('translation')}>
               Traduction
+            </Button>
+          ) : null}
+          {chunks.length ? (
+            <Button size="small" variant={isOpen('chunks') ? 'contained' : 'outlined'} startIcon={<LightbulbOutlined />} onClick={() => toggle('chunks')}>
+              Chunks · {chunks.length}
+            </Button>
+          ) : null}
+          {grammarPoints.length ? (
+            <Button size="small" variant={isOpen('grammar') ? 'contained' : 'outlined'} startIcon={<SchoolOutlined />} onClick={() => toggle('grammar')}>
+              Grammaire · {grammarPoints.length}
             </Button>
           ) : null}
         </Stack>
 
-        <Collapse in={translationVisible} unmountOnExit>
-          <Box sx={{ mt: 1.75, p: 2, borderRadius: 4, background: 'rgba(70,217,245,0.07)', borderLeft: `3px solid ${tokens.cyan}` }}>
-            <Typography variant="overline" color={tokens.cyan}>Traduction française</Typography>
-            <Typography whiteSpace="pre-wrap" lineHeight={1.75} mt={0.5} fontSize={14.5}>{frenchTranslation}</Typography>
-          </Box>
+        <Collapse in={isOpen('bilingual')} unmountOnExit>
+          <BilingualPanel segments={segments} />
         </Collapse>
 
-        <Collapse in={expanded} unmountOnExit>
-          <Box sx={{ mt: 1.75, p: 2, borderRadius: 4, background: 'rgba(139,108,255,0.07)', borderLeft: `3px solid ${tokens.violet}` }}>
-            <Typography variant="overline" color={tokens.violetSoft}>Script anglais</Typography>
+        <Collapse in={isOpen('translation')} unmountOnExit>
+          <Panel color={tokens.cyan} title="Traduction française">
+            <Typography whiteSpace="pre-wrap" lineHeight={1.75} mt={0.5} fontSize={14.5}>{frenchTranslation}</Typography>
+          </Panel>
+        </Collapse>
+
+        <Collapse in={isOpen('script')} unmountOnExit>
+          <Panel color={tokens.violet} title="Script anglais">
             <Typography whiteSpace="pre-wrap" lineHeight={1.85} mt={0.5} fontSize={15.5}>{englishScript}</Typography>
-          </Box>
+          </Panel>
+        </Collapse>
+
+        <Collapse in={isOpen('chunks')} unmountOnExit>
+          <ChunksPanel chunks={chunks} />
+        </Collapse>
+
+        <Collapse in={isOpen('grammar')} unmountOnExit>
+          <GrammarPanel points={grammarPoints} />
         </Collapse>
       </CardContent>
     </Card>
