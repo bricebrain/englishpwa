@@ -186,7 +186,7 @@ export function LingvistPage() {
                             inputProps={{ autoCapitalize: 'none', autoComplete: 'off', autoCorrect: 'off', spellCheck: false, enterKeyHint: session.decision ? 'next' : 'done', 'aria-label': 'Mot manquant' }}
                             sx={{
                               px: 2.25, py: 1.25, borderRadius: 4, fontSize: 20, fontWeight: 700,
-                              background: 'rgba(255,255,255,0.05)', border: `2px solid ${tokens.border}`,
+                              background: 'rgba(49,39,78,0.05)', border: `2px solid ${tokens.border}`,
                               transition: 'border-color .2s, box-shadow .2s',
                               '&.Mui-focused': { borderColor: tokens.violet, boxShadow: `0 0 0 5px rgba(139,108,255,0.18)` },
                             }}
@@ -278,7 +278,7 @@ function ToolChip({ icon, label, onClick }: { icon: React.ReactNode; label: stri
     <Pressable onClick={onClick} aria-label={label} sx={{ width: 'auto' }}>
       <Stack
         direction="row" alignItems="center" gap={0.75} px={1.5} height={38} borderRadius={3}
-        sx={{ background: 'rgba(255,255,255,0.05)', border: `1px solid ${tokens.border}`, color: 'text.secondary', fontSize: 14, fontWeight: 700, '& svg': { fontSize: 18, color: tokens.violetSoft } }}
+        sx={{ background: 'rgba(49,39,78,0.05)', border: `1px solid ${tokens.border}`, color: 'text.secondary', fontSize: 14, fontWeight: 700, '& svg': { fontSize: 18, color: tokens.violetSoft } }}
       >
         {icon}{label}
       </Stack>
@@ -288,7 +288,7 @@ function ToolChip({ icon, label, onClick }: { icon: React.ReactNode; label: stri
 
 function MiniStat({ label, value, color }: { label: string; value: number; color?: string }) {
   return (
-    <Box flex={1} p={1.5} borderRadius={4} sx={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${tokens.border}` }}>
+    <Box flex={1} p={1.5} borderRadius={4} sx={{ background: 'rgba(49,39,78,0.035)', border: `1px solid ${tokens.border}` }}>
       <MotionBox key={value} initial={{ scale: 1.4 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 500, damping: 15 }} sx={{ transformOrigin: 'left center' }}>
         <Typography fontFamily={displayFont} fontWeight={800} fontSize={26} color={color}>{value}</Typography>
       </MotionBox>

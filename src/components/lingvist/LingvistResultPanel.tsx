@@ -54,7 +54,7 @@ export function LingvistResultPanel({ card, answer, decision }: {
         <Typography fontSize={14} fontStyle="italic" color="text.secondary" mt={0.75}>{card.translationFr}</Typography>
       </ResultPanel>
 
-      <Box sx={{ p: 1.75, borderRadius: 4, background: 'rgba(255,255,255,0.03)', border: `1px solid ${tokens.border}` }}>
+      <Box sx={{ p: 1.75, borderRadius: 4, background: 'rgba(49,39,78,0.035)', border: `1px solid ${tokens.border}` }}>
         <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
           <Box>
             <Typography fontWeight={750} fontSize={13.5}>Maîtrise · niveau {mastery}/4</Typography>
@@ -68,7 +68,7 @@ export function LingvistResultPanel({ card, answer, decision }: {
                 initial={{ scale: 0, rotate: -40 }}
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ type: 'spring', stiffness: 500, damping: 14, delay: 0.25 + index * 0.08 }}
-                sx={{ fontSize: 18, color: index < decision.stars ? tokens.amber : 'rgba(255,255,255,0.15)', filter: index < decision.stars ? `drop-shadow(0 0 6px ${tokens.amber})` : 'none' }}
+                sx={{ fontSize: 18, color: index < decision.stars ? tokens.amber : 'rgba(49,39,78,0.15)', filter: index < decision.stars ? `drop-shadow(0 0 6px ${tokens.amber})` : 'none' }}
               >
                 ★
               </MotionBox>
@@ -77,7 +77,7 @@ export function LingvistResultPanel({ card, answer, decision }: {
         </Stack>
         <Stack direction="row" gap={0.5}>
           {Array.from({ length: 4 }, (_, index) => (
-            <Box key={index} flex={1} height={8} borderRadius={9} sx={{ background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
+            <Box key={index} flex={1} height={8} borderRadius={9} sx={{ background: 'rgba(49,39,78,0.08)', overflow: 'hidden' }}>
               <MotionBox
                 initial={{ width: 0 }}
                 animate={{ width: index < mastery ? '100%' : 0 }}

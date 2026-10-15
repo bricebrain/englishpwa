@@ -8,7 +8,8 @@ body,
 
 html {
   overflow-x: clip;
-  background: #08070f;
+  color-scheme: light;
+  background: #f4f3f8;
   -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
 }
@@ -43,7 +44,7 @@ select {
   position: absolute;
   border-radius: 50%;
   filter: blur(80px);
-  opacity: 0.55;
+  opacity: 0.3;
   will-change: transform;
 }
 
@@ -52,7 +53,7 @@ select {
   height: 70vmax;
   top: -38vmax;
   left: -22vmax;
-  background: radial-gradient(circle, rgba(139, 108, 255, 0.55), transparent 65%);
+  background: radial-gradient(circle, rgba(112, 85, 232, 0.32), transparent 65%);
   animation: aurora-drift-a 22s ease-in-out infinite alternate;
 }
 
@@ -61,7 +62,7 @@ select {
   height: 60vmax;
   top: 10vmax;
   right: -32vmax;
-  background: radial-gradient(circle, rgba(255, 93, 162, 0.35), transparent 65%);
+  background: radial-gradient(circle, rgba(216, 62, 136, 0.22), transparent 65%);
   animation: aurora-drift-b 26s ease-in-out infinite alternate;
 }
 
@@ -70,7 +71,7 @@ select {
   height: 55vmax;
   bottom: -35vmax;
   left: 5vmax;
-  background: radial-gradient(circle, rgba(70, 217, 245, 0.22), transparent 65%);
+  background: radial-gradient(circle, rgba(22, 140, 168, 0.16), transparent 65%);
   animation: aurora-drift-a 30s ease-in-out infinite alternate-reverse;
 }
 
@@ -80,7 +81,7 @@ select {
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  opacity: 0.05;
+  opacity: 0.025;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
@@ -100,13 +101,13 @@ select {
 }
 
 .shimmer {
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.04) 25%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.04) 75%);
+  background: linear-gradient(90deg, rgba(49, 39, 78, 0.04) 25%, rgba(49, 39, 78, 0.1) 50%, rgba(49, 39, 78, 0.04) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.6s linear infinite;
 }
 
 .text-gradient {
-  background: linear-gradient(135deg, #b9a8ff 0%, #ff5da2 100%);
+  background: linear-gradient(135deg, #7055e8 0%, #d83e88 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;

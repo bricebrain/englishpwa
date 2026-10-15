@@ -43,7 +43,7 @@ function SettingRow({ icon, gradient, title, subtitle, checked, onChange }: {
 function InfoRow({ icon, title, subtitle }: { icon: ReactNode; title: string; subtitle: string }) {
   return (
     <Stack direction="row" alignItems="center" gap={1.5} py={1}>
-      <Box sx={{ width: 40, height: 40, borderRadius: 3, display: 'grid', placeItems: 'center', color: tokens.textFaint, background: 'rgba(255,255,255,0.04)' }}>{icon}</Box>
+      <Box sx={{ width: 40, height: 40, borderRadius: 3, display: 'grid', placeItems: 'center', color: tokens.textFaint, background: 'rgba(49,39,78,0.045)' }}>{icon}</Box>
       <Box>
         <Typography fontWeight={700} fontSize={14.5}>{title}</Typography>
         <Typography color="text.secondary" fontSize={12.5}>{subtitle}</Typography>
@@ -132,7 +132,7 @@ export function SettingsPage() {
           </CardContent>
         </Card>
 
-        <Stack direction="row" gap={1.5} alignItems="center" p={2} borderRadius={5} sx={{ background: hasRemoteApi ? 'rgba(52,229,160,0.08)' : 'rgba(255,255,255,0.03)', border: `1px solid ${hasRemoteApi ? 'rgba(52,229,160,0.25)' : tokens.border}` }}>
+        <Stack direction="row" gap={1.5} alignItems="center" p={2} borderRadius={5} sx={{ background: hasRemoteApi ? 'rgba(52,229,160,0.08)' : 'rgba(49,39,78,0.035)', border: `1px solid ${hasRemoteApi ? 'rgba(52,229,160,0.25)' : tokens.border}` }}>
           <CloudDoneRounded sx={{ color: hasRemoteApi ? tokens.mint : tokens.textFaint }} />
           <Box>
             <Typography fontWeight={800}>{hasRemoteApi ? 'API distante configurée' : 'Mode démonstration local'}</Typography>

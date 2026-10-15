@@ -69,7 +69,7 @@ export function ScriptsPage() {
         title="Scripts & audios"
         subtitle="Audios, scripts anglais et traductions préparés pour toi"
         action={(
-          <IconButton aria-label="Actualiser" onClick={() => query.refetch()} sx={{ background: 'rgba(255,255,255,0.05)', border: `1px solid ${tokens.border}` }}>
+          <IconButton aria-label="Actualiser" onClick={() => query.refetch()} sx={{ background: 'rgba(49,39,78,0.05)', border: `1px solid ${tokens.border}` }}>
             <RefreshRounded />
           </IconButton>
         )}

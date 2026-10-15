@@ -210,7 +210,7 @@ export function HomePage() {
                           <ChevronRightRounded sx={{ color: tokens.textFaint }} />
                         </Stack>
                       </Stack>
-                      <Box sx={{ height: 10, borderRadius: 9, background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
+                      <Box sx={{ height: 10, borderRadius: 9, background: 'rgba(49,39,78,0.08)', overflow: 'hidden' }}>
                         <MotionBox
                           initial={{ width: 0 }}
                           animate={{ width: `${data.learnedCount / Math.max(1, data.totalCount) * 100}%` }}

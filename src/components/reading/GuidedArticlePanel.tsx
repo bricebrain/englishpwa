@@ -74,7 +74,7 @@ export function GuidedArticlePanel({ item }: { item: ReadingItem }) {
               </Button>
 
               {question ? (
-                <Box sx={{ mt: 2, p: 2, borderRadius: 4, background: 'rgba(255,255,255,0.03)', border: `1px solid ${tokens.border}` }}>
+                <Box sx={{ mt: 2, p: 2, borderRadius: 4, background: 'rgba(49,39,78,0.035)', border: `1px solid ${tokens.border}` }}>
                   <Stack direction="row" gap={1} alignItems="flex-start">
                     <HelpRounded sx={{ color: tokens.amber, mt: 0.25 }} />
                     <Typography fontWeight={750}>{question.question}</Typography>

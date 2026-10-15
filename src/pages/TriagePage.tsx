@@ -60,7 +60,7 @@ function SwipeCard({ candidate, showTranslation, onToggle, onDecide, exitDirecti
         position: 'absolute', inset: 0, zIndex: 3, borderRadius: 7, p: 3, cursor: 'grab', touchAction: 'pan-y',
         display: 'flex', flexDirection: 'column',
         background: `radial-gradient(120% 70% at 50% 0%, rgba(139,108,255,0.2), transparent 70%), ${tokens.surfaceRaised}`,
-        border: `1.5px solid ${tokens.borderStrong}`, boxShadow: '0 40px 80px -30px rgba(0,0,0,0.95)',
+        border: `1.5px solid ${tokens.borderStrong}`, boxShadow: '0 40px 80px -36px rgba(49,39,78,0.5)',
         userSelect: 'none',
       }}
     >
@@ -79,7 +79,7 @@ function SwipeCard({ candidate, showTranslation, onToggle, onDecide, exitDirecti
           </Typography>
           <Stack direction="row" gap={0.4} justifyContent="center" mt={1.5} aria-label={`Fréquence ${candidate.frequence} sur 5`}>
             {Array.from({ length: 5 }, (_, index) => (
-              <Box key={index} sx={{ width: 18, height: 5, borderRadius: 9, background: index < candidate.frequence ? tokens.cyan : 'rgba(255,255,255,0.1)' }} />
+              <Box key={index} sx={{ width: 18, height: 5, borderRadius: 9, background: index < candidate.frequence ? tokens.cyan : 'rgba(49,39,78,0.1)' }} />
             ))}
           </Stack>
           <Box minHeight={64} mt={2.5}>
@@ -199,7 +199,7 @@ export function TriagePage() {
 
 function Counter({ label, value, color }: { label: string; value: number; color?: string }) {
   return (
-    <Box flex={1} textAlign="center" py={1.25} borderRadius={4} sx={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${tokens.border}` }}>
+    <Box flex={1} textAlign="center" py={1.25} borderRadius={4} sx={{ background: 'rgba(49,39,78,0.035)', border: `1px solid ${tokens.border}` }}>
       <Typography fontFamily={displayFont} fontWeight={800} fontSize={22} color={color}><AnimatedNumber value={value} duration={0.4} /></Typography>
       <Typography fontSize={11.5} color="text.secondary" fontWeight={700}>{label}</Typography>
     </Box>

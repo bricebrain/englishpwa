@@ -25,7 +25,7 @@ export function SessionHeader({ progress, combo = 0, label, onClose, action }: {
       <IconButton aria-label="Quitter la session" onClick={onClose ?? (() => navigate(-1))} sx={{ ml: -1, color: 'text.secondary' }}>
         <CloseRounded />
       </IconButton>
-      <Box flex={1} position="relative" height={14} borderRadius={99} sx={{ background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
+      <Box flex={1} position="relative" height={14} borderRadius={99} sx={{ background: 'rgba(49,39,78,0.08)', overflow: 'hidden' }}>
         <MotionBox
           initial={false}
           animate={{ width: `${Math.max(4, Math.min(100, progress * 100))}%` }}
@@ -122,7 +122,7 @@ export function CelebrationCard({ title, subtitle, score, stats, onRestart, rest
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ ...softSpring, delay: 0.35 + index * 0.08 }}
-            sx={{ flex: 1, maxWidth: 160, py: 2, borderRadius: 4, background: 'rgba(255,255,255,0.04)', border: `1px solid ${tokens.border}` }}
+            sx={{ flex: 1, maxWidth: 160, py: 2, borderRadius: 4, background: 'rgba(49,39,78,0.045)', border: `1px solid ${tokens.border}` }}
           >
             <Typography fontFamily={displayFont} fontWeight={800} fontSize={28} color={stat.color ?? 'text.primary'}>
               <AnimatedNumber value={stat.value} suffix={stat.suffix} />

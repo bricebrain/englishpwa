@@ -80,7 +80,7 @@ export function LivePage() {
               <Box
                 sx={{
                   mt: 2, p: 2, borderRadius: 4, position: 'relative', fontSize: 14.5, lineHeight: 1.7, color: 'text.secondary',
-                  background: 'rgba(255,255,255,0.03)', borderLeft: `3px solid ${tokens.violet}`,
+                  background: 'rgba(49,39,78,0.035)', borderLeft: `3px solid ${tokens.violet}`,
                 }}
               >
                 {COACH_PROMPT}

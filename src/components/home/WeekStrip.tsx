@@ -23,7 +23,7 @@ export function WeekStrip({ activeDays }: { activeDays: boolean[] }) {
               transition={{ type: 'spring', stiffness: 500, damping: 20, delay: 0.1 + index * 0.05 }}
               sx={{
                 width: 36, height: 36, borderRadius: '12px', display: 'grid', placeItems: 'center',
-                background: active ? 'rgba(255,122,89,0.14)' : 'rgba(255,255,255,0.04)',
+                background: active ? 'rgba(255,122,89,0.14)' : 'rgba(49,39,78,0.045)',
                 border: today ? `2px solid ${tokens.violet}` : `1px solid ${active ? 'rgba(255,122,89,0.3)' : tokens.border}`,
               }}
             >

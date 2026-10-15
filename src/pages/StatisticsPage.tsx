@@ -36,7 +36,7 @@ function Bars({ values, labels, gradient, highlightLast = true }: { values: numb
               transition={{ type: 'spring', stiffness: 120, damping: 16, delay: 0.2 + index * 0.06 }}
               sx={{
                 width: '100%', maxWidth: 30, borderRadius: '10px 10px 4px 4px',
-                background: last ? gradient : 'rgba(255,255,255,0.1)',
+                background: last ? gradient : 'rgba(49,39,78,0.1)',
                 boxShadow: last ? `0 0 20px -4px ${tokens.violet}` : 'none',
               }}
             />
@@ -144,7 +144,7 @@ export function StatisticsPage() {
                       <Typography variant="h3">Vocabulaire maîtrisé</Typography>
                       <Typography fontWeight={800} className="text-gradient">{stats.learnedCount}/{stats.totalCount}</Typography>
                     </Stack>
-                    <Box sx={{ height: 12, borderRadius: 9, background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
+                    <Box sx={{ height: 12, borderRadius: 9, background: 'rgba(49,39,78,0.08)', overflow: 'hidden' }}>
                       <MotionBox
                         initial={{ width: 0 }}
                         animate={{ width: `${stats.learnedCount / Math.max(1, stats.totalCount) * 100}%` }}

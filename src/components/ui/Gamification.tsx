@@ -69,7 +69,7 @@ export function LevelBadge({ compact = false }: { compact?: boolean }) {
       </Box>
       {!compact ? (
         <Box width={42}>
-          <Box sx={{ height: 5, borderRadius: 9, background: 'rgba(255,255,255,0.1)', overflow: 'hidden' }}>
+          <Box sx={{ height: 5, borderRadius: 9, background: 'rgba(49,39,78,0.1)', overflow: 'hidden' }}>
             <MotionBox
               sx={{ height: '100%', background: gradients.primary, borderRadius: 9 }}
               initial={{ width: 0 }}
@@ -140,8 +140,8 @@ export function XpToaster() {
               transition={spring}
               sx={{
                 position: 'absolute', display: 'flex', alignItems: 'center', gap: 0.5, px: 1.5, py: 0.6, borderRadius: 99,
-                background: 'rgba(26,24,40,0.92)', backdropFilter: 'blur(12px)', border: `1px solid ${tokens.borderStrong}`,
-                boxShadow: '0 10px 30px -10px rgba(0,0,0,0.8)',
+                background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(12px)', border: `1px solid ${tokens.borderStrong}`,
+                boxShadow: '0 10px 30px -14px rgba(49,39,78,0.42)',
               }}
             >
               <BoltRounded sx={{ fontSize: 18, color: tokens.amber }} />
@@ -159,7 +159,7 @@ export function XpToaster() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setLevelUp(null)}
-            sx={{ position: 'fixed', inset: 0, zIndex: 1500, display: 'grid', placeItems: 'center', background: 'rgba(4,3,10,0.72)', backdropFilter: 'blur(10px)', p: 3 }}
+            sx={{ position: 'fixed', inset: 0, zIndex: 1500, display: 'grid', placeItems: 'center', background: 'rgba(244,243,248,0.88)', backdropFilter: 'blur(10px)', p: 3 }}
           >
             <MotionBox
               initial={{ scale: 0.5, rotate: -8 }}

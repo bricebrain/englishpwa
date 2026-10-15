@@ -36,7 +36,7 @@ export function DailyMissionCard({ reviewedToday, dueCount }: DailyMissionCardPr
         </Stack>
 
         <Box position="relative">
-          <Box sx={{ position: 'absolute', left: 25, top: 30, bottom: 30, width: 3, borderRadius: 3, background: 'rgba(255,255,255,0.08)' }} />
+          <Box sx={{ position: 'absolute', left: 25, top: 30, bottom: 30, width: 3, borderRadius: 3, background: 'rgba(49,39,78,0.08)' }} />
           <MotionBox
             initial={{ height: 0 }}
             animate={{ height: wordsDone ? '50%' : '0%' }}

@@ -102,7 +102,7 @@ export function ListeningPage() {
 
       <QueryState loading={lessonsQuery.isLoading} error={lessonsQuery.isError} empty={!lessonsQuery.data?.length} onRetry={() => lessonsQuery.refetch()} />
       <Box position="relative">
-        <Box sx={{ position: 'absolute', left: 27, top: 30, bottom: 30, width: 3, borderRadius: 3, background: 'rgba(255,255,255,0.07)' }} />
+        <Box sx={{ position: 'absolute', left: 27, top: 30, bottom: 30, width: 3, borderRadius: 3, background: 'rgba(49,39,78,0.065)' }} />
         <Stack gap={1.5}>
           {lessonsQuery.data?.map((lesson, index) => {
             const progress = progressByIndex[lesson.index];

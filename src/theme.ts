@@ -1,25 +1,25 @@
 import { alpha, createTheme } from '@mui/material/styles';
 
-/** Palette « Midnight Aurora » — partagée par le thème MUI et les composants animés. */
+/** Palette claire « Daylight Aurora » — partagée par MUI et les composants animés. */
 export const tokens = {
-  bg: '#08070F',
-  surface: '#12111D',
-  surfaceRaised: '#1A1828',
-  surfaceHigh: '#24213A',
-  border: 'rgba(255,255,255,0.08)',
-  borderStrong: 'rgba(255,255,255,0.16)',
-  text: '#F5F3FF',
-  textMuted: '#A29FC0',
-  textFaint: '#6C6990',
-  violet: '#8B6CFF',
-  violetSoft: '#B9A8FF',
-  pink: '#FF5DA2',
-  coral: '#FF7A59',
-  amber: '#FFB547',
-  lime: '#B8F35A',
-  mint: '#34E5A0',
-  cyan: '#46D9F5',
-  red: '#FF5470',
+  bg: '#F4F3F8',
+  surface: '#FFFFFF',
+  surfaceRaised: '#FFFFFF',
+  surfaceHigh: '#EFEDF5',
+  border: 'rgba(49,39,78,0.10)',
+  borderStrong: 'rgba(49,39,78,0.20)',
+  text: '#211B32',
+  textMuted: '#6C657D',
+  textFaint: '#918A9F',
+  violet: '#7055E8',
+  violetSoft: '#8068DE',
+  pink: '#D83E88',
+  coral: '#E85F43',
+  amber: '#B96D00',
+  lime: '#76A81D',
+  mint: '#16875D',
+  cyan: '#168CA8',
+  red: '#D63F5A',
 } as const;
 
 export const gradients = {
@@ -27,7 +27,7 @@ export const gradients = {
   sunrise: `linear-gradient(135deg, ${tokens.amber} 0%, ${tokens.coral} 55%, ${tokens.pink} 100%)`,
   ocean: `linear-gradient(135deg, ${tokens.cyan} 0%, ${tokens.violet} 100%)`,
   mint: `linear-gradient(135deg, ${tokens.lime} 0%, ${tokens.mint} 100%)`,
-  card: 'linear-gradient(160deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.015) 100%)',
+  card: 'linear-gradient(160deg, rgba(112,85,232,0.035) 0%, rgba(216,62,136,0.015) 100%)',
 } as const;
 
 export const displayFont = '"Bricolage Grotesque Variable", "Inter Variable", system-ui, sans-serif';
@@ -35,17 +35,17 @@ export const bodyFont = '"Inter Variable", ui-sans-serif, system-ui, -apple-syst
 
 export const theme = createTheme({
   palette: {
-    mode: 'dark',
+    mode: 'light',
     primary: { main: tokens.violet, light: tokens.violetSoft, dark: '#6A4DE0', contrastText: '#FFFFFF' },
     secondary: { main: tokens.pink, light: '#FF9CC6', dark: '#D93F82', contrastText: '#FFFFFF' },
-    success: { main: tokens.mint, light: '#7FF2C4', dark: '#1FB57A', contrastText: '#06140E' },
-    warning: { main: tokens.amber, light: '#FFD08A', dark: '#E08D12', contrastText: '#1A1203' },
+    success: { main: tokens.mint, light: '#55B990', dark: '#0D6845', contrastText: '#FFFFFF' },
+    warning: { main: tokens.amber, light: '#DFA448', dark: '#8A5000', contrastText: '#FFFFFF' },
     error: { main: tokens.red, light: '#FF8FA2', dark: '#D93653', contrastText: '#FFFFFF' },
-    info: { main: tokens.cyan, light: '#8DE9FA', dark: '#1FAFCB', contrastText: '#03161B' },
+    info: { main: tokens.cyan, light: '#54B7CA', dark: '#0B687D', contrastText: '#FFFFFF' },
     background: { default: tokens.bg, paper: tokens.surface },
     text: { primary: tokens.text, secondary: tokens.textMuted, disabled: tokens.textFaint },
     divider: tokens.border,
-    action: { hover: 'rgba(255,255,255,0.06)', selected: alpha(tokens.violet, 0.18) },
+    action: { hover: 'rgba(49,39,78,0.06)', selected: alpha(tokens.violet, 0.12) },
   },
   typography: {
     fontFamily: bodyFont,
@@ -59,7 +59,7 @@ export const theme = createTheme({
   components: {
     MuiCssBaseline: {
       styleOverrides: {
-        ':root': { colorScheme: 'dark' },
+        ':root': { colorScheme: 'light' },
         body: { overscrollBehavior: 'none', backgroundColor: tokens.bg },
         '*:focus-visible': { outline: `2px solid ${tokens.violetSoft}`, outlineOffset: 2 },
         '::selection': { background: alpha(tokens.violet, 0.45) },
@@ -76,7 +76,7 @@ export const theme = createTheme({
           borderRadius: 24,
           background: `${gradients.card}, ${tokens.surface}`,
           border: `1px solid ${tokens.border}`,
-          boxShadow: '0 1px 0 rgba(255,255,255,0.04) inset, 0 18px 40px -24px rgba(0,0,0,0.7)',
+          boxShadow: '0 1px 0 rgba(255,255,255,0.9) inset, 0 18px 40px -28px rgba(49,39,78,0.28)',
         },
       },
     },
@@ -98,7 +98,7 @@ export const theme = createTheme({
         },
         sizeSmall: { minHeight: 36, borderRadius: 12, paddingInline: 12 },
         contained: {
-          '&.Mui-disabled': { color: 'rgba(255,255,255,0.75)', opacity: 0.4, boxShadow: 'none' },
+          '&.Mui-disabled': { color: alpha(tokens.text, 0.55), opacity: 0.55, boxShadow: 'none' },
         },
         containedPrimary: {
           background: gradients.primary,
@@ -119,10 +119,10 @@ export const theme = createTheme({
         outlined: {
           borderColor: tokens.borderStrong,
           color: tokens.text,
-          background: 'rgba(255,255,255,0.03)',
+          background: 'rgba(49,39,78,0.025)',
           '&:hover': { borderColor: tokens.violetSoft, background: alpha(tokens.violet, 0.08) },
         },
-        text: { '&:hover': { background: 'rgba(255,255,255,0.06)' } },
+        text: { '&:hover': { background: 'rgba(49,39,78,0.06)' } },
       },
     },
     MuiIconButton: {
@@ -139,7 +139,7 @@ export const theme = createTheme({
       styleOverrides: {
         root: { borderRadius: 10, fontWeight: 700, height: 28 },
         sizeSmall: { height: 24, fontSize: 11.5, borderRadius: 8 },
-        filled: { background: 'rgba(255,255,255,0.08)' },
+        filled: { background: 'rgba(49,39,78,0.07)' },
         outlined: { borderColor: tokens.borderStrong },
       },
     },
@@ -148,7 +148,7 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 18,
-          background: 'rgba(255,255,255,0.04)',
+          background: 'rgba(49,39,78,0.035)',
           transition: 'box-shadow .2s ease, background .2s ease',
           '& .MuiOutlinedInput-notchedOutline': { borderColor: tokens.border, borderWidth: 1.5 },
           '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: tokens.borderStrong },
@@ -164,7 +164,7 @@ export const theme = createTheme({
           gap: 4,
           padding: 4,
           borderRadius: 16,
-          background: 'rgba(255,255,255,0.04)',
+          background: 'rgba(49,39,78,0.035)',
           border: `1px solid ${tokens.border}`,
           flexWrap: 'wrap',
         },
@@ -195,17 +195,17 @@ export const theme = createTheme({
     },
     MuiLinearProgress: {
       styleOverrides: {
-        root: { height: 10, borderRadius: 99, backgroundColor: 'rgba(255,255,255,0.08)' },
+        root: { height: 10, borderRadius: 99, backgroundColor: 'rgba(49,39,78,0.09)' },
         bar: { borderRadius: 99, background: gradients.primary },
       },
     },
     MuiAlert: {
       styleOverrides: {
         root: { borderRadius: 16, alignItems: 'flex-start', border: '1px solid transparent' },
-        standardInfo: { background: alpha(tokens.cyan, 0.1), color: '#C9F4FD', borderColor: alpha(tokens.cyan, 0.2) },
-        standardSuccess: { background: alpha(tokens.mint, 0.1), color: '#C4F8E2', borderColor: alpha(tokens.mint, 0.22) },
-        standardWarning: { background: alpha(tokens.amber, 0.1), color: '#FFE4BB', borderColor: alpha(tokens.amber, 0.22) },
-        standardError: { background: alpha(tokens.red, 0.1), color: '#FFC9D2', borderColor: alpha(tokens.red, 0.22) },
+        standardInfo: { background: alpha(tokens.cyan, 0.1), color: '#07566A', borderColor: alpha(tokens.cyan, 0.24) },
+        standardSuccess: { background: alpha(tokens.mint, 0.1), color: '#0B6040', borderColor: alpha(tokens.mint, 0.24) },
+        standardWarning: { background: alpha(tokens.amber, 0.1), color: '#754500', borderColor: alpha(tokens.amber, 0.24) },
+        standardError: { background: alpha(tokens.red, 0.1), color: '#92253A', borderColor: alpha(tokens.red, 0.24) },
       },
     },
     MuiDialog: {
@@ -229,7 +229,7 @@ export const theme = createTheme({
     },
     MuiSlider: {
       styleOverrides: {
-        rail: { opacity: 1, backgroundColor: 'rgba(255,255,255,0.1)' },
+        rail: { opacity: 1, backgroundColor: 'rgba(49,39,78,0.12)' },
         track: { border: 0, background: gradients.primary },
         thumb: { boxShadow: `0 0 0 6px ${alpha(tokens.violet, 0.2)}` },
       },
@@ -244,7 +244,7 @@ export const theme = createTheme({
       styleOverrides: { root: { textTransform: 'none', fontWeight: 700, minHeight: 44 } },
     },
     MuiAccordion: {
-      styleOverrides: { root: { borderRadius: '18px !important', background: 'rgba(255,255,255,0.03)' } },
+      styleOverrides: { root: { borderRadius: '18px !important', background: 'rgba(49,39,78,0.025)' } },
     },
     MuiMenu: {
       styleOverrides: { paper: { borderRadius: 16, background: tokens.surfaceHigh, border: `1px solid ${tokens.border}` } },
@@ -252,7 +252,7 @@ export const theme = createTheme({
     MuiSwitch: {
       styleOverrides: {
         switchBase: { '&.Mui-checked + .MuiSwitch-track': { opacity: 1, background: gradients.primary } },
-        track: { borderRadius: 99, backgroundColor: 'rgba(255,255,255,0.2)' },
+        track: { borderRadius: 99, backgroundColor: 'rgba(49,39,78,0.28)' },
       },
     },
   },

@@ -54,7 +54,7 @@ export function AssimilExerciseCard({ exercise }: { exercise: Exercise }) {
             <ComboBadge combo={combo.combo} />
             <Stack direction="row" gap={0.5}>
               {exercise.items.map((_, index) => (
-                <Box key={index} sx={{ width: 18, height: 6, borderRadius: 9, background: index < itemIndex ? tokens.mint : index === itemIndex && !completed ? tokens.violet : 'rgba(255,255,255,0.1)', transition: 'background .3s' }} />
+                <Box key={index} sx={{ width: 18, height: 6, borderRadius: 9, background: index < itemIndex ? tokens.mint : index === itemIndex && !completed ? tokens.violet : 'rgba(49,39,78,0.1)', transition: 'background .3s' }} />
               ))}
             </Stack>
           </Stack>
@@ -77,7 +77,7 @@ export function AssimilExerciseCard({ exercise }: { exercise: Exercise }) {
                 inputProps={{ autoCapitalize: 'none', autoComplete: 'off', 'aria-label': 'Ta réponse' }}
                 sx={{
                   px: 2, py: 1, borderRadius: 4, fontSize: 17, fontWeight: 650,
-                  background: 'rgba(255,255,255,0.05)', border: `2px solid ${tokens.border}`,
+                  background: 'rgba(49,39,78,0.05)', border: `2px solid ${tokens.border}`,
                   '&.Mui-focused': { borderColor: tokens.violet, boxShadow: '0 0 0 4px rgba(139,108,255,0.18)' },
                 }}
               />

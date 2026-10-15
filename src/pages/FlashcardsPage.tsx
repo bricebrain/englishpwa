@@ -180,7 +180,7 @@ export function FlashcardsPage() {
               inputProps={{ autoCapitalize: 'none', autoComplete: 'off', autoCorrect: 'off', spellCheck: false, 'aria-label': 'Ta réponse' }}
               sx={{
                 px: 2.25, py: 1.25, borderRadius: 4, fontSize: 19, fontWeight: 700, '& input': { textAlign: 'center' },
-                background: 'rgba(255,255,255,0.05)', border: `2px solid ${tokens.border}`,
+                background: 'rgba(49,39,78,0.05)', border: `2px solid ${tokens.border}`,
                 '&.Mui-focused': { borderColor: tokens.violet, boxShadow: '0 0 0 5px rgba(139,108,255,0.18)' },
               }}
             />
@@ -216,7 +216,7 @@ function CardFace({ children, back = false, glow }: { children: React.ReactNode;
           ? `radial-gradient(120% 80% at 50% 0%, ${glow ? `${glow}26` : 'rgba(139,108,255,0.18)'}, transparent 70%), ${tokens.surfaceRaised}`
           : `radial-gradient(120% 80% at 50% 0%, rgba(139,108,255,0.16), transparent 70%), ${tokens.surface}`,
         border: `1.5px solid ${glow ?? tokens.borderStrong}`,
-        boxShadow: glow ? `0 0 40px -8px ${glow}66, 0 30px 60px -30px rgba(0,0,0,0.9)` : '0 30px 60px -30px rgba(0,0,0,0.9)',
+        boxShadow: glow ? `0 0 40px -8px ${glow}66, 0 30px 60px -34px rgba(49,39,78,0.48)` : '0 30px 60px -34px rgba(49,39,78,0.48)',
         transition: 'border-color .3s, box-shadow .3s',
       }}
     >

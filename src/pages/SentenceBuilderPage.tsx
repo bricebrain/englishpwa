@@ -138,7 +138,7 @@ export function SentenceBuilderPage() {
               inputProps={{ autoCapitalize: 'sentences', 'aria-label': 'Ta phrase' }}
               sx={{
                 px: 2.25, py: 1.75, borderRadius: 4, fontSize: 19, fontWeight: 600, minHeight: 110, alignItems: 'flex-start',
-                background: 'rgba(255,255,255,0.05)', border: `2px solid ${tokens.border}`,
+                background: 'rgba(49,39,78,0.05)', border: `2px solid ${tokens.border}`,
                 '&.Mui-focused': { borderColor: tokens.violet, boxShadow: '0 0 0 5px rgba(139,108,255,0.18)' },
               }}
             />
@@ -147,7 +147,7 @@ export function SentenceBuilderPage() {
               <Box
                 sx={{
                   minHeight: 116, p: 1.25, borderRadius: 5, display: 'flex', flexWrap: 'wrap', alignContent: 'flex-start', gap: 1,
-                  background: 'rgba(255,255,255,0.03)',
+                  background: 'rgba(49,39,78,0.035)',
                   border: `2px dashed ${correct === null ? tokens.borderStrong : correct ? tokens.mint : tokens.red}`,
                   transition: 'border-color .3s',
                 }}
@@ -175,7 +175,7 @@ export function SentenceBuilderPage() {
                 {tiles.map((tile) => (
                   <Box key={tile.id} sx={{ position: 'relative' }}>
                     {/* Emplacement fantôme pour que les tuiles restantes ne bougent pas. */}
-                    <Box sx={{ px: 1.75, height: 46, borderRadius: 3, background: 'rgba(255,255,255,0.04)', fontWeight: 700, fontSize: 17, display: 'flex', alignItems: 'center', color: 'transparent' }}>
+                    <Box sx={{ px: 1.75, height: 46, borderRadius: 3, background: 'rgba(49,39,78,0.045)', fontWeight: 700, fontSize: 17, display: 'flex', alignItems: 'center', color: 'transparent' }}>
                       {tile.word}
                     </Box>
                     {!placed.includes(tile.id) ? (

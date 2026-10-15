@@ -24,7 +24,7 @@ export function PageHeader({ title, subtitle, eyebrow, back = false, action }: P
           <IconButton
             aria-label="Revenir en arrière"
             onClick={() => navigate(-1)}
-            sx={{ ml: -0.5, background: 'rgba(255,255,255,0.05)', border: `1px solid ${tokens.border}` }}
+            sx={{ ml: -0.5, background: 'rgba(49,39,78,0.05)', border: `1px solid ${tokens.border}` }}
           >
             <ArrowBackRounded />
           </IconButton>

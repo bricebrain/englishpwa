@@ -77,7 +77,7 @@ export function ProfilePage() {
                     <Box
                       sx={{
                         py: 1.25, borderRadius: 4, textAlign: 'center',
-                        background: selected ? gradients.primary : 'rgba(255,255,255,0.04)',
+                        background: selected ? gradients.primary : 'rgba(49,39,78,0.045)',
                         border: `1px solid ${selected ? 'transparent' : tokens.border}`,
                         boxShadow: selected ? `0 10px 24px -10px ${tokens.violet}` : 'none',
                         transition: 'all .25s',

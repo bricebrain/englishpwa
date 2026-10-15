@@ -106,7 +106,7 @@ export function AppShell() {
           sx={{
             position: 'fixed', inset: '0 auto 0 0', width: APP_LAYOUT.railWidth, zIndex: 10,
             pt: 'max(20px, env(safe-area-inset-top))',
-            background: 'rgba(18,17,29,0.6)', backdropFilter: 'blur(24px) saturate(1.4)',
+            background: 'rgba(255,255,255,0.82)', backdropFilter: 'blur(24px) saturate(1.4)',
             borderRight: `1px solid ${tokens.border}`,
           }}
         >
@@ -127,7 +127,7 @@ export function AppShell() {
                   onClick={() => go(path)}
                   sx={{
                     position: 'relative', width: 72, minHeight: 62, border: 0, borderRadius: 4, cursor: 'pointer',
-                    background: 'transparent', color: selected ? '#fff' : 'text.secondary',
+                    background: 'transparent', color: selected ? tokens.violet : 'text.secondary',
                     display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 0.4,
                   }}
                 >
@@ -180,9 +180,9 @@ export function AppShell() {
               bottom: 'calc(10px + env(safe-area-inset-bottom))',
               height: APP_LAYOUT.bottomNavHeight, borderRadius: '26px', px: 0.75,
               display: 'flex', alignItems: 'center',
-              background: 'rgba(22,20,36,0.78)', backdropFilter: 'blur(24px) saturate(1.6)',
+              background: 'rgba(255,255,255,0.88)', backdropFilter: 'blur(24px) saturate(1.6)',
               border: `1px solid ${tokens.borderStrong}`,
-              boxShadow: '0 20px 50px -12px rgba(0,0,0,0.85), inset 0 1px 0 rgba(255,255,255,0.06)',
+              boxShadow: '0 20px 50px -18px rgba(49,39,78,0.4), inset 0 1px 0 rgba(255,255,255,0.9)',
             }}
           >
             {NAVIGATION.map(({ label, path, icon: Icon }) => {
