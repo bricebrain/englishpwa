@@ -3,6 +3,7 @@ import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
 import { AppShell } from '@/components/layout/AppShell';
+import { usePortraitOrientationLock } from '@/hooks/usePortraitOrientationLock';
 
 const HomePage = lazy(() => import('@/pages/HomePage').then((module) => ({ default: module.HomePage })));
 const AssimilLessonPage = lazy(() => import('@/pages/AssimilLessonPage').then((module) => ({ default: module.AssimilLessonPage })));
@@ -21,6 +22,8 @@ const StatisticsPage = lazy(() => import('@/pages/StatisticsPage').then((module)
 const TriagePage = lazy(() => import('@/pages/TriagePage').then((module) => ({ default: module.TriagePage })));
 
 export function App() {
+  usePortraitOrientationLock();
+
   return (
     <Suspense fallback={<Stack minHeight="100dvh" alignItems="center" justifyContent="center"><Box className="shimmer" sx={{ width: 64, height: 64, borderRadius: 4 }} /></Stack>}>
       <Routes>
