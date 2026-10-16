@@ -50,7 +50,8 @@ describe('getPreparedContent', () => {
       return undefined;
     });
     const contenus = await learningApi.getPreparedContent('default');
-    expect(apiRequest).toHaveBeenCalledWith('/content?profileId=default&limit=50', undefined);
+    expect(apiRequest).toHaveBeenCalledWith('/content?profileId=default&limit=50&view=summary', undefined);
+    expect(apiRequest).toHaveBeenCalledWith('/content?profileId=__global__&limit=50&view=summary', undefined);
     expect(contenus.map((c) => c.id)).toEqual(['pourquoi-la-can-va-repasser-tous-les-deux-ans', 'cyber']);
     expect(contenus[0].audioUrl).toBe('/api/audio/prepared-content/pourquoi-la-can-va-repasser-tous-les-deux-ans.mp3');
     expect(contenus[1].durationLabel).toBe('12 min');

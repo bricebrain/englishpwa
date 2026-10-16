@@ -17,6 +17,7 @@ import type {
   LingvistDecision,
   LingvistCard,
   PreparedContent,
+  PreparedContentSummary,
   ReviewGrade,
   SrsSession,
   SrsTriageCandidate,
@@ -37,6 +38,28 @@ interface PreparedContentResponseItem {
   audioR2Key: string | null;
   isFavorite?: boolean;
   createdAt: string;
+  summary?: PreparedContentSummary;
+}
+
+function toPreparedContent(item: PreparedContentResponseItem): PreparedContent {
+  return {
+    id: item.id,
+    profileId: item.profileId,
+    title: item.title ?? 'Contenu sans titre',
+    source: item.topic ?? item.type ?? 'Contenu préparé',
+    durationLabel: String(item.metadata.durationLabel ?? item.metadata.duration ?? 'Audio'),
+    language: String(item.metadata.language ?? 'Anglais'),
+    level: item.level,
+    topic: item.topic,
+    body: item.body,
+    audioR2Key: item.audioR2Key,
+    audioUrl: item.audioR2Key ? resolveApiAsset(`/audio/${item.audioR2Key.split('/').map(encodeURIComponent).join('/')}`) : undefined,
+    metadata: item.metadata,
+    ...(item.summary ? { summary: item.summary } : {}),
+    type: item.type,
+    isFavorite: item.isFavorite,
+    publishedAt: item.createdAt,
+  };
 }
 
 async function localResult<T>(value: T): Promise<T> {
@@ -94,30 +117,24 @@ export const learningApi = {
 
   async getPreparedContent(profileId: string) {
     if (!hasRemoteApi) return localResult(preparedContentMock);
+    // Vue résumée : le détail (segments, chunks, textes) est chargé à l'ouverture
     const [profileData, globalData] = await Promise.all([
-      apiRequest<{ items: PreparedContentResponseItem[] }>(`/content?profileId=${encodeURIComponent(profileId)}&limit=50`),
+      apiRequest<{ items: PreparedContentResponseItem[] }>(`/content?profileId=${encodeURIComponent(profileId)}&limit=50&view=summary`),
       profileId === '__global__'
         ? Promise.resolve({ items: [] as PreparedContentResponseItem[] })
-        : apiRequest<{ items: PreparedContentResponseItem[] }>('/content?profileId=__global__&limit=50'),
+        : apiRequest<{ items: PreparedContentResponseItem[] }>('/content?profileId=__global__&limit=50&view=summary'),
     ]);
     const byId = new Map([...profileData.items, ...globalData.items].map((item) => [item.id, item]));
-    return [...byId.values()].map((item) => ({
-      id: item.id,
-      profileId: item.profileId,
-      title: item.title ?? 'Contenu sans titre',
-      source: item.topic ?? item.type ?? 'Contenu préparé',
-      durationLabel: String(item.metadata.durationLabel ?? item.metadata.duration ?? 'Audio'),
-      language: String(item.metadata.language ?? 'Anglais'),
-      level: item.level,
-      topic: item.topic,
-      body: item.body,
-      audioR2Key: item.audioR2Key,
-      audioUrl: item.audioR2Key ? resolveApiAsset(`/audio/${item.audioR2Key.split('/').map(encodeURIComponent).join('/')}`) : undefined,
-      metadata: item.metadata,
-      type: item.type,
-      isFavorite: item.isFavorite,
-      publishedAt: item.createdAt,
-    }));
+    return [...byId.values()].map(toPreparedContent);
+  },
+
+  async getPreparedContentItem(id: string) {
+    if (!hasRemoteApi) {
+      const item = preparedContentMock.find((entry) => entry.id === id);
+      if (!item) throw new Error('Contenu introuvable');
+      return localResult(item);
+    }
+    return toPreparedContent(await apiRequest<PreparedContentResponseItem>(`/content/${encodeURIComponent(id)}`));
   },
 
   deletePreparedContent(id: string) {

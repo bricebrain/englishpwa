@@ -128,6 +128,17 @@ export interface SrsTriageCandidate {
   frequence: number;
 }
 
+/** Résumé renvoyé par GET /content?view=summary : la liste ne contient ni
+ *  segments, ni chunks, ni textes complets (servis par GET /content/:id). */
+export interface PreparedContentSummary {
+  segmentCount: number;
+  chunkCount: number;
+  grammarPointCount: number;
+  hasTimings: boolean;
+  bodyTruncated: boolean;
+  truncatedKeys: string[];
+}
+
 export interface PreparedContent {
   id: string;
   profileId?: string;
@@ -142,6 +153,8 @@ export interface PreparedContent {
   audioR2Key?: string | null;
   type?: 'story' | 'grammar_note' | 'translation' | 'podcast' | 'course' | 'channel_lesson' | 'daily_podcast' | 'script_audio' | 'youtube_import';
   metadata?: Record<string, unknown>;
+  /** Présent seulement pour un élément de liste résumé (détail à charger). */
+  summary?: PreparedContentSummary;
   isFavorite?: boolean;
   publishedAt: string;
 }

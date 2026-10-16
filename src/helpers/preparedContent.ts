@@ -267,3 +267,28 @@ export function getContentGrammarPoints(item: PreparedContent): ContentGrammarPo
 export function getContentDurationLabel(item: PreparedContent): string | null {
   return metadataText(item, ['durationLabel']);
 }
+
+/* ---------- Liste résumée (GET /content?view=summary) ---------- */
+
+/** Vrai si l'élément vient de la liste résumée : segments, chunks et textes
+ *  complets doivent être chargés avec GET /content/:id. */
+export function isContentSummary(item: PreparedContent): boolean {
+  return Boolean(item.summary);
+}
+
+/** Nombre de segments, chunks et points de grammaire, que l'élément soit
+ *  complet ou résumé. */
+export function getContentCounts(item: PreparedContent) {
+  if (item.summary) {
+    return {
+      segments: item.summary.segmentCount,
+      chunks: item.summary.chunkCount,
+      grammarPoints: item.summary.grammarPointCount,
+    };
+  }
+  return {
+    segments: getContentSegments(item).length,
+    chunks: getContentChunks(item).length,
+    grammarPoints: getContentGrammarPoints(item).length,
+  };
+}

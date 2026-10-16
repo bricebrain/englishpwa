@@ -8,7 +8,8 @@ import ExpandMoreRounded from '@mui/icons-material/ExpandMoreRounded';
 import SchoolOutlined from '@mui/icons-material/SchoolOutlined';
 import TranslateRounded from '@mui/icons-material/TranslateRounded';
 import VolumeUpRounded from '@mui/icons-material/VolumeUpRounded';
-import { Box, Button, Card, CardContent, Chip, Collapse, IconButton, Stack, Typography } from '@mui/material';
+import { Box, Button, Card, CardContent, Chip, CircularProgress, Collapse, IconButton, Stack, Typography } from '@mui/material';
+import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 
@@ -17,6 +18,7 @@ import {
   CHUNK_TYPE_LABELS,
   getContentAudioLanguage,
   getContentChunks,
+  getContentCounts,
   getContentDurationLabel,
   getContentGrammarPoints,
   getContentLanguage,
@@ -24,7 +26,10 @@ import {
   getContentSummary,
   getEnglishScript,
   getFrenchTranslation,
+  isContentSummary,
 } from '@/helpers/preparedContent';
+import { learningApi } from '@/api/learningApi';
+import { usePreparedContentDetail } from '@/hooks/useLearningQueries';
 import type { ContentChunk, ContentGrammarPoint, ContentSegment } from '@/helpers/preparedContent';
 import type { AudioTrack } from '@/hooks/useAudioPlayer';
 import { IconTile } from '@/components/ui/SessionChrome';
@@ -153,12 +158,27 @@ export function PreparedContentCard({ item, player, onDelete }: {
   onDelete: (item: PreparedContent) => void;
 }) {
   const [open, setOpen] = useState<Set<Section>>(new Set());
-  const englishScript = getEnglishScript(item);
-  const frenchTranslation = getFrenchTranslation(item);
-  const segments = getContentSegments(item);
-  const chunks = getContentChunks(item);
-  const grammarPoints = getContentGrammarPoints(item);
+  const queryClient = useQueryClient();
+  // Liste résumée : le détail n'est chargé qu'à l'ouverture d'un panneau.
+  const summaryOnly = isContentSummary(item);
+  const detailQuery = usePreparedContentDetail(item.id, summaryOnly && open.size > 0);
+  const full = summaryOnly ? detailQuery.data ?? null : item;
+  const counts = getContentCounts(item);
+  const englishScript = getEnglishScript(full ?? item);
+  const frenchTranslation = getFrenchTranslation(full ?? item);
+  const segments = full ? getContentSegments(full) : [];
+  const chunks = full ? getContentChunks(full) : [];
+  const grammarPoints = full ? getContentGrammarPoints(full) : [];
   const durationLabel = getContentDurationLabel(item);
+  const detailPending = summaryOnly && open.size > 0 && !full;
+  const speak = async () => {
+    if (full) return speakEnglish(getEnglishScript(full));
+    const detail = await queryClient.fetchQuery({
+      queryKey: ['prepared-content-detail', item.id],
+      queryFn: () => learningApi.getPreparedContentItem(item.id),
+    });
+    speakEnglish(getEnglishScript(detail));
+  };
   const track = item.audioUrl ? { id: item.id, title: item.title, url: item.audioUrl } : null;
   const isOpen = (section: Section) => open.has(section);
   const toggle = (section: Section) => setOpen((current) => {
@@ -197,7 +217,7 @@ export function PreparedContentCard({ item, player, onDelete }: {
           {track ? (
             <AudioPlayerBar track={track} {...player} />
           ) : englishScript ? (
-            <Button variant="outlined" startIcon={<VolumeUpRounded />} onClick={() => speakEnglish(englishScript)}>
+            <Button variant="outlined" startIcon={<VolumeUpRounded />} onClick={() => void speak()}>
               Écouter en synthèse vocale
             </Button>
           ) : (
@@ -206,7 +226,7 @@ export function PreparedContentCard({ item, player, onDelete }: {
         </Box>
 
         <Stack direction="row" gap={1} flexWrap="wrap" useFlexGap mt={1.75}>
-          {segments.length ? (
+          {counts.segments ? (
             <Button size="small" variant={isOpen('bilingual') ? 'contained' : 'outlined'} startIcon={<AutoStoriesRounded />} onClick={() => toggle('bilingual')}>
               Bilingue
             </Button>
@@ -219,39 +239,55 @@ export function PreparedContentCard({ item, player, onDelete }: {
               Traduction
             </Button>
           ) : null}
-          {chunks.length ? (
+          {counts.chunks ? (
             <Button size="small" variant={isOpen('chunks') ? 'contained' : 'outlined'} startIcon={<LightbulbOutlined />} onClick={() => toggle('chunks')}>
-              Chunks · {chunks.length}
+              Chunks · {counts.chunks}
             </Button>
           ) : null}
-          {grammarPoints.length ? (
+          {counts.grammarPoints ? (
             <Button size="small" variant={isOpen('grammar') ? 'contained' : 'outlined'} startIcon={<SchoolOutlined />} onClick={() => toggle('grammar')}>
-              Grammaire · {grammarPoints.length}
+              Grammaire · {counts.grammarPoints}
             </Button>
           ) : null}
         </Stack>
 
-        <Collapse in={isOpen('bilingual')} unmountOnExit>
+        {detailPending ? (
+          <Stack direction="row" alignItems="center" gap={1} mt={2} color="text.secondary">
+            {detailQuery.isError ? (
+              <>
+                <Typography fontSize={13.5}>Impossible de charger le détail.</Typography>
+                <Button size="small" onClick={() => detailQuery.refetch()}>Réessayer</Button>
+              </>
+            ) : (
+              <>
+                <CircularProgress size={16} />
+                <Typography fontSize={13.5}>Chargement du contenu…</Typography>
+              </>
+            )}
+          </Stack>
+        ) : null}
+
+        <Collapse in={!detailPending && isOpen('bilingual')} unmountOnExit>
           <BilingualPanel segments={segments} />
         </Collapse>
 
-        <Collapse in={isOpen('translation')} unmountOnExit>
+        <Collapse in={!detailPending && isOpen('translation')} unmountOnExit>
           <Panel color={tokens.cyan} title="Traduction française">
             <Typography whiteSpace="pre-wrap" lineHeight={1.75} mt={0.5} fontSize={14.5}>{frenchTranslation}</Typography>
           </Panel>
         </Collapse>
 
-        <Collapse in={isOpen('script')} unmountOnExit>
+        <Collapse in={!detailPending && isOpen('script')} unmountOnExit>
           <Panel color={tokens.violet} title="Script anglais">
             <Typography whiteSpace="pre-wrap" lineHeight={1.85} mt={0.5} fontSize={15.5}>{englishScript}</Typography>
           </Panel>
         </Collapse>
 
-        <Collapse in={isOpen('chunks')} unmountOnExit>
+        <Collapse in={!detailPending && isOpen('chunks')} unmountOnExit>
           <ChunksPanel chunks={chunks} />
         </Collapse>
 
-        <Collapse in={isOpen('grammar')} unmountOnExit>
+        <Collapse in={!detailPending && isOpen('grammar')} unmountOnExit>
           <GrammarPanel points={grammarPoints} />
         </Collapse>
       </CardContent>

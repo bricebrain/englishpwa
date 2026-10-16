@@ -22,6 +22,17 @@ export function usePreparedContent() {
   });
 }
 
+/** Détail complet d'un contenu préparé, chargé seulement quand `enabled`. */
+export function usePreparedContentDetail(id: string, enabled: boolean) {
+  return useQuery({
+    queryKey: ['prepared-content-detail', id],
+    queryFn: () => learningApi.getPreparedContentItem(id),
+    enabled,
+    staleTime: 5 * 60 * 1000,
+    retry: 1,
+  });
+}
+
 export function useStatistics() {
   const { preferences } = usePreferences();
   return useQuery({
