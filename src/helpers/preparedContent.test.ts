@@ -47,8 +47,8 @@ describe('preparedContent — contenus bilingues de l’atelier', () => {
 
   it('lit les segments appariés et ignore les segments vides', () => {
     expect(getContentSegments(atelier)).toEqual([
-      { id: 's001', en: 'Hello everyone.', fr: 'Bonjour à tous.' },
-      { id: 's002', en: 'We need to figure it out.', fr: 'Nous devons comprendre.' },
+      { id: 's001', en: 'Hello everyone.', fr: 'Bonjour à tous.', startMs: null, endMs: null },
+      { id: 's002', en: 'We need to figure it out.', fr: 'Nous devons comprendre.', startMs: null, endMs: null },
     ]);
   });
 

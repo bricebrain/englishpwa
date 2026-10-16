@@ -1,4 +1,5 @@
 import AutoStoriesRounded from '@mui/icons-material/AutoStoriesRounded';
+import OpenInNewRounded from '@mui/icons-material/OpenInNewRounded';
 import DeleteOutlineRounded from '@mui/icons-material/DeleteOutlineRounded';
 import GraphicEqRounded from '@mui/icons-material/GraphicEqRounded';
 import LightbulbOutlined from '@mui/icons-material/LightbulbOutlined';
@@ -8,7 +9,7 @@ import ExpandMoreRounded from '@mui/icons-material/ExpandMoreRounded';
 import SchoolOutlined from '@mui/icons-material/SchoolOutlined';
 import TranslateRounded from '@mui/icons-material/TranslateRounded';
 import VolumeUpRounded from '@mui/icons-material/VolumeUpRounded';
-import { Box, Button, Card, CardContent, Chip, CircularProgress, Collapse, IconButton, Stack, Typography } from '@mui/material';
+import { Box, Button, ButtonBase, Card, CardContent, Chip, CircularProgress, Collapse, IconButton, Link, Stack, Typography } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import type { ReactNode } from 'react';
@@ -16,6 +17,8 @@ import type { ReactNode } from 'react';
 import { AudioPlayerBar } from '@/components/audio/AudioPlayerBar';
 import {
   CHUNK_TYPE_LABELS,
+  findActiveSegmentId,
+  getAudioVoiceLabel,
   getContentAudioLanguage,
   getContentChunks,
   getContentCounts,
@@ -26,7 +29,10 @@ import {
   getContentSummary,
   getEnglishScript,
   getFrenchTranslation,
+  getSourceKindLabel,
+  getSourceLink,
   isContentSummary,
+  isTextOnlyContent,
 } from '@/helpers/preparedContent';
 import { learningApi } from '@/api/learningApi';
 import { usePreparedContentDetail } from '@/hooks/useLearningQueries';
@@ -78,16 +84,34 @@ function SpeakButton({ text }: { text: string }) {
   );
 }
 
-function BilingualPanel({ segments }: { segments: ContentSegment[] }) {
+function BilingualPanel({ segments, activeId, onSelect }: {
+  segments: ContentSegment[];
+  /** Segment en cours de lecture (surlignage via timeupdate). */
+  activeId: string | null;
+  /** Positionne la lecture au début d'un segment horodaté. */
+  onSelect?: (segment: ContentSegment) => void;
+}) {
   return (
     <Panel color={tokens.violet} title="Lecture bilingue">
       <Stack mt={0.75} divider={<Box sx={{ borderTop: `1px solid ${tokens.border}` }} />}>
-        {segments.map((segment) => (
-          <Box key={segment.id} py={1.1}>
-            <Typography lineHeight={1.7} fontSize={15.5}>{segment.en}</Typography>
-            {segment.fr ? <Typography lineHeight={1.6} fontSize={13.5} color="text.secondary" mt={0.35}>{segment.fr}</Typography> : null}
-          </Box>
-        ))}
+        {segments.map((segment) => {
+          const active = segment.id === activeId;
+          const content = (
+            <>
+              <Typography lineHeight={1.7} fontSize={15.5} fontWeight={active ? 650 : undefined}>{segment.en}</Typography>
+              {segment.fr ? <Typography lineHeight={1.6} fontSize={13.5} color="text.secondary" mt={0.35}>{segment.fr}</Typography> : null}
+            </>
+          );
+          const sx = { py: 1.1, px: 1, mx: -1, borderRadius: 2, textAlign: 'left', display: 'block', width: 'calc(100% + 16px)',
+            background: active ? 'rgba(139,108,255,0.12)' : 'transparent', transition: 'background 160ms' } as const;
+          return onSelect && segment.startMs !== null ? (
+            <ButtonBase key={segment.id} onClick={() => onSelect(segment)} aria-current={active ? 'true' : undefined} sx={sx}>
+              {content}
+            </ButtonBase>
+          ) : (
+            <Box key={segment.id} aria-current={active ? 'true' : undefined} sx={sx}>{content}</Box>
+          );
+        })}
       </Stack>
     </Panel>
   );
@@ -180,6 +204,15 @@ export function PreparedContentCard({ item, player, onDelete }: {
     speakEnglish(getEnglishScript(detail));
   };
   const track = item.audioUrl ? { id: item.id, title: item.title, url: item.audioUrl } : null;
+  const voiceLabel = getAudioVoiceLabel(item);
+  const sourceKind = getSourceKindLabel(item);
+  const sourceLink = getSourceLink(item);
+  const isActiveTrack = Boolean(track && player.activeTrack?.id === track.id);
+  const activeSegmentId = isActiveTrack ? findActiveSegmentId(segments, player.currentTime * 1000) : null;
+  // Toucher un segment horodaté y positionne la lecture en cours de cette piste
+  const selectSegment = isActiveTrack ? (segment: ContentSegment) => {
+    if (segment.startMs !== null) player.onSeek(segment.startMs / 1000);
+  } : undefined;
   const isOpen = (section: Section) => open.has(section);
   const toggle = (section: Section) => setOpen((current) => {
     const next = new Set(current);
@@ -196,11 +229,13 @@ export function PreparedContentCard({ item, player, onDelete }: {
           <Box minWidth={0} flex={1}>
             <Typography variant="h3" lineHeight={1.3}>{item.title}</Typography>
             <Stack direction="row" gap={0.5} flexWrap="wrap" useFlexGap mt={0.75}>
-              <Chip size="small" label={TYPE_LABELS[item.type ?? ''] ?? item.type ?? 'Contenu'} sx={{ background: 'rgba(139,108,255,0.15)', color: tokens.violetSoft }} />
+              <Chip size="small" label={sourceKind ?? TYPE_LABELS[item.type ?? ''] ?? item.type ?? 'Contenu'} sx={{ background: 'rgba(139,108,255,0.15)', color: tokens.violetSoft }} />
+              {voiceLabel ? <Chip size="small" variant="outlined" label={voiceLabel} /> : null}
+              {isTextOnlyContent(item) ? <Chip size="small" variant="outlined" label="Texte seul" /> : null}
               {item.level ? <Chip size="small" label={item.level} /> : null}
-              {durationLabel ? <Chip size="small" label={durationLabel} /> : null}
+              {durationLabel && !(isTextOnlyContent(item) && durationLabel === 'Texte') ? <Chip size="small" label={durationLabel} /> : null}
               {getContentLanguage(item) ? <Chip size="small" label={getContentLanguage(item)} /> : null}
-              {getContentAudioLanguage(item) ? <Chip size="small" label={`audio ${getContentAudioLanguage(item)}`} /> : null}
+              {!isTextOnlyContent(item) && getContentAudioLanguage(item) ? <Chip size="small" label={`audio ${getContentAudioLanguage(item)}`} /> : null}
               {item.topic ?? item.source ? <Chip size="small" label={item.topic ?? item.source} /> : null}
             </Stack>
           </Box>
@@ -212,6 +247,11 @@ export function PreparedContentCard({ item, player, onDelete }: {
         <Typography color="text.secondary" lineHeight={1.65} mt={1.75} fontSize={14.5}>
           {getContentSummary(item, isOpen('script') ? 600 : 200)}
         </Typography>
+        {sourceLink ? (
+          <Link href={sourceLink} target="_blank" rel="noopener noreferrer" fontSize={13} sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, mt: 0.75 }}>
+            Voir la source <OpenInNewRounded sx={{ fontSize: 14 }} />
+          </Link>
+        ) : null}
 
         <Box mt={2}>
           {track ? (
@@ -268,7 +308,7 @@ export function PreparedContentCard({ item, player, onDelete }: {
         ) : null}
 
         <Collapse in={!detailPending && isOpen('bilingual')} unmountOnExit>
-          <BilingualPanel segments={segments} />
+          <BilingualPanel segments={segments} activeId={activeSegmentId} onSelect={selectSegment} />
         </Collapse>
 
         <Collapse in={!detailPending && isOpen('translation')} unmountOnExit>

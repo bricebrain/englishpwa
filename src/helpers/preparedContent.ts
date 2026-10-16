@@ -174,6 +174,9 @@ export interface ContentSegment {
   id: string;
   en: string;
   fr: string | null;
+  /** Timings propres à l'audio publié (null : pas d'horodatage). */
+  startMs: number | null;
+  endMs: number | null;
 }
 
 export interface ContentChunk {
@@ -218,11 +221,15 @@ function metadataList(item: PreparedContent, key: string): MetadataRecord[] {
     : [];
 }
 
+function timing(value: unknown): number | null {
+  return typeof value === 'number' && Number.isFinite(value) && value >= 0 ? value : null;
+}
+
 export function getContentSegments(item: PreparedContent): ContentSegment[] {
   return metadataList(item, 'segments').flatMap((entry, index) => {
     const en = clean(entry.en);
     if (!en) return [];
-    return [{ id: clean(entry.id) ?? `s${index + 1}`, en, fr: clean(entry.fr) }];
+    return [{ id: clean(entry.id) ?? `s${index + 1}`, en, fr: clean(entry.fr), startMs: timing(entry.startMs), endMs: timing(entry.endMs) }];
   });
 }
 
@@ -291,4 +298,52 @@ export function getContentCounts(item: PreparedContent) {
     chunks: getContentChunks(item).length,
     grammarPoints: getContentGrammarPoints(item).length,
   };
+}
+
+/* ---------- Source, voix et horodatage (LOT 1) ---------- */
+
+/** Badge de la voix : authentique ou synthèse Kokoro ; null sans audio. */
+export function getAudioVoiceLabel(item: PreparedContent): string | null {
+  if (!hasContentAudio(item)) return null;
+  const origin = item.metadata?.audioOrigin;
+  if (origin === 'kokoro_tts') return 'Kokoro — voix de synthèse';
+  if (origin === 'original') return 'Voix authentique';
+  return null;
+}
+
+const SOURCE_KIND_LABELS: Record<string, string> = {
+  article: 'Article',
+  transcript: 'Transcription',
+  personal_output: 'Production personnelle',
+  other: 'Texte',
+};
+
+/** Nature de la source : vidéo, article, texte, production personnelle. */
+export function getSourceKindLabel(item: PreparedContent): string | null {
+  const sourceType = clean(item.metadata?.sourceType);
+  const contentType = clean(item.metadata?.contentType);
+  if (sourceType === 'personal_transcript') return 'Production personnelle';
+  if (sourceType === 'article_url' || sourceType === 'pasted_text') return SOURCE_KIND_LABELS[contentType ?? 'other'] ?? 'Texte';
+  if (sourceType === 'youtube') return 'Vidéo';
+  return null;
+}
+
+/** Lien de provenance, seulement s'il est en http(s). */
+export function getSourceLink(item: PreparedContent): string | null {
+  const url = clean(item.metadata?.sourceUrl);
+  return url && /^https?:\/\//i.test(url) ? url : null;
+}
+
+/** Contenu lisible sans piste audio (texte importé). */
+export function isTextOnlyContent(item: PreparedContent): boolean {
+  return !hasContentAudio(item);
+}
+
+/** Segment en cours de lecture (timeupdate), ou null hors timings. */
+export function findActiveSegmentId(segments: ContentSegment[], currentMs: number): string | null {
+  for (const segment of segments) {
+    if (segment.startMs === null || segment.endMs === null) continue;
+    if (currentMs >= segment.startMs && currentMs < segment.endMs) return segment.id;
+  }
+  return null;
 }
