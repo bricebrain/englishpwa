@@ -43,10 +43,13 @@ function normalizeAnalysis(raw: Record<string, unknown>, fallback: LingvistAnaly
   };
 }
 
-export async function analyzeLingvistAnswer(card: LingvistCard, answer: string): Promise<LingvistAnalysis> {
-  const local = analyzeAnswerLocally(card, answer);
-  if (!hasRemoteApi || local.result !== 'fail') return local;
+interface WorkerAnalysisResponse {
+  analysis?: Record<string, unknown>;
+  provider?: string;
+}
 
+/** Ancien chemin : DeepSeek appelé directement via le proxy du Worker. */
+async function analyzeWithDeepSeekProxy(card: LingvistCard, answer: string, local: LingvistAnalysis): Promise<LingvistAnalysis> {
   const prompt = [
     'Exercice de vocabulaire anglais : compléter uniquement le mot manquant.',
     `Niveau : ${card.level}`,
@@ -60,21 +63,54 @@ export async function analyzeLingvistAnswer(card: LingvistCard, answer: string):
     '{"result":"success|almost|fail","score":0.0,"shortFeedback":"...","explanation":"...","examples":["..."],"commonMistakes":["..."],"usageCases":["..."]}',
   ].join('\n');
 
+  const response = await apiRequest<ChatCompletionResponse>('/proxy/deepseek/v1/chat/completions', {
+    method: 'POST',
+    body: JSON.stringify({
+      model: 'deepseek-v4-flash',
+      temperature: 0.1,
+      messages: [
+        { role: 'system', content: 'Tu corriges un mot anglais en contexte. Réponds seulement en JSON valide.' },
+        { role: 'user', content: prompt },
+      ],
+    }),
+  });
+  const content = response.choices?.[0]?.message?.content;
+  const parsed = content ? extractJson(content) : null;
+  return parsed ? normalizeAnalysis(parsed, local) : local;
+}
+
+/**
+ * Analyse d'une réponse jugée fausse localement :
+ * 1. route Worker /lingvist/analyze (Workers AI, DeepSeek en secours côté Worker) ;
+ * 2. si elle est indisponible (Worker plus ancien), appel DeepSeek historique ;
+ * 3. à défaut, l'analyse locale.
+ */
+export async function analyzeLingvistAnswer(card: LingvistCard, answer: string): Promise<LingvistAnalysis> {
+  const local = analyzeAnswerLocally(card, answer);
+  if (!hasRemoteApi || local.result !== 'fail') return local;
+
   try {
-    const response = await apiRequest<ChatCompletionResponse>('/proxy/deepseek/v1/chat/completions', {
+    const response = await apiRequest<WorkerAnalysisResponse>('/lingvist/analyze', {
       method: 'POST',
       body: JSON.stringify({
-        model: 'deepseek-v4-flash',
-        temperature: 0.1,
-        messages: [
-          { role: 'system', content: 'Tu corriges un mot anglais en contexte. Réponds seulement en JSON valide.' },
-          { role: 'user', content: prompt },
-        ],
+        answer,
+        card: {
+          level: card.level,
+          expectedAnswer: card.expectedAnswer,
+          wordTraductionFr: card.wordTraductionFr,
+          translationFr: card.translationFr,
+          sentenceFull: card.sentenceFull,
+          grammarHint: card.grammarHint,
+        },
       }),
     });
-    const content = response.choices?.[0]?.message?.content;
-    const parsed = content ? extractJson(content) : null;
-    return parsed ? normalizeAnalysis(parsed, local) : local;
+    if (response?.analysis) return normalizeAnalysis(response.analysis, local);
+  } catch {
+    // Route absente ou fournisseurs indisponibles : on tente l'ancien chemin.
+  }
+
+  try {
+    return await analyzeWithDeepSeekProxy(card, answer, local);
   } catch {
     return local;
   }
