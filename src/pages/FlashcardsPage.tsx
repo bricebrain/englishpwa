@@ -10,6 +10,8 @@ import { QueryState } from '@/components/common/QueryState';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { MotionBox } from '@/components/ui/motion';
 import { CelebrationCard, SessionHeader } from '@/components/ui/SessionChrome';
+import { WordEnrichmentDetails } from '@/components/vocabulary/WordEnrichmentDetails';
+import { getVocabularyExamples, getVocabularyPartOfSpeechLabel } from '@/helpers/vocabularyDisplay';
 import { useCombo } from '@/hooks/useCombo';
 import { useFlashcardSession } from '@/hooks/useFlashcardSession';
 import { feedback } from '@/services/feedbackService';
@@ -32,16 +34,18 @@ export function FlashcardsPage() {
   const word = session.currentWord;
   const showBack = session.flipped || Boolean(session.result);
   const glow = session.result ? RESULT_COLORS[session.result] : null;
+  const example = word ? getVocabularyExamples(word)[0] : undefined;
+  const partOfSpeech = word ? getVocabularyPartOfSpeechLabel(word) : null;
 
   useEffect(() => {
     if (!session.result || !word) return;
     const key = `${word.id}-${session.done}`;
     if (handled.current === key) return;
     handled.current = key;
-    if (session.result === 'success') { successCount.current += 1; combo.hit(word.mot); }
+    if (session.result === 'success') { successCount.current += 1; combo.hit(session.spokenWord); }
     else if (session.result === 'almost') combo.almost();
     else combo.miss();
-  }, [combo, session.done, session.result, word]);
+  }, [combo, session.done, session.result, session.spokenWord, word]);
 
   const finished = !session.isLoading && !word && session.done > 0;
 
@@ -112,7 +116,10 @@ export function FlashcardsPage() {
                 >
                   <CardFace>
                     <Stack direction="row" justifyContent="space-between" alignItems="center">
-                      <Chip label={word.niveau} size="small" sx={{ background: gradients.primary, color: '#fff' }} />
+                      <Stack direction="row" gap={0.75}>
+                        <Chip label={word.niveau} size="small" sx={{ background: gradients.primary, color: '#fff' }} />
+                        {partOfSpeech ? <Chip label={partOfSpeech} size="small" /> : null}
+                      </Stack>
                       <Typography color="text.disabled" fontSize={12} fontWeight={700}>{session.direction === 'en-to-fr' ? 'Anglais' : 'Français'}</Typography>
                     </Stack>
                     <Box flex={1} display="grid" sx={{ placeItems: 'center' }}>
@@ -124,7 +131,7 @@ export function FlashcardsPage() {
                         {session.direction === 'en-to-fr' ? (
                           <IconButton
                             aria-label="Écouter le mot"
-                            onClick={(event) => { event.stopPropagation(); speakEnglish(word.mot); }}
+                            onClick={(event) => { event.stopPropagation(); speakEnglish(session.spokenWord); }}
                             sx={{ mt: 1.5, background: 'rgba(139,108,255,0.15)', color: tokens.violetSoft, width: 52, height: 52 }}
                           >
                             <VolumeUpRounded />
@@ -153,10 +160,10 @@ export function FlashcardsPage() {
                         {session.answer && session.result && session.result !== 'success' ? (
                           <Typography color="text.secondary" mt={1} sx={{ textDecoration: 'line-through' }}>{session.answer}</Typography>
                         ) : null}
-                        {word.exemple_en ? (
+                        {example ? (
                           <Box mt={2}>
-                            <Typography fontSize={15} fontStyle="italic">{word.exemple_en}</Typography>
-                            <Typography fontSize={13} color="text.secondary">{word.exemple_fr}</Typography>
+                            <Typography fontSize={15} fontStyle="italic">{example.en}</Typography>
+                            {example.fr ? <Typography fontSize={13} color="text.secondary">{example.fr}</Typography> : null}
                           </Box>
                         ) : null}
                       </Box>
@@ -169,6 +176,15 @@ export function FlashcardsPage() {
               </MotionBox>
             </AnimatePresence>
           </Box>
+
+          {/* Les autres sens ne sont montrés qu'après la réponse, pour ne pas la souffler. */}
+          <AnimatePresence initial={false}>
+            {showBack ? (
+              <MotionBox key={`details-${word.id}-${session.done}`} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+                <WordEnrichmentDetails word={word} skipFirstSense />
+              </MotionBox>
+            ) : null}
+          </AnimatePresence>
 
           {!session.result && !session.flipped ? (
             <InputBase

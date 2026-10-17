@@ -11,6 +11,12 @@ import { PageLayout } from '@/components/layout/PageLayout';
 import { AnimatedNumber, MotionBox, Pressable } from '@/components/ui/motion';
 import { SessionHeader } from '@/components/ui/SessionChrome';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
+import {
+  getVocabularyDisplayForm,
+  getVocabularyLemma,
+  getVocabularyPartOfSpeechLabel,
+  getVocabularyTranslation,
+} from '@/helpers/vocabularyDisplay';
 import { useTriageSession, type TriageAction } from '@/hooks/useTriageSession';
 import { celebrate, feedback } from '@/services/feedbackService';
 import { awardXp } from '@/services/xpService';
@@ -30,6 +36,7 @@ function SwipeCard({ candidate, showTranslation, onToggle, onDecide, exitDirecti
 }) {
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-220, 220], [-16, 16]);
+  const partOfSpeech = getVocabularyPartOfSpeechLabel(candidate);
   const knownOpacity = useTransform(x, [20, SWIPE_THRESHOLD], [0, 1]);
   const focusOpacity = useTransform(x, [-SWIPE_THRESHOLD, -20], [1, 0]);
   const [dragging, setDragging] = useState(false);
@@ -69,13 +76,13 @@ function SwipeCard({ candidate, showTranslation, onToggle, onDecide, exitDirecti
 
       <Stack direction="row" gap={0.75} justifyContent="center">
         <Chip label={candidate.niveau} size="small" sx={{ background: gradients.primary, color: '#fff' }} />
-        {candidate.type ? <Chip label={candidate.type} size="small" /> : null}
+        {partOfSpeech ? <Chip label={partOfSpeech} size="small" /> : null}
       </Stack>
 
       <Box flex={1} display="grid" sx={{ placeItems: 'center' }}>
         <Box textAlign="center">
           <Typography fontFamily={displayFont} fontSize={{ xs: 44, sm: 54 }} fontWeight={800} letterSpacing="-0.03em" lineHeight={1.05}>
-            {candidate.mot}
+            {getVocabularyDisplayForm(candidate)}
           </Typography>
           <Stack direction="row" gap={0.4} justifyContent="center" mt={1.5} aria-label={`Fréquence ${candidate.frequence} sur 5`}>
             {Array.from({ length: 5 }, (_, index) => (
@@ -86,7 +93,7 @@ function SwipeCard({ candidate, showTranslation, onToggle, onDecide, exitDirecti
             <AnimatePresence mode="wait">
               {showTranslation ? (
                 <MotionBox key="fr" initial={{ opacity: 0, y: 10, filter: 'blur(6px)' }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }} exit={{ opacity: 0 }}>
-                  <Typography fontSize={22} fontWeight={700} color={tokens.violetSoft}>{candidate.traduction ?? 'Traduction indisponible'}</Typography>
+                  <Typography fontSize={22} fontWeight={700} color={tokens.violetSoft}>{getVocabularyTranslation(candidate) ?? 'Traduction indisponible'}</Typography>
                 </MotionBox>
               ) : (
                 <MotionBox key="hint" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -183,7 +190,7 @@ export function TriagePage() {
 
           <Stack direction="row" justifyContent="center" alignItems="center" gap={3} mt={4}>
             <RoundAction label="À apprendre" color={tokens.amber} size={68} onClick={() => decide(top, 'focus')}><FlagRounded /></RoundAction>
-            <RoundAction label="Écouter et voir la traduction" color={tokens.violetSoft} size={52} onClick={() => { speakEnglish(top.mot); if (!triage.visibleTranslations.has(top.id)) triage.toggleTranslation(top.id); }}>
+            <RoundAction label="Écouter et voir la traduction" color={tokens.violetSoft} size={52} onClick={() => { speakEnglish(getVocabularyLemma(top)); if (!triage.visibleTranslations.has(top.id)) triage.toggleTranslation(top.id); }}>
               <VisibilityRounded />
             </RoundAction>
             <RoundAction label="Je connais" color={tokens.mint} size={68} onClick={() => decide(top, 'known')}><CheckRounded /></RoundAction>

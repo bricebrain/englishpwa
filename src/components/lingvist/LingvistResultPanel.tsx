@@ -9,6 +9,7 @@ import { Accordion, AccordionDetails, AccordionSummary, Box, Stack, Typography }
 
 import { MotionBox } from '@/components/ui/motion';
 import { ResultPanel } from '@/components/ui/SessionChrome';
+import { WordEnrichmentDetails } from '@/components/vocabulary/WordEnrichmentDetails';
 import { gradients, tokens } from '@/theme';
 import type { LingvistCard, LingvistDecision } from '@/types/learning';
 
@@ -53,6 +54,16 @@ export function LingvistResultPanel({ card, answer, decision }: {
         {card.wordTraductionFr ? <Typography fontSize={14} color={tokens.violetSoft} fontWeight={700}>= {card.wordTraductionFr}</Typography> : null}
         <Typography fontSize={14} fontStyle="italic" color="text.secondary" mt={0.75}>{card.translationFr}</Typography>
       </ResultPanel>
+
+      {card.srsWord ? (
+        <WordEnrichmentDetails
+          word={card.srsWord}
+          senseKey={card.senseKey}
+          maxSenses={card.senseKey ? 1 : 0}
+          maxCollocations={2}
+          title={card.senseKey ? 'Le sens dans cette phrase' : 'Expressions utiles'}
+        />
+      ) : null}
 
       <Box sx={{ p: 1.75, borderRadius: 4, background: 'rgba(49,39,78,0.035)', border: `1px solid ${tokens.border}` }}>
         <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>

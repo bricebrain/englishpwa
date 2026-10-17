@@ -1,7 +1,7 @@
 export type RecallResult = 'success' | 'almost' | 'fail';
 
 function normalize(value: string) {
-  return value.toLocaleLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9' -]/g, '').trim();
+  return value.toLocaleLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9' -]/g, '').replace(/\s+/g, ' ').trim();
 }
 
 function distance(left: string, right: string): number {
@@ -18,10 +18,17 @@ function distance(left: string, right: string): number {
   return row[right.length]!;
 }
 
-export function evaluateRecall(answer: string, expected: string): RecallResult {
+/**
+ * Compare une réponse à une liste de réponses acceptables (chacune prise telle
+ * quelle). L'ancienne forme — une chaîne « a, b ; c » à découper — reste
+ * acceptée pour compatibilité.
+ */
+export function evaluateRecall(answer: string, acceptedAnswers: string[] | string): RecallResult {
   const value = normalize(answer);
   if (!value) return 'fail';
-  const accepted = expected.split(/[,;/]|\bou\b/i).map(normalize).filter(Boolean);
+  const accepted = (Array.isArray(acceptedAnswers) ? acceptedAnswers : acceptedAnswers.split(/[,;/]|\bou\b/i))
+    .map(normalize)
+    .filter(Boolean);
   if (accepted.includes(value)) return 'success';
   if (accepted.some((candidate) => candidate.length >= 4 && distance(value, candidate) <= 1)) return 'almost';
   return 'fail';

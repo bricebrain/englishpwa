@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { learningApi } from '@/api/learningApi';
 import { analyzeLingvistAnswer } from '@/api/lingvistAnalysisApi';
 import { buildLingvistDecision } from '@/helpers/lingvistAnalysis';
+import { getVocabularyExamples, getVocabularyLemma } from '@/helpers/vocabularyDisplay';
 import { usePreferences } from '@/hooks/usePreferences';
 import { clearLingvistProgress, loadLingvistProgress, saveLingvistProgress } from '@/services/sessionStorageService';
 import type { LingvistCard, LingvistDecision } from '@/types/learning';
@@ -12,17 +13,31 @@ function escapeRegex(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
+/**
+ * Variante de phrase : exemples des sens enrichis puis exemples historiques.
+ * Le trou remplace la forme exigée par la phrase ; si seul le lemme y figure,
+ * c'est cette forme-là qui devient la réponse attendue (jamais « to + verbe »).
+ */
 function buildVariant(card: LingvistCard, variantIndex: number): LingvistCard {
-  const examples = card.srsWord?.examples ?? [];
-  const example = examples[variantIndex % Math.max(1, examples.length)];
-  if (!example || example.en === card.sentenceFull) return card;
-  const answerPattern = new RegExp(`\\b${escapeRegex(card.expectedAnswer)}\\b`, 'i');
-  const lemmaPattern = new RegExp(`\\b${escapeRegex(card.lemma)}\\b`, 'i');
-  const sentenceWithGap = answerPattern.test(example.en)
-    ? example.en.replace(answerPattern, '____')
-    : example.en.replace(lemmaPattern, '____');
-  if (!sentenceWithGap.includes('____')) return card;
-  return { ...card, id: `${card.id}-variant-${variantIndex}`, sentenceFull: example.en, sentenceWithGap, translationFr: example.fr };
+  if (variantIndex <= 0) return card; // la phrase préparée par le Worker passe en premier
+  const examples = getVocabularyExamples(card.srsWord).filter((item) => item.en !== card.sentenceFull);
+  const example = examples[(variantIndex - 1) % Math.max(1, examples.length)];
+  if (!example) return card;
+  const lemma = card.srsWord ? getVocabularyLemma(card.srsWord) : card.lemma;
+  const patterns = [card.expectedAnswer, card.lemma, lemma]
+    .filter(Boolean)
+    .map((value) => new RegExp(`\\b${escapeRegex(value)}\\b`, 'i'));
+  const pattern = patterns.find((candidate) => candidate.test(example.en));
+  const match = pattern ? example.en.match(pattern)?.[0] : undefined;
+  if (!pattern || !match) return card;
+  return {
+    ...card,
+    id: `${card.id}-variant-${variantIndex}`,
+    sentenceFull: example.en,
+    sentenceWithGap: example.en.replace(pattern, '____'),
+    translationFr: example.fr || card.translationFr,
+    expectedAnswer: match.toLocaleLowerCase('en') === card.expectedAnswer.toLocaleLowerCase('en') ? card.expectedAnswer : match,
+  };
 }
 
 export function useLingvistSession() {

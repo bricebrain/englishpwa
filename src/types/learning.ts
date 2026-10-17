@@ -1,3 +1,5 @@
+import type { VocabularyEnrichmentDto } from '@/types/vocabulary';
+
 export interface LearningProfile {
   id: string;
   name: string;
@@ -28,6 +30,8 @@ export interface LingvistCard {
   sentenceFull: string;
   translationFr: string;
   wordTraductionFr?: string;
+  /** Sens visé par la phrase, si le Worker le transmet. */
+  senseKey?: string;
   grammarHint: string;
   level: LearningProfile['level'];
   source?: 'remote' | 'local';
@@ -110,6 +114,7 @@ export interface SrsWord {
   fail_count: number;
   level: number;
   status: 'new' | 'learning' | 'known';
+  enrichment?: VocabularyEnrichmentDto | null;
 }
 
 export interface SrsSession {
@@ -126,6 +131,7 @@ export interface SrsTriageCandidate {
   niveau: string;
   type: string | null;
   frequence: number;
+  enrichment?: VocabularyEnrichmentDto | null;
 }
 
 /** Résumé renvoyé par GET /content?view=summary : la liste ne contient ni

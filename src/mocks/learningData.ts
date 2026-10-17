@@ -4,6 +4,7 @@ import type {
   PreparedContent,
   StatisticsData,
 } from '@/types/learning';
+import { srsWordsMock } from '@/mocks/srsData';
 
 export const dashboardMock: DashboardData = {
   reviewedToday: 8,
@@ -16,6 +17,21 @@ export const dashboardMock: DashboardData = {
 };
 
 export const lingvistCardsMock: LingvistCard[] = [
+  {
+    id: 'lingvist-range',
+    wordId: 'w-range',
+    lemma: 'range',
+    targetPos: 'verb',
+    expectedAnswer: 'range',
+    sentenceWithGap: 'Prices ____ from 10 to 20 euros.',
+    sentenceFull: 'Prices range from 10 to 20 euros.',
+    translationFr: 'Les prix vont de 10 à 20 euros.',
+    wordTraductionFr: 'aller de… à…',
+    senseKey: 'vary-between-limits',
+    grammarHint: 'Verbe au présent après un sujet pluriel',
+    level: 'B1',
+    srsWord: srsWordsMock[0],
+  },
   {
     id: 'lingvist-withstand',
     lemma: 'withstand',

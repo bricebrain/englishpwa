@@ -14,6 +14,7 @@ vi.mock('@/api/httpClient', () => ({
 }));
 
 const { learningApi } = await import('@/api/learningApi');
+const { rangeEnrichmentMock } = await import('@/mocks/srsData');
 const { getEnglishScript, getFrenchTranslation, getContentSegments, getContentChunks, isEnglishContent } = await import('@/helpers/preparedContent');
 
 // Contenu publié par l'ancien atelier (avant le format bilingue) : forme réelle
@@ -105,5 +106,71 @@ describe('Révisions SRS envoyées au Worker', () => {
     });
     const tableau = await learningApi.getDashboard('default');
     expect(tableau).toMatchObject({ dueCount: 3, preparedContentCount: 7 });
+  });
+});
+
+describe('Vocabulaire enrichi joint par le Worker', () => {
+  const motEnrichi = { id: 'range_1879', mot: 'range', traduction: 'intervalle', niveau: 'B1', type: 'word', enrichment: rangeEnrichmentMock };
+  const motHistorique = { id: 'still_0609', mot: 'still', traduction: 'encore', niveau: 'B1', type: 'word' };
+  const carte = (wordId: string, wordTraductionFr?: string) => ({
+    id: `card-${wordId}`, wordId, lemma: wordId.split('_')[0], expectedAnswer: 'range', sentenceWithGap: 'Prices ____ from 10 to 20.',
+    sentenceFull: 'Prices range from 10 to 20.', translationFr: 'Les prix vont de 10 à 20.', grammarHint: '', level: 'B1',
+    ...(wordTraductionFr === undefined ? {} : { wordTraductionFr }),
+  });
+
+  it('/srs/session conserve enrichment, et un mot sans enrichissement reste accepté', async () => {
+    apiRequest.mockResolvedValueOnce({ words: [motEnrichi, motHistorique], reviewHistory: {}, dueCount: 1, newCount: 1 });
+    const session = await learningApi.getSrsSession('default');
+    expect(session.words[0]?.enrichment?.displayForm).toBe('to range');
+    expect(session.words[1]?.enrichment).toBeUndefined();
+  });
+
+  it('/srs/triage conserve enrichment', async () => {
+    apiRequest.mockResolvedValueOnce({ words: [{ ...motEnrichi, frequence: 4 }, { ...motHistorique, frequence: 5 }] });
+    const candidats = await learningApi.getTriageCandidates('default');
+    expect(candidats[0]?.enrichment?.lemma).toBe('range');
+    expect(candidats[1]?.enrichment).toBeUndefined();
+  });
+
+  it('/lingvist/session utilise la traduction enrichie en repli et garde enrichment dans srsWord', async () => {
+    apiRequest.mockResolvedValueOnce({ cards: [carte('range_1879')], words: [motEnrichi] });
+    const [card] = await learningApi.getLingvistCards('default');
+    expect(card?.wordTraductionFr).toBe('aller de… à…');
+    expect(card?.srsWord?.enrichment?.version).toBe(1);
+  });
+
+  it('/lingvist/session corrige une ancienne carte préparée avec la traduction historique', async () => {
+    apiRequest.mockResolvedValueOnce({ cards: [carte('range_1879', 'intervalle')], words: [motEnrichi] });
+    const [card] = await learningApi.getLingvistCards('default');
+    expect(card?.wordTraductionFr).toBe('aller de… à…');
+  });
+
+  it('/lingvist/session garde une traduction de carte spécifique à la phrase', async () => {
+    apiRequest.mockResolvedValueOnce({ cards: [carte('range_1879', 'varier entre')], words: [motEnrichi] });
+    const [card] = await learningApi.getLingvistCards('default');
+    expect(card?.wordTraductionFr).toBe('varier entre');
+  });
+
+  it('/lingvist/session sans enrichissement garde la traduction historique', async () => {
+    apiRequest.mockResolvedValueOnce({ cards: [carte('still_0609')], words: [motHistorique] });
+    const [card] = await learningApi.getLingvistCards('default');
+    expect(card?.wordTraductionFr).toBe('encore');
+  });
+
+  it('/srs/review envoie toujours le même wordId historique', async () => {
+    apiRequest.mockResolvedValueOnce(undefined);
+    await learningApi.reviewWord('default', motEnrichi.id, motEnrichi, 'good');
+    const body = JSON.parse(apiRequest.mock.calls[0][1].body);
+    expect(body.wordId).toBe('range_1879');
+    expect(body.word.id).toBe('range_1879');
+  });
+
+  it('n’appelle jamais les routes d’administration', async () => {
+    apiRequest.mockResolvedValue({ words: [], cards: [], reviewHistory: {}, dueCount: 0, newCount: 0 });
+    await learningApi.getSrsSession('default');
+    await learningApi.getTriageCandidates('default');
+    await learningApi.getLingvistCards('default');
+    expect(apiRequest.mock.calls.some(([path]) => String(path).includes('/admin/'))).toBe(false);
+    apiRequest.mockReset();
   });
 });

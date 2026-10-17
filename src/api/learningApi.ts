@@ -6,6 +6,7 @@ import {
   preparedContentMock,
   statisticsMock,
 } from '@/mocks/learningData';
+import { cleanVocabularyText, getVocabularyTranslation } from '@/helpers/vocabularyDisplay';
 import { srsSessionMock, triageCandidatesMock } from '@/mocks/srsData';
 import { readingItemsMock, readingSegmentsMock, srtEpisodesMock, srtScenesMock, srtSourcesMock } from '@/mocks/readingData';
 import type {
@@ -21,6 +22,7 @@ import type {
   ReviewGrade,
   SrsSession,
   SrsTriageCandidate,
+  SrsWord,
 } from '@/types/learning';
 import type { ReadingItem, ReadingSegment, SrtEpisode, SrtScene, SrtSource } from '@/types/reading';
 
@@ -62,6 +64,23 @@ function toPreparedContent(item: PreparedContentResponseItem): PreparedContent {
   };
 }
 
+function sameText(left: string | null, right: string | null) {
+  return Boolean(left && right) && left!.toLocaleLowerCase('fr') === right!.toLocaleLowerCase('fr');
+}
+
+/**
+ * Traduction affichée pour une carte Lingvist : celle de la carte, puis la
+ * traduction enrichie du mot, puis l'historique. Une carte préparée avant la
+ * correction porte encore l'ancienne traduction : si elle est identique à la
+ * traduction historique du même mot, la version corrigée la remplace.
+ */
+export function resolveLingvistTranslation(cardTranslation: string | undefined, word: SrsWord | undefined): string {
+  const fromCard = cleanVocabularyText(cardTranslation);
+  const enriched = word?.enrichment ? cleanVocabularyText(word.enrichment.primaryTranslation) : null;
+  if (fromCard && enriched && sameText(fromCard, cleanVocabularyText(word?.traduction))) return enriched;
+  return fromCard ?? getVocabularyTranslation(word) ?? '';
+}
+
 async function localResult<T>(value: T): Promise<T> {
   await wait();
   return structuredClone(value);
@@ -79,7 +98,7 @@ export const learningApi = {
 
   async getLingvistCards(profileId: string, limit = 10) {
     if (!hasRemoteApi) return localResult(lingvistCardsMock.slice(0, limit));
-    const data = await apiRequest<{ cards: (LingvistCard & { wordId?: string; qualityStatus?: string })[]; words: import('@/types/learning').SrsWord[] }>(
+    const data = await apiRequest<{ cards: (LingvistCard & { wordId?: string; qualityStatus?: string })[]; words: SrsWord[] }>(
       `/lingvist/session?profileId=${encodeURIComponent(profileId)}&limit=${limit}`,
     );
     const wordsById = new Map((data.words ?? []).map((word) => [word.id, word]));
@@ -92,7 +111,7 @@ export const learningApi = {
         ...card,
         id: card.id ?? `lingvist-${card.wordId ?? index}`,
         level,
-        wordTraductionFr: card.wordTraductionFr ?? word?.traduction ?? '',
+        wordTraductionFr: resolveLingvistTranslation(card.wordTraductionFr, word),
         srsWord: word,
       };
     });

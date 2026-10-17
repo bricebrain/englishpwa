@@ -3,6 +3,12 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { learningApi } from '@/api/learningApi';
 import { evaluateRecall, type RecallResult } from '@/helpers/flashcardEvaluation';
+import {
+  getVocabularyAcceptedAnswers,
+  getVocabularyDisplayForm,
+  getVocabularyLemma,
+  getVocabularyTranslation,
+} from '@/helpers/vocabularyDisplay';
 import { usePreferences } from '@/hooks/usePreferences';
 import { useSrsSession } from '@/hooks/useLearningQueries';
 import type { ReviewGrade, ReviewMode, SrsWord } from '@/types/learning';
@@ -44,8 +50,12 @@ export function useFlashcardSession(mode: ReviewMode) {
   }, [mode, words]);
 
   const currentWord = queue.length ? byId.get(queue[0]!) ?? null : null;
-  const frontText = currentWord ? (direction === 'en-to-fr' ? currentWord.mot : currentWord.traduction ?? '?') : '';
-  const expected = currentWord ? (direction === 'en-to-fr' ? currentWord.traduction ?? '?' : currentWord.mot) : '';
+  const displayForm = currentWord ? getVocabularyDisplayForm(currentWord) : '';
+  const translation = currentWord ? getVocabularyTranslation(currentWord) ?? '?' : '';
+  const frontText = currentWord ? (direction === 'en-to-fr' ? displayForm : translation) : '';
+  const expected = currentWord ? (direction === 'en-to-fr' ? translation : displayForm) : '';
+  /** Ce que la synthèse vocale prononce : le lemme, jamais « to + verbe ». */
+  const spokenWord = currentWord ? getVocabularyLemma(currentWord) : '';
 
   const mutation = useMutation({
     mutationFn: ({ word, grade }: { word: SrsWord; grade: ReviewGrade }) =>
@@ -57,7 +67,7 @@ export function useFlashcardSession(mode: ReviewMode) {
 
   const validate = () => {
     if (!currentWord || result) return;
-    const nextResult = flipped ? 'fail' : evaluateRecall(answer, expected);
+    const nextResult = flipped ? 'fail' : evaluateRecall(answer, getVocabularyAcceptedAnswers(currentWord, direction));
     setResult(nextResult);
     mutation.mutate({ word: currentWord, grade: resultGrade(nextResult) });
   };
@@ -77,7 +87,7 @@ export function useFlashcardSession(mode: ReviewMode) {
 
   return {
     ...query,
-    direction, setDirection, currentWord, frontText, expected, answer, setAnswer,
+    direction, setDirection, currentWord, frontText, expected, spokenWord, answer, setAnswer,
     result, flipped, setFlipped, done, total: Math.max(words.length, done + queue.length),
     dueCount: query.data?.dueCount ?? 0, newCount: query.data?.newCount ?? 0,
     isSaving: mutation.isPending, validate, next, shuffle,
