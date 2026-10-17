@@ -15,6 +15,7 @@ import {
 import { useEffect, useState } from 'react';
 
 import { QueryState } from '@/components/common/QueryState';
+import { RevealQuestion } from '@/components/common/RevealQuestion';
 import { useSrtEpisodes, useSrtScenes, useSrtSources } from '@/hooks/useReadingLibrary';
 import { speakEnglish } from '@/services/speechPlaybackService';
 import { gradients, tokens } from '@/theme';
@@ -66,6 +67,11 @@ export function SrtLibraryPanel() {
             <Stack direction="row" gap={0.75} flexWrap="wrap" useFlexGap mt={1.5}>
               {scene.vocabulary.map((word) => <Chip key={word} label={word} size="small" onClick={() => speakEnglish(word)} sx={{ background: 'rgba(139,108,255,0.12)', color: tokens.violetSoft }} />)}
             </Stack>
+            {scene.questions?.length ? (
+              <Stack gap={1} mt={2}>
+                {scene.questions.map((item) => <RevealQuestion key={item.question} question={item.question} answer={item.answer} />)}
+              </Stack>
+            ) : null}
           </CardContent>
         </Card>
       ))}

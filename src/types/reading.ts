@@ -62,4 +62,6 @@ export interface SrtScene {
   wordCount: number;
   wordsPerMin: number;
   shadowingPrompts: string[];
+  /** Questions de compréhension générées la nuit par Workers AI. */
+  questions?: { question: string; answer: string }[];
 }

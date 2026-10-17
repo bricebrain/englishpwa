@@ -8,6 +8,7 @@ import { useState } from 'react';
 
 import { PageHeader } from '@/components/common/PageHeader';
 import { PageLayout } from '@/components/layout/PageLayout';
+import { LiveAnalysisPanel } from '@/components/live/LiveAnalysisPanel';
 import { MotionBox } from '@/components/ui/motion';
 import { feedback } from '@/services/feedbackService';
 import { awardXp } from '@/services/xpService';
@@ -130,6 +131,7 @@ export function LivePage() {
           </Card>
         </Grid>
       </Grid>
+      <LiveAnalysisPanel report={report} />
       <Snackbar open={saved} autoHideDuration={2500} onClose={() => setSaved(false)} message="Bilan enregistré sur cet appareil ✓" />
     </PageLayout>
   );

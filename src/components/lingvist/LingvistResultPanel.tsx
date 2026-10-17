@@ -9,7 +9,9 @@ import { Accordion, AccordionDetails, AccordionSummary, Box, Stack, Typography }
 
 import { MotionBox } from '@/components/ui/motion';
 import { ResultPanel } from '@/components/ui/SessionChrome';
+import { WordContexts } from '@/components/vocabulary/WordContexts';
 import { WordEnrichmentDetails } from '@/components/vocabulary/WordEnrichmentDetails';
+import { getVocabularyLemma } from '@/helpers/vocabularyDisplay';
 import { gradients, tokens } from '@/theme';
 import type { LingvistCard, LingvistDecision } from '@/types/learning';
 
@@ -64,6 +66,8 @@ export function LingvistResultPanel({ card, answer, decision }: {
           title={card.senseKey ? 'Le sens dans cette phrase' : 'Expressions utiles'}
         />
       ) : null}
+
+      <WordContexts word={card.srsWord ? getVocabularyLemma(card.srsWord) : card.lemma} />
 
       <Box sx={{ p: 1.75, borderRadius: 4, background: 'rgba(49,39,78,0.035)', border: `1px solid ${tokens.border}` }}>
         <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>

@@ -17,6 +17,8 @@ const ProfilePage = lazy(() => import('@/pages/ProfilePage').then((module) => ({
 const ReadingPage = lazy(() => import('@/pages/ReadingPage').then((module) => ({ default: module.ReadingPage })));
 const ScriptsPage = lazy(() => import('@/pages/ScriptsPage').then((module) => ({ default: module.ScriptsPage })));
 const SentenceBuilderPage = lazy(() => import('@/pages/SentenceBuilderPage').then((module) => ({ default: module.SentenceBuilderPage })));
+const SearchPage = lazy(() => import('@/pages/SearchPage').then((module) => ({ default: module.SearchPage })));
+const StoryPage = lazy(() => import('@/pages/StoryPage').then((module) => ({ default: module.StoryPage })));
 const SettingsPage = lazy(() => import('@/pages/SettingsPage').then((module) => ({ default: module.SettingsPage })));
 const StatisticsPage = lazy(() => import('@/pages/StatisticsPage').then((module) => ({ default: module.StatisticsPage })));
 const TriagePage = lazy(() => import('@/pages/TriagePage').then((module) => ({ default: module.TriagePage })));
@@ -42,6 +44,8 @@ export function App() {
           <Route path="statistics" element={<StatisticsPage />} />
           <Route path="profile" element={<ProfilePage />} />
           <Route path="settings" element={<SettingsPage />} />
+          <Route path="recherche" element={<SearchPage />} />
+          <Route path="histoire" element={<StoryPage />} />
 
           <Route path="scripts-audios" element={<Navigate to="/scripts" replace />} />
           <Route path="seance-live" element={<Navigate to="/live" replace />} />

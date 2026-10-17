@@ -7,6 +7,7 @@ import LayersRounded from '@mui/icons-material/LayersRounded';
 import MenuBookRounded from '@mui/icons-material/MenuBookRounded';
 import PersonRounded from '@mui/icons-material/PersonRounded';
 import PsychologyRounded from '@mui/icons-material/PsychologyRounded';
+import SearchRounded from '@mui/icons-material/SearchRounded';
 import SettingsRounded from '@mui/icons-material/SettingsRounded';
 import SwipeRounded from '@mui/icons-material/SwipeRounded';
 import { Box, Grid, Stack, Typography } from '@mui/material';
@@ -33,6 +34,8 @@ const sections = [
     items: [
       { title: 'Écouter', subtitle: 'Assimil et écoute guidée', path: '/ecouter', icon: HeadphonesRounded, gradient: `linear-gradient(135deg, ${tokens.cyan}, ${tokens.mint})` },
       { title: 'Lire', subtitle: 'Articles et scènes SRT', path: '/lire', icon: MenuBookRounded, gradient: `linear-gradient(135deg, ${tokens.pink}, ${tokens.violet})` },
+      { title: 'Histoire du jour', subtitle: 'Écrite avec tes mots à réviser', path: '/histoire', icon: AutoStoriesRounded, gradient: gradients.sunrise },
+      { title: 'Rechercher', subtitle: 'Par idée dans tous tes contenus', path: '/recherche', icon: SearchRounded, gradient: gradients.ocean },
     ],
   },
   {

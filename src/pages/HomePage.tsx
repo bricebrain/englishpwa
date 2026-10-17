@@ -6,6 +6,7 @@ import HeadphonesRounded from '@mui/icons-material/HeadphonesRounded';
 import LayersRounded from '@mui/icons-material/LayersRounded';
 import MenuBookRounded from '@mui/icons-material/MenuBookRounded';
 import PlayArrowRounded from '@mui/icons-material/PlayArrowRounded';
+import SearchRounded from '@mui/icons-material/SearchRounded';
 import SwipeRounded from '@mui/icons-material/SwipeRounded';
 import { Box, Card, CardContent, Grid, Stack, Typography } from '@mui/material';
 import { useMemo } from 'react';
@@ -13,6 +14,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { QueryState } from '@/components/common/QueryState';
 import { DailyMissionCard } from '@/components/home/DailyMissionCard';
+import { DailyStoryCard } from '@/components/home/DailyStoryCard';
 import { WeekStrip } from '@/components/home/WeekStrip';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { LevelBadge, StreakBadge } from '@/components/ui/Gamification';
@@ -82,6 +84,11 @@ export function HomePage() {
           <Pressable onClick={() => navigate('/statistics')} aria-label="Voir la progression" sx={{ width: 'auto' }}>
             <LevelBadge compact />
           </Pressable>
+          <Pressable onClick={() => navigate('/recherche')} aria-label="Rechercher dans tes contenus" sx={{ width: 'auto', borderRadius: '50%' }}>
+            <Box sx={{ width: 38, height: 38, borderRadius: '50%', display: 'grid', placeItems: 'center', background: tokens.surface, border: `1px solid ${tokens.border}`, color: tokens.textMuted }}>
+              <SearchRounded fontSize="small" />
+            </Box>
+          </Pressable>
         </Stack>
       </Stack>
 
@@ -143,6 +150,12 @@ export function HomePage() {
                   <DailyMissionCard reviewedToday={data.reviewedToday} dueCount={data.dueCount} />
                 </StaggerItem>
               </Stack>
+            </Grid>
+
+            <Grid item xs={12}>
+              <StaggerItem>
+                <DailyStoryCard />
+              </StaggerItem>
             </Grid>
 
             <Grid item xs={12}>

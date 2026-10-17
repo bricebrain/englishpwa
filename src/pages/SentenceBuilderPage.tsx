@@ -8,16 +8,20 @@ import { Box, Button, Chip, IconButton, InputBase, Stack, styled, Typography } f
 import { LayoutGroup, motion } from 'framer-motion';
 import { useMemo, useRef, useState, type FormEvent } from 'react';
 
+import { QueryState } from '@/components/common/QueryState';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { MotionBox } from '@/components/ui/motion';
 import { CelebrationCard, ResultPanel, SessionHeader } from '@/components/ui/SessionChrome';
 import { useCombo } from '@/hooks/useCombo';
+import { useDailySentences } from '@/hooks/useAiFeatures';
 import { evaluateSentence } from '@/helpers/sentenceEvaluation';
 import { feedback } from '@/services/feedbackService';
 import { speakEnglish } from '@/services/speechPlaybackService';
 import { displayFont, gradients, tokens } from '@/theme';
+import type { SentenceExercise } from '@/types/aiFeatures';
 
-const exercises = [
+/** Exercices de secours si les phrases du jour ne sont pas disponibles. */
+const FALLBACK_EXERCISES: SentenceExercise[] = [
   { prompt: 'Je travaille ici depuis trois ans.', expected: 'I have worked here for three years', hint: 'Present perfect + for', distractors: ['since', 'work', 'am'] },
   { prompt: 'Si j’avais plus de temps, je lirais davantage.', expected: 'If I had more time, I would read more', hint: 'Second conditional', distractors: ['will', 'have', 'reading'] },
   { prompt: 'Elle avait déjà quitté le bureau.', expected: 'She had already left the office', hint: 'Past perfect', distractors: ['has', 'leaved', 'yet'] },
@@ -42,6 +46,9 @@ export function SentenceBuilderPage() {
   const [correct, setCorrect] = useState<boolean | null>(null);
   const score = useRef(0);
   const combo = useCombo(15);
+  const daily = useDailySentences();
+  const exercises = daily.data?.exercises?.length ? daily.data.exercises : FALLBACK_EXERCISES;
+  const generated = Boolean(daily.data?.exercises?.length);
   const completed = index >= exercises.length;
   const exercise = exercises[Math.min(index, exercises.length - 1)]!;
 
@@ -82,6 +89,14 @@ export function SentenceBuilderPage() {
     setCorrect(null);
   };
 
+  if (daily.isLoading) {
+    return (
+      <PageLayout reading>
+        <QueryState loading skeletons={2} />
+      </PageLayout>
+    );
+  }
+
   if (completed) {
     return (
       <PageLayout reading>
@@ -119,6 +134,11 @@ export function SentenceBuilderPage() {
 
       <MotionBox key={index} initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={{ type: 'spring', stiffness: 280, damping: 26 }}>
         <Chip label={exercise.hint} size="small" sx={{ background: gradients.sunrise, color: '#fff', mb: 2 }} />
+        {generated && index === 0 ? (
+          <Typography fontSize={12.5} fontWeight={700} color={tokens.violetSoft} mb={1}>
+            Phrases du jour, écrites pour toi avec tes mots à réviser
+          </Typography>
+        ) : null}
         <Typography variant="overline" color="text.secondary" display="block">Traduis en anglais</Typography>
         <Typography fontFamily={displayFont} fontSize={{ xs: 26, sm: 30 }} fontWeight={750} lineHeight={1.3} mt={0.5} mb={3}>
           {exercise.prompt}

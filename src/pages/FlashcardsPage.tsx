@@ -10,6 +10,7 @@ import { QueryState } from '@/components/common/QueryState';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { MotionBox } from '@/components/ui/motion';
 import { CelebrationCard, SessionHeader } from '@/components/ui/SessionChrome';
+import { WordContexts } from '@/components/vocabulary/WordContexts';
 import { WordEnrichmentDetails } from '@/components/vocabulary/WordEnrichmentDetails';
 import { getVocabularyExamples, getVocabularyPartOfSpeechLabel } from '@/helpers/vocabularyDisplay';
 import { useCombo } from '@/hooks/useCombo';
@@ -181,7 +182,10 @@ export function FlashcardsPage() {
           <AnimatePresence initial={false}>
             {showBack ? (
               <MotionBox key={`details-${word.id}-${session.done}`} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                <WordEnrichmentDetails word={word} skipFirstSense />
+                <Stack gap={1.5}>
+                  <WordEnrichmentDetails word={word} skipFirstSense />
+                  <WordContexts word={session.spokenWord} />
+                </Stack>
               </MotionBox>
             ) : null}
           </AnimatePresence>

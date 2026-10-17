@@ -25,7 +25,7 @@ export const srtEpisodesMock: Record<string, SrtEpisode[]> = {
 
 export const srtScenesMock: Record<string, SrtScene[]> = {
   'office-s01e01': [
-    { id: 'scene-1', episodeId: 'office-s01e01', sceneIndex: 1, startTime: '00:01:10', endTime: '00:01:42', text: 'All right, Jim. Your quarterlies look very good. How are things at the library?', summaryFr: 'Un responsable commente les résultats trimestriels.', vocabulary: ['quarterlies', 'look good'], level: 'B1', wordCount: 15, wordsPerMin: 118, shadowingPrompts: ['Your quarterlies look very good.'] },
+    { id: 'scene-1', episodeId: 'office-s01e01', sceneIndex: 1, startTime: '00:01:10', endTime: '00:01:42', text: 'All right, Jim. Your quarterlies look very good. How are things at the library?', summaryFr: 'Un responsable commente les résultats trimestriels.', vocabulary: ['quarterlies', 'look good'], level: 'B1', wordCount: 15, wordsPerMin: 118, shadowingPrompts: ['Your quarterlies look very good.'], questions: [{ question: 'What does the manager say about the quarterlies?', answer: 'They look very good.' }, { question: 'What does he ask Jim about?', answer: 'How things are at the library.' }] },
     { id: 'scene-2', episodeId: 'office-s01e01', sceneIndex: 2, startTime: '00:03:02', endTime: '00:03:40', text: 'People say I am the best boss. They go, “God, we have never worked in a place like this before.”', summaryFr: 'Le manager décrit avec enthousiasme son style de direction.', vocabulary: ['the best boss', 'a place like this'], level: 'B1', wordCount: 22, wordsPerMin: 132, shadowingPrompts: ['We have never worked in a place like this before.'] },
   ],
 };
