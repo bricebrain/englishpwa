@@ -193,3 +193,23 @@ describe('Tableau de bord tolérant aux réponses partielles', () => {
     expect(stats).toMatchObject({ dueCount: 1, learnedCount: 0, totalCount: 0 });
   });
 });
+
+describe('Compatibilité avec le Worker déployé sans totalCount', () => {
+  it('reconstruit le total depuis learnedCount + newCount', async () => {
+    apiRequest.mockImplementation(async (path?: string) => {
+      if (path?.startsWith('/srs/stats')) return { dueCount: 4, learnedCount: 1760, newCount: 2857, reviewedToday: 0, streak: 2 };
+      if (path?.startsWith('/content')) return { count: 3 };
+      return undefined;
+    });
+    const tableau = await learningApi.getDashboard('default');
+    expect(tableau.totalCount).toBe(4617);
+    apiRequest.mockReset();
+  });
+
+  it('ne laisse jamais le total sous le nombre de mots appris', async () => {
+    apiRequest.mockImplementation(async (path?: string) => (path?.startsWith('/srs/stats') ? { learnedCount: 1760 } : { count: 0 }));
+    const tableau = await learningApi.getDashboard('default');
+    expect(tableau.totalCount).toBe(1760);
+    apiRequest.mockReset();
+  });
+});

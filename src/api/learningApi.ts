@@ -94,11 +94,14 @@ function count(value: unknown): number {
  */
 export function normalizeSrsStats(raw: unknown): SrsStats {
   const stats = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
+  const learnedCount = count(stats.learnedCount);
+  // Les Worker antérieurs n'envoient pas totalCount mais newCount = total − appris.
+  const totalCount = count(stats.totalCount) || (stats.newCount !== undefined ? learnedCount + count(stats.newCount) : 0);
   return {
     reviewedToday: count(stats.reviewedToday),
     dueCount: count(stats.dueCount),
-    learnedCount: count(stats.learnedCount),
-    totalCount: count(stats.totalCount),
+    learnedCount,
+    totalCount: Math.max(totalCount, learnedCount),
     streak: count(stats.streak),
   };
 }

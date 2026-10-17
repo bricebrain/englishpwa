@@ -18,6 +18,7 @@ import { PageLayout } from '@/components/layout/PageLayout';
 import { LevelBadge, StreakBadge } from '@/components/ui/Gamification';
 import { AnimatedNumber, MotionBox, Pressable, Stagger, StaggerItem } from '@/components/ui/motion';
 import { ProgressRing } from '@/components/ui/ProgressRing';
+import { learnedRatio } from '@/helpers/progressRatio';
 import { useDashboard } from '@/hooks/useLearningQueries';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { usePreferences } from '@/hooks/usePreferences';
@@ -205,7 +206,7 @@ export function HomePage() {
                         </Box>
                         <Stack direction="row" alignItems="center">
                           <Typography fontFamily={displayFont} fontWeight={800} fontSize={24} className="text-gradient">
-                            <AnimatedNumber value={Math.round(data.learnedCount / Math.max(1, data.totalCount) * 100)} suffix="%" />
+                            <AnimatedNumber value={Math.round(learnedRatio(data.learnedCount, data.totalCount) * 100)} suffix="%" />
                           </Typography>
                           <ChevronRightRounded sx={{ color: tokens.textFaint }} />
                         </Stack>
@@ -213,7 +214,7 @@ export function HomePage() {
                       <Box sx={{ height: 10, borderRadius: 9, background: 'rgba(49,39,78,0.08)', overflow: 'hidden' }}>
                         <MotionBox
                           initial={{ width: 0 }}
-                          animate={{ width: `${data.learnedCount / Math.max(1, data.totalCount) * 100}%` }}
+                          animate={{ width: `${learnedRatio(data.learnedCount, data.totalCount) * 100}%` }}
                           transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1], delay: 0.4 }}
                           sx={{ height: '100%', borderRadius: 9, background: gradients.primary }}
                         />

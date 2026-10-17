@@ -12,6 +12,7 @@ import { Flame } from '@/components/ui/Gamification';
 import { AnimatedNumber, MotionBox, Stagger, StaggerItem } from '@/components/ui/motion';
 import { ProgressRing } from '@/components/ui/ProgressRing';
 import { IconTile } from '@/components/ui/SessionChrome';
+import { learnedRatio } from '@/helpers/progressRatio';
 import { useStatistics } from '@/hooks/useLearningQueries';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { useXp } from '@/hooks/useXp';
@@ -147,7 +148,7 @@ export function StatisticsPage() {
                     <Box sx={{ height: 12, borderRadius: 9, background: 'rgba(49,39,78,0.08)', overflow: 'hidden' }}>
                       <MotionBox
                         initial={{ width: 0 }}
-                        animate={{ width: `${stats.learnedCount / Math.max(1, stats.totalCount) * 100}%` }}
+                        animate={{ width: `${learnedRatio(stats.learnedCount, stats.totalCount) * 100}%` }}
                         transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
                         sx={{ height: '100%', borderRadius: 9, background: gradients.primary }}
                       />
