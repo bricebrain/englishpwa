@@ -174,3 +174,22 @@ describe('Vocabulaire enrichi joint par le Worker', () => {
     apiRequest.mockReset();
   });
 });
+
+describe('Tableau de bord tolérant aux réponses partielles', () => {
+  it('remplace les compteurs absents de /srs/stats par 0 au lieu de planter', async () => {
+    apiRequest.mockImplementation(async (path?: string) => {
+      if (path?.startsWith('/srs/stats')) return { dueCount: 3, reviewedToday: '2' };
+      if (path?.startsWith('/content')) return {};
+      return undefined;
+    });
+    const tableau = await learningApi.getDashboard('default');
+    expect(tableau).toMatchObject({ dueCount: 3, reviewedToday: 2, learnedCount: 0, totalCount: 0, streak: 0, preparedContentCount: 0 });
+    apiRequest.mockReset();
+  });
+
+  it('les statistiques ne reprennent pas de faux compteurs de démonstration', async () => {
+    apiRequest.mockResolvedValueOnce({ dueCount: 1 });
+    const stats = await learningApi.getStatistics('default');
+    expect(stats).toMatchObject({ dueCount: 1, learnedCount: 0, totalCount: 0 });
+  });
+});

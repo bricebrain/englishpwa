@@ -200,7 +200,7 @@ export function HomePage() {
                         <Box>
                           <Typography variant="h3">Vocabulaire maîtrisé</Typography>
                           <Typography color="text.secondary" fontSize={13}>
-                            <AnimatedNumber value={data.learnedCount} /> / {data.totalCount.toLocaleString('fr-FR')} mots
+                            <AnimatedNumber value={data.learnedCount} /> / {(data.totalCount ?? 0).toLocaleString('fr-FR')} mots
                           </Typography>
                         </Box>
                         <Stack direction="row" alignItems="center">

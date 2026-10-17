@@ -81,6 +81,28 @@ export function resolveLingvistTranslation(cardTranslation: string | undefined, 
   return fromCard ?? getVocabularyTranslation(word) ?? '';
 }
 
+type SrsStats = Omit<DashboardData, 'activeDays' | 'preparedContentCount'>;
+
+function count(value: unknown): number {
+  const number = typeof value === 'string' ? Number(value) : value;
+  return typeof number === 'number' && Number.isFinite(number) ? Math.max(0, number) : 0;
+}
+
+/**
+ * Compteurs de /srs/stats. Un champ absent ou invalide (Worker plus ancien,
+ * réponse partielle) vaut 0 au lieu de faire planter les écrans.
+ */
+export function normalizeSrsStats(raw: unknown): SrsStats {
+  const stats = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
+  return {
+    reviewedToday: count(stats.reviewedToday),
+    dueCount: count(stats.dueCount),
+    learnedCount: count(stats.learnedCount),
+    totalCount: count(stats.totalCount),
+    streak: count(stats.streak),
+  };
+}
+
 async function localResult<T>(value: T): Promise<T> {
   await wait();
   return structuredClone(value);
@@ -90,10 +112,10 @@ export const learningApi = {
   async getDashboard(profileId: string) {
     if (!hasRemoteApi) return localResult(dashboardMock);
     const [stats, content] = await Promise.all([
-      apiRequest<Omit<DashboardData, 'activeDays' | 'preparedContentCount'>>(`/srs/stats?profileId=${encodeURIComponent(profileId)}`),
-      apiRequest<{ count: number }>(`/content?profileId=${encodeURIComponent(profileId)}&limit=1`),
+      apiRequest<unknown>(`/srs/stats?profileId=${encodeURIComponent(profileId)}`),
+      apiRequest<{ count?: number } | undefined>(`/content?profileId=${encodeURIComponent(profileId)}&limit=1`),
     ]);
-    return { ...stats, activeDays: dashboardMock.activeDays, preparedContentCount: content.count ?? 0 };
+    return { ...normalizeSrsStats(stats), activeDays: dashboardMock.activeDays, preparedContentCount: count(content?.count) };
   },
 
   async getLingvistCards(profileId: string, limit = 10) {
@@ -164,8 +186,8 @@ export const learningApi = {
 
   async getStatistics(profileId: string) {
     if (!hasRemoteApi) return localResult(statisticsMock);
-    const stats = await apiRequest<Omit<DashboardData, 'activeDays' | 'preparedContentCount'>>(`/srs/stats?profileId=${encodeURIComponent(profileId)}`);
-    return { ...statisticsMock, ...stats };
+    const stats = await apiRequest<unknown>(`/srs/stats?profileId=${encodeURIComponent(profileId)}`);
+    return { ...statisticsMock, ...normalizeSrsStats(stats) };
   },
 
   getSrsSession(profileId: string, limit = 100) {
