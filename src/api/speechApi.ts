@@ -5,7 +5,7 @@ interface SpeechAudioResponse {
 }
 
 export interface NaturalSpeechAudio {
-  provider: 'openai' | 'gemini';
+  provider: 'deepgram' | 'openai' | 'gemini';
   url: string;
 }
 
@@ -19,9 +19,11 @@ async function requestProvider(
   provider: NaturalSpeechAudio['provider'],
   text: string,
 ): Promise<NaturalSpeechAudio | null> {
-  const body = provider === 'openai'
-    ? { text, voice: 'coral', instructions: OPENAI_INSTRUCTIONS }
-    : { text, voice: 'Aoede' };
+  const body = provider === 'deepgram'
+    ? { text }
+    : provider === 'openai'
+      ? { text, voice: 'coral', instructions: OPENAI_INSTRUCTIONS }
+      : { text, voice: 'Aoede' };
 
   try {
     const response = await apiRequest<SpeechAudioResponse>(`/tts/${provider}`, {
@@ -38,6 +40,9 @@ async function requestProvider(
 
 export async function requestNaturalSpeech(text: string): Promise<NaturalSpeechAudio | null> {
   if (!hasRemoteApi) return null;
-  return (await requestProvider('openai', text))
+  // Deepgram (voix britannique, mise en cache R2 côté Worker) d'abord, puis les
+  // fournisseurs historiques si la route est absente ou en erreur.
+  return (await requestProvider('deepgram', text))
+    ?? (await requestProvider('openai', text))
     ?? requestProvider('gemini', text);
 }
