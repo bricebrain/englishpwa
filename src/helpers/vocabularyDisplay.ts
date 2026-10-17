@@ -124,11 +124,15 @@ export function getVocabularyPartOfSpeech(word: VocabularyWordLike): VocabularyP
 export function getVocabularyPartOfSpeechLabel(word: VocabularyWordLike): string | null {
   const partOfSpeech = getVocabularyPartOfSpeech(word);
   if (partOfSpeech) return partOfSpeech === 'other' ? null : PART_OF_SPEECH_LABELS[partOfSpeech];
+  const published = enrichmentOf(word)?.partOfSpeech;
+  if (typeof published === 'string' && cleanVocabularyText(published)) return partOfSpeechLabel(published);
   return cleanVocabularyText(word.type);
 }
 
-export function partOfSpeechLabel(partOfSpeech: VocabularyPartOfSpeech): string {
-  return PART_OF_SPEECH_LABELS[partOfSpeech] ?? PART_OF_SPEECH_LABELS.other;
+/** Libellé d'une catégorie ; une catégorie inconnue publiée par l'atelier reste lisible. */
+export function partOfSpeechLabel(partOfSpeech: string): string {
+  if (isPartOfSpeech(partOfSpeech)) return PART_OF_SPEECH_LABELS[partOfSpeech];
+  return cleanVocabularyText(partOfSpeech?.replace(/_/g, ' ')) ?? PART_OF_SPEECH_LABELS.other;
 }
 
 export function collocationKindLabel(kind: VocabularyCollocationKind): string {

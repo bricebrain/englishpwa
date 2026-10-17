@@ -120,6 +120,17 @@ describe('traductions enrichies', () => {
   });
 });
 
+describe('catégories publiées hors liste', () => {
+  it('affiche lisiblement une catégorie inconnue', () => {
+    const word: VocabularyWordLike = {
+      mot: 'although', traduction: 'bien que', type: 'word',
+      enrichment: { ...rangeEnrichmentMock, lemma: 'although', displayForm: 'although', partOfSpeech: 'subordinating_conjunction' as never },
+    };
+    expect(getVocabularyPartOfSpeech(word)).toBeNull();
+    expect(getVocabularyPartOfSpeechLabel(word)).toBe('subordinating conjunction');
+  });
+});
+
 describe('données mal formées', () => {
   it('ignore les sens et collocations invalides sans planter', () => {
     const casse = {
