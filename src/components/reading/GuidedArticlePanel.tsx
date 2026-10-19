@@ -1,106 +1,83 @@
-import AddRounded from '@mui/icons-material/AddRounded';
-import CheckRounded from '@mui/icons-material/CheckRounded';
-import HelpRounded from '@mui/icons-material/HelpRounded';
-import VolumeUpRounded from '@mui/icons-material/VolumeUpRounded';
-import { Box, Button, Card, CardContent, Chip, IconButton, Stack, Typography } from '@mui/material';
+import { Check, Plus, Volume2 } from 'lucide-react';
 import { useState } from 'react';
 
 import { QueryState } from '@/components/common/QueryState';
-import { MotionBox, Pressable } from '@/components/ui/motion';
+import { RevealQuestion } from '@/components/common/RevealQuestion';
+import { Button, IconButton } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Chip } from '@/components/ui/chip';
+import { Pressable } from '@/components/ui/motion';
 import { usePromoteReadingVocabulary, useReadingSegments } from '@/hooks/useReadingLibrary';
 import { feedback } from '@/services/feedbackService';
 import { speakEnglish } from '@/services/speechPlaybackService';
 import { awardXp } from '@/services/xpService';
-import { displayFont, gradients, tokens } from '@/theme';
 import type { ReadingItem } from '@/types/reading';
 
 export function GuidedArticlePanel({ item }: { item: ReadingItem }) {
   const query = useReadingSegments(item.id);
   const promote = usePromoteReadingVocabulary();
-  const [revealed, setRevealed] = useState<Set<string>>(() => new Set());
   const [added, setAdded] = useState<Set<string>>(() => new Set());
 
   return (
-    <Stack gap={2}>
-      <Box sx={{ p: 2.5, borderRadius: 6, background: 'linear-gradient(135deg, rgba(255,93,162,0.16), rgba(139,108,255,0.14))', border: '1px solid rgba(255,93,162,0.25)' }}>
-        <Stack direction="row" gap={1} mb={1.25}>
-          <Chip label={item.level} size="small" sx={{ background: gradients.primary, color: '#fff' }} />
-          <Chip label={`${item.wordCount} mots`} size="small" />
-        </Stack>
-        <Typography variant="h1" fontSize={26}>{item.title}</Typography>
-        <Typography color="text.secondary" mt={1} lineHeight={1.6}>{item.summaryFr ?? item.description}</Typography>
-      </Box>
+    <div className="flex flex-col gap-4">
+      <div className="rounded-3xl border border-pink/25 bg-[linear-gradient(135deg,color-mix(in_srgb,var(--pink)_14%,transparent),color-mix(in_srgb,var(--violet)_12%,transparent))] p-5">
+        <div className="mb-2.5 flex gap-2">
+          <Chip size="sm" label={item.level} className="bg-grad-primary text-white" />
+          <Chip size="sm" label={`${item.wordCount} mots`} />
+        </div>
+        <h1 className="type-h1 text-[26px]">{item.title}</h1>
+        <p className="mt-2 leading-relaxed text-muted">{item.summaryFr ?? item.description}</p>
+      </div>
 
       <QueryState loading={query.isLoading} error={query.isError} empty={!query.data?.length} onRetry={() => query.refetch()} />
       {query.data?.map((segment) => {
         const question = segment.questions[0];
-        const showAnswer = revealed.has(segment.id);
         const isAdded = added.has(segment.id);
         return (
           <Card key={segment.id}>
-            <CardContent sx={{ p: { xs: 2.25, sm: 3 } }}>
-              <Stack direction="row" alignItems="center" justifyContent="space-between">
-                <Typography variant="overline" color={tokens.pink}>Partie {segment.segmentIndex + 1}</Typography>
-                <IconButton aria-label="Écouter cette partie" onClick={() => speakEnglish(segment.text)} sx={{ color: tokens.violetSoft, mr: -1 }}>
-                  <VolumeUpRounded />
+            <CardContent className="p-[18px] sm:p-6">
+              <div className="flex items-center justify-between">
+                <span className="type-overline text-pink">Partie {segment.segmentIndex + 1}</span>
+                <IconButton aria-label="Écouter cette partie" onClick={() => speakEnglish(segment.text)} className="-mr-2 text-violet-soft">
+                  <Volume2 />
                 </IconButton>
-              </Stack>
-              <Typography variant="h3" fontSize={19}>{segment.title}</Typography>
-              <Typography lineHeight={1.9} mt={1.5} fontSize={16.5}>{segment.text}</Typography>
-              <Box sx={{ mt: 2, p: 1.75, borderRadius: 4, background: 'rgba(70,217,245,0.07)', borderLeft: `3px solid ${tokens.cyan}` }}>
-                <Typography fontSize={14} color="text.secondary" lineHeight={1.6}>{segment.summaryFr}</Typography>
-              </Box>
+              </div>
+              <h3 className="type-h3 text-[19px]">{segment.title}</h3>
+              <p className="mt-3 text-[16.5px] leading-[1.9]">{segment.text}</p>
+              <div className="mt-4 rounded-2xl border-l-[3px] border-cyan bg-cyan/7 p-3.5">
+                <p className="text-sm leading-relaxed text-muted">{segment.summaryFr}</p>
+              </div>
 
-              <Stack direction="row" gap={0.75} flexWrap="wrap" useFlexGap mt={2}>
+              <div className="mt-4 flex flex-wrap gap-1.5">
                 {segment.vocabulary.map((word) => (
-                  <Pressable key={word} onClick={() => speakEnglish(word)} aria-label={`Écouter ${word}`} sx={{ width: 'auto' }}>
-                    <Chip label={word} size="small" sx={{ cursor: 'pointer', background: 'rgba(139,108,255,0.12)', color: tokens.violetSoft }} />
+                  <Pressable key={word} onClick={() => speakEnglish(word)} aria-label={`Écouter ${word}`} className="w-auto">
+                    <Chip size="sm" label={word} className="bg-violet/12 text-violet-soft" />
                   </Pressable>
                 ))}
-              </Stack>
+              </div>
               <Button
-                size="small"
-                variant={isAdded ? 'contained' : 'outlined'}
-                color={isAdded ? 'success' : 'primary'}
-                startIcon={isAdded ? <CheckRounded /> : <AddRounded />}
+                size="sm"
+                variant={isAdded ? 'success' : 'outline'}
                 disabled={promote.isPending || isAdded}
                 onClick={() => promote.mutate(
                   { level: segment.level, vocabulary: segment.vocabulary, example: segment.text },
                   { onSuccess: () => { feedback('success'); awardXp(5); setAdded((current) => new Set(current).add(segment.id)); } },
                 )}
-                sx={{ mt: 1.5, '&.Mui-disabled': isAdded ? { opacity: 1, color: '#05140D' } : {} }}
+                className={isAdded ? 'mt-3 disabled:opacity-100' : 'mt-3'}
               >
+                {isAdded ? <Check /> : <Plus />}
                 {isAdded ? 'Ajouté au SRS' : 'Ajouter le vocabulaire au SRS'}
               </Button>
 
               {question ? (
-                <Box sx={{ mt: 2, p: 2, borderRadius: 4, background: 'rgba(49,39,78,0.035)', border: `1px solid ${tokens.border}` }}>
-                  <Stack direction="row" gap={1} alignItems="flex-start">
-                    <HelpRounded sx={{ color: tokens.amber, mt: 0.25 }} />
-                    <Typography fontWeight={750}>{question.question}</Typography>
-                  </Stack>
-                  <Pressable
-                    onClick={() => setRevealed((current) => new Set(current).add(segment.id))}
-                    aria-label="Voir la réponse"
-                    sx={{ mt: 1.5 }}
-                  >
-                    <Box position="relative" sx={{ p: 1.5, borderRadius: 3, background: 'rgba(52,229,160,0.08)', overflow: 'hidden' }}>
-                      <MotionBox animate={{ filter: showAnswer ? 'blur(0px)' : 'blur(7px)' }} transition={{ duration: 0.4 }}>
-                        <Typography fontSize={14.5}>{question.answer}</Typography>
-                      </MotionBox>
-                      {!showAnswer ? (
-                        <Box sx={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center' }}>
-                          <Typography fontFamily={displayFont} fontWeight={800} fontSize={14} color={tokens.mint}>Touche pour révéler</Typography>
-                        </Box>
-                      ) : null}
-                    </Box>
-                  </Pressable>
-                </Box>
+                <div className="mt-4">
+                  <RevealQuestion question={question.question} answer={question.answer} />
+                </div>
               ) : null}
             </CardContent>
           </Card>
         );
       })}
-    </Stack>
+    </div>
   );
 }

@@ -1,31 +1,205 @@
-html,
-body,
-#root {
-  min-width: 320px;
-  min-height: 100%;
-  margin: 0;
-}
+@import 'tailwindcss';
 
-html {
-  overflow-x: clip;
+/*
+ * Jetons « Daylight Aurora ».
+ * - Les teintes d'accent (--violet, --mint…) servent au texte et aux icônes : plus claires en sombre pour rester lisibles.
+ * - Les dégradés (--grad-*) gardent les mêmes teintes moyennes dans les deux thèmes : le texte blanc y reste contrasté.
+ * - --ink sert aux voiles légers (bg-ink/5…) : encre violette en clair, gris clair en sombre.
+ */
+:root {
   color-scheme: light;
-  background: #f4f3f8;
-  -webkit-text-size-adjust: 100%;
-  -webkit-tap-highlight-color: transparent;
+  --bg: #f4f3f8;
+  --surface: #ffffff;
+  --surface-high: #efedf5;
+  --ink: #31274e;
+  --border: rgb(49 39 78 / 0.1);
+  --border-strong: rgb(49 39 78 / 0.2);
+  --fg: #211b32;
+  --muted: #6c657d;
+  --faint: #8a8398;
+
+  --violet: #7055e8;
+  --violet-soft: #8068de;
+  --pink: #d83e88;
+  --coral: #e85f43;
+  --amber: #b96d00;
+  --lime: #76a81d;
+  --mint: #16875d;
+  --cyan: #168ca8;
+  --red: #d63f5a;
+
+  --info-fg: #07566a;
+  --success-fg: #0b6040;
+  --warning-fg: #754500;
+  --error-fg: #92253a;
+
+  --glass: rgb(255 255 255 / 0.88);
+  --scrim: rgb(244 243 248 / 0.88);
+  --card-shadow: 0 1px 0 rgb(255 255 255 / 0.9) inset, 0 18px 40px -28px rgb(49 39 78 / 0.28);
+  --float-shadow: 0 20px 50px -18px rgb(49 39 78 / 0.4), inset 0 1px 0 rgb(255 255 255 / 0.9);
+  --aurora-opacity: 0.3;
+
+  --grad-primary: linear-gradient(135deg, #7055e8 0%, #d83e88 100%);
+  --grad-sunrise: linear-gradient(135deg, #b96d00 0%, #e85f43 55%, #d83e88 100%);
+  --grad-ocean: linear-gradient(135deg, #168ca8 0%, #7055e8 100%);
+  --grad-mint: linear-gradient(135deg, #76a81d 0%, #16875d 100%);
+  --grad-card: linear-gradient(160deg, rgb(112 85 232 / 0.035) 0%, rgb(216 62 136 / 0.015) 100%);
 }
 
-body {
-  min-height: 100dvh;
-  overflow-x: clip;
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
+/* Sombre « ardoise » : un gris-bleu doux plutôt qu'un noir, et un texte qui n'est pas blanc pur. */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #1e2129;
+  --surface: #282c36;
+  --surface-high: #313642;
+  --ink: #e4e6eb;
+  --border: rgb(228 230 235 / 0.1);
+  --border-strong: rgb(228 230 235 / 0.18);
+  --fg: #e4e6eb;
+  --muted: #b3b8c3;
+  --faint: #9298a5;
+
+  --violet: #a594ff;
+  --violet-soft: #b5a8ff;
+  --pink: #f08cbc;
+  --coral: #f59a84;
+  --amber: #ebb258;
+  --lime: #b2d670;
+  --mint: #5fd0a3;
+  --cyan: #67c7de;
+  --red: #f48b9d;
+
+  --info-fg: #9ddcec;
+  --success-fg: #98e3c3;
+  --warning-fg: #f3cd8c;
+  --error-fg: #f7b2be;
+
+  --glass: rgb(40 44 54 / 0.9);
+  --scrim: rgb(30 33 41 / 0.9);
+  --card-shadow: 0 1px 0 rgb(255 255 255 / 0.04) inset, 0 18px 40px -28px rgb(0 0 0 / 0.55);
+  --float-shadow: 0 20px 50px -18px rgb(0 0 0 / 0.6), inset 0 1px 0 rgb(255 255 255 / 0.06);
+  --aurora-opacity: 0.22;
+
+  --grad-card: linear-gradient(160deg, rgb(165 148 255 / 0.05) 0%, rgb(240 140 188 / 0.02) 100%);
 }
 
-button,
-input,
-textarea,
-select {
-  font: inherit;
+/* Points de rupture alignés sur l'ancien thème : 600 px = Fold déplié / tablette, 900 px = grand écran. */
+@theme {
+  --breakpoint-sm: 600px;
+  --breakpoint-md: 900px;
+  --breakpoint-lg: 1200px;
+  --breakpoint-xl: 1536px;
+}
+
+@theme inline {
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Bricolage Grotesque Variable', 'Inter Variable', system-ui, sans-serif;
+
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-high: var(--surface-high);
+  --color-ink: var(--ink);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-violet: var(--violet);
+  --color-violet-soft: var(--violet-soft);
+  --color-pink: var(--pink);
+  --color-coral: var(--coral);
+  --color-amber: var(--amber);
+  --color-lime: var(--lime);
+  --color-mint: var(--mint);
+  --color-cyan: var(--cyan);
+  --color-red: var(--red);
+  --color-glass: var(--glass);
+  --color-info-fg: var(--info-fg);
+  --color-success-fg: var(--success-fg);
+  --color-warning-fg: var(--warning-fg);
+  --color-error-fg: var(--error-fg);
+
+  --shadow-card: var(--card-shadow);
+  --shadow-float: var(--float-shadow);
+}
+
+@utility bg-grad-primary { background-image: var(--grad-primary); }
+@utility bg-grad-sunrise { background-image: var(--grad-sunrise); }
+@utility bg-grad-ocean { background-image: var(--grad-ocean); }
+@utility bg-grad-mint { background-image: var(--grad-mint); }
+
+/* Styles typographiques repris de l'ancien thème. */
+@utility type-h1 {
+  font-family: var(--font-display);
+  font-size: 1.9rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+@utility type-h2 {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+@utility type-h3 {
+  font-family: var(--font-display);
+  font-size: 1.08rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+@utility type-overline {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  line-height: 1.6;
+  text-transform: uppercase;
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    min-width: 320px;
+    min-height: 100%;
+  }
+
+  html {
+    overflow-x: clip;
+    background: var(--bg);
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    min-height: 100dvh;
+    overflow-x: clip;
+    overscroll-behavior: none;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    transition: background-color 0.25s ease, color 0.25s ease;
+  }
+
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+
+  *:focus-visible {
+    outline: 2px solid var(--violet-soft);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--violet) 35%, transparent);
+  }
 }
 
 /* Halos « aurore » fixes derrière toute l'application. */
@@ -44,7 +218,7 @@ select {
   position: absolute;
   border-radius: 50%;
   filter: blur(80px);
-  opacity: 0.3;
+  opacity: var(--aurora-opacity);
   will-change: transform;
 }
 
@@ -53,7 +227,7 @@ select {
   height: 70vmax;
   top: -38vmax;
   left: -22vmax;
-  background: radial-gradient(circle, rgba(112, 85, 232, 0.32), transparent 65%);
+  background: radial-gradient(circle, rgb(112 85 232 / 0.32), transparent 65%);
   animation: aurora-drift-a 22s ease-in-out infinite alternate;
 }
 
@@ -62,7 +236,7 @@ select {
   height: 60vmax;
   top: 10vmax;
   right: -32vmax;
-  background: radial-gradient(circle, rgba(216, 62, 136, 0.22), transparent 65%);
+  background: radial-gradient(circle, rgb(216 62 136 / 0.22), transparent 65%);
   animation: aurora-drift-b 26s ease-in-out infinite alternate;
 }
 
@@ -71,7 +245,7 @@ select {
   height: 55vmax;
   bottom: -35vmax;
   left: 5vmax;
-  background: radial-gradient(circle, rgba(22, 140, 168, 0.16), transparent 65%);
+  background: radial-gradient(circle, rgb(22 140 168 / 0.16), transparent 65%);
   animation: aurora-drift-a 30s ease-in-out infinite alternate-reverse;
 }
 
@@ -101,13 +275,18 @@ select {
 }
 
 .shimmer {
-  background: linear-gradient(90deg, rgba(49, 39, 78, 0.04) 25%, rgba(49, 39, 78, 0.1) 50%, rgba(49, 39, 78, 0.04) 75%);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--ink) 4%, transparent) 25%,
+    color-mix(in srgb, var(--ink) 10%, transparent) 50%,
+    color-mix(in srgb, var(--ink) 4%, transparent) 75%
+  );
   background-size: 200% 100%;
   animation: shimmer 1.6s linear infinite;
 }
 
 .text-gradient {
-  background: linear-gradient(135deg, #7055e8 0%, #d83e88 100%);
+  background: linear-gradient(135deg, var(--violet) 0%, var(--pink) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;

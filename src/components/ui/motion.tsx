@@ -1,33 +1,13 @@
-import { Box, styled, type BoxProps } from '@mui/material';
-import { animate, motion, useInView, useMotionValue, useReducedMotion, useTransform } from 'framer-motion';
-import { useEffect, useRef, type PropsWithChildren } from 'react';
+import { animate, motion, useInView, useMotionValue, useReducedMotion, useTransform } from 'motion/react';
+import { useEffect, useRef, type CSSProperties, type PropsWithChildren } from 'react';
 
 import { softSpring, spring } from '@/components/ui/springs';
+import { cn } from '@/lib/utils';
 import { feedback } from '@/services/feedbackService';
 
-export const MotionBox = motion.create(Box);
-
-const BareButton = styled('button')({
-  appearance: 'none',
-  border: 0,
-  padding: 0,
-  margin: 0,
-  font: 'inherit',
-  color: 'inherit',
-  textAlign: 'inherit',
-  background: 'none',
-  cursor: 'pointer',
-  display: 'block',
-  width: '100%',
-  WebkitTapHighlightColor: 'transparent',
-  '&:disabled': { cursor: 'default', opacity: 0.5 },
-});
-
-const MotionButton = motion.create(BareButton);
-
-
 interface PressableProps {
-  sx?: BoxProps['sx'];
+  className?: string;
+  style?: CSSProperties;
   silent?: boolean;
   disabled?: boolean;
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
@@ -38,9 +18,9 @@ interface PressableProps {
 }
 
 /** Bouton « tactile » : léger rebond à l'appui + micro-vibration. */
-export function Pressable({ sx, silent = false, onClick, children, disabled, ...aria }: PressableProps) {
+export function Pressable({ className, style, silent = false, onClick, children, disabled, ...aria }: PressableProps) {
   return (
-    <MotionButton
+    <motion.button
       type="button"
       disabled={disabled}
       whileTap={disabled ? undefined : { scale: 0.96 }}
@@ -49,39 +29,40 @@ export function Pressable({ sx, silent = false, onClick, children, disabled, ...
         if (!silent) feedback('tap');
         onClick?.(event);
       }}
-      sx={sx}
+      className={cn('block w-full text-left text-inherit disabled:cursor-default disabled:opacity-50', className)}
+      style={style}
       {...aria}
     >
       {children}
-    </MotionButton>
+    </motion.button>
   );
 }
 
 /** Conteneur dont les enfants <StaggerItem> apparaissent en cascade. */
-export function Stagger({ children, delay = 0, gap = 0.06, sx }: PropsWithChildren<{ delay?: number; gap?: number; sx?: BoxProps['sx'] }>) {
+export function Stagger({ children, delay = 0, gap = 0.06, className }: PropsWithChildren<{ delay?: number; gap?: number; className?: string }>) {
   return (
-    <MotionBox
+    <motion.div
       initial="hidden"
       animate="show"
       variants={{ hidden: {}, show: { transition: { staggerChildren: gap, delayChildren: delay } } }}
-      sx={sx}
+      className={className}
     >
       {children}
-    </MotionBox>
+    </motion.div>
   );
 }
 
-export function StaggerItem({ children, sx }: PropsWithChildren<{ sx?: BoxProps['sx'] }>) {
+export function StaggerItem({ children, className }: PropsWithChildren<{ className?: string }>) {
   return (
-    <MotionBox
+    <motion.div
       variants={{
         hidden: { opacity: 0, y: 18, scale: 0.98 },
         show: { opacity: 1, y: 0, scale: 1, transition: softSpring },
       }}
-      sx={sx}
+      className={className}
     >
       {children}
-    </MotionBox>
+    </motion.div>
   );
 }
 

@@ -1,12 +1,11 @@
-import AutoStoriesRounded from '@mui/icons-material/AutoStoriesRounded';
-import ChevronRightRounded from '@mui/icons-material/ChevronRightRounded';
-import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
+import { BookOpen, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
+import { Card, CardContent } from '@/components/ui/card';
 import { Pressable } from '@/components/ui/motion';
 import { IconTile } from '@/components/ui/SessionChrome';
 import { useDailyStory } from '@/hooks/useAiFeatures';
-import { gradients, tokens } from '@/theme';
+import { gradients } from '@/theme';
 
 /** Accroche de l'histoire du jour (rien n'est affiché si elle n'est pas disponible). */
 export function DailyStoryCard() {
@@ -17,23 +16,21 @@ export function DailyStoryCard() {
 
   return (
     <Pressable onClick={() => navigate('/histoire')} aria-label="Lire l’histoire du jour">
-      <Card sx={{ overflow: 'hidden' }}>
-        <Box sx={{ position: 'absolute', top: -50, right: -40, width: 160, height: 160, borderRadius: '50%', background: gradients.sunrise, opacity: 0.16, filter: 'blur(20px)' }} />
-        <CardContent sx={{ position: 'relative' }}>
-          <Stack direction="row" alignItems="center" gap={1.5}>
-            <IconTile icon={<AutoStoriesRounded />} gradient={gradients.sunrise} />
-            <Box flex={1} minWidth={0}>
-              <Typography variant="overline" color={tokens.coral}>Histoire du jour</Typography>
-              <Typography variant="h3" noWrap>{story.data.title}</Typography>
-            </Box>
-            <ChevronRightRounded sx={{ color: tokens.textFaint }} />
-          </Stack>
-          <Typography color="text.secondary" fontSize={14} mt={1.25} lineHeight={1.55} sx={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-            {teaser}
-          </Typography>
-          <Typography fontSize={12.5} fontWeight={700} color={tokens.violetSoft} mt={1}>
+      <Card className="overflow-hidden">
+        <div className="absolute -right-10 -top-[50px] size-40 rounded-full bg-grad-sunrise opacity-15 blur-[20px]" />
+        <CardContent className="relative">
+          <div className="flex items-center gap-3">
+            <IconTile icon={<BookOpen />} gradient={gradients.sunrise} />
+            <div className="min-w-0 flex-1">
+              <span className="type-overline text-coral">Histoire du jour</span>
+              <h3 className="type-h3 truncate">{story.data.title}</h3>
+            </div>
+            <ChevronRight className="size-6 text-faint" />
+          </div>
+          <p className="mt-2.5 line-clamp-2 text-sm leading-[1.55] text-muted">{teaser}</p>
+          <p className="mt-2 text-[12.5px] font-bold text-violet-soft">
             {story.data.wordsUsed.length} de tes mots à réviser · {story.data.questions.length} questions
-          </Typography>
+          </p>
         </CardContent>
       </Card>
     </Pressable>

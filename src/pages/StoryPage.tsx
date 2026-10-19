@@ -1,18 +1,18 @@
-import HelpRounded from '@mui/icons-material/HelpRounded';
-import TranslateRounded from '@mui/icons-material/TranslateRounded';
-import VolumeUpRounded from '@mui/icons-material/VolumeUpRounded';
-import { Box, Button, Card, CardContent, Chip, Stack, Typography } from '@mui/material';
+import { Languages, Volume2 } from 'lucide-react';
+import { motion } from 'motion/react';
 import { Fragment, useState } from 'react';
 
 import { PageHeader } from '@/components/common/PageHeader';
 import { QueryState } from '@/components/common/QueryState';
+import { RevealQuestion } from '@/components/common/RevealQuestion';
 import { PageLayout } from '@/components/layout/PageLayout';
-import { MotionBox, Pressable } from '@/components/ui/motion';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Chip } from '@/components/ui/chip';
+import { Pressable } from '@/components/ui/motion';
 import { useDailyStory } from '@/hooks/useAiFeatures';
-import { feedback } from '@/services/feedbackService';
 import { speakEnglish, stopEnglishSpeech } from '@/services/speechPlaybackService';
 import { awardXp } from '@/services/xpService';
-import { displayFont, tokens } from '@/theme';
 
 /** Met en évidence tous les mots du jour (et leurs formes simples) dans le texte. */
 function StoryText({ text, words }: { text: string; words: string[] }) {
@@ -22,7 +22,7 @@ function StoryText({ text, words }: { text: string; words: string[] }) {
   return (
     <>
       {parts.map((part, index) => (index % 2 === 1
-        ? <Box key={index} component="strong" sx={{ color: tokens.violet }}>{part}</Box>
+        ? <strong key={index} className="text-violet">{part}</strong>
         : <Fragment key={index}>{part}</Fragment>))}
     </>
   );
@@ -48,7 +48,6 @@ export function StoryPage() {
 
   const reveal = (index: number) => {
     if (revealed.has(index)) return;
-    feedback('select');
     const next = new Set(revealed).add(index);
     setRevealed(next);
     if (data && next.size === data.questions.length) awardXp(15, 'Histoire du jour');
@@ -66,52 +65,39 @@ export function StoryPage() {
       />
 
       {data ? (
-        <Stack gap={2}>
+        <div className="flex flex-col gap-4">
           {data.wordsUsed.length ? (
-            <Stack direction="row" gap={0.75} flexWrap="wrap" useFlexGap>
-              {data.wordsUsed.map((word) => <Chip key={word} label={word} size="small" onClick={() => speakEnglish(word)} sx={{ cursor: 'pointer', background: 'rgba(112,85,232,0.12)', color: tokens.violet }} />)}
-            </Stack>
+            <div className="flex flex-wrap gap-1.5">
+              {data.wordsUsed.map((word) => (
+                <Pressable key={word} onClick={() => speakEnglish(word)} aria-label={`Écouter ${word}`} className="w-auto">
+                  <Chip size="sm" label={word} className="bg-violet/12 text-violet" />
+                </Pressable>
+              ))}
+            </div>
           ) : null}
 
           <Card>
-            <CardContent sx={{ p: { xs: 2.25, sm: 3 } }}>
-              <Typography fontFamily={displayFont} fontSize={18} lineHeight={1.85}>
+            <CardContent className="p-[18px] sm:p-6">
+              <p className="font-display text-lg leading-[1.85]">
                 <StoryText text={data.textEn} words={data.wordsUsed} />
-              </Typography>
+              </p>
               {showFr ? (
-                <MotionBox initial={{ opacity: 0 }} animate={{ opacity: 1 }} sx={{ mt: 2, pl: 1.5, borderLeft: `3px solid ${tokens.cyan}` }}>
-                  <Typography lineHeight={1.7} color="text.secondary">{data.textFr}</Typography>
-                </MotionBox>
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-4 border-l-[3px] border-cyan pl-3">
+                  <p className="leading-[1.7] text-muted">{data.textFr}</p>
+                </motion.div>
               ) : null}
-              <Stack direction="row" gap={1} mt={2} flexWrap="wrap" useFlexGap>
-                <Button variant="contained" startIcon={<VolumeUpRounded />} onClick={() => void listen()}>{playing ? 'Arrêter' : 'Écouter'}</Button>
-                <Button variant="outlined" startIcon={<TranslateRounded />} onClick={() => setShowFr((value) => !value)}>{showFr ? 'Masquer le français' : 'Voir le français'}</Button>
-              </Stack>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Button onClick={() => void listen()}><Volume2 />{playing ? 'Arrêter' : 'Écouter'}</Button>
+                <Button variant="outline" onClick={() => setShowFr((value) => !value)}><Languages />{showFr ? 'Masquer le français' : 'Voir le français'}</Button>
+              </div>
             </CardContent>
           </Card>
 
-          <Typography variant="h3">As-tu compris ?</Typography>
+          <h3 className="type-h3">As-tu compris ?</h3>
           {data.questions.map((item, index) => (
-            <Box key={item.question} sx={{ p: 2, borderRadius: 4, background: tokens.surface, border: `1px solid ${tokens.border}` }}>
-              <Stack direction="row" gap={1} alignItems="flex-start">
-                <HelpRounded sx={{ color: tokens.amber, mt: 0.25 }} />
-                <Typography fontWeight={750}>{item.question}</Typography>
-              </Stack>
-              <Pressable onClick={() => reveal(index)} aria-label="Voir la réponse" sx={{ mt: 1.25 }}>
-                <Box position="relative" sx={{ p: 1.5, borderRadius: 3, background: 'rgba(22,135,93,0.08)', overflow: 'hidden' }}>
-                  <MotionBox animate={{ filter: revealed.has(index) ? 'blur(0px)' : 'blur(7px)' }} transition={{ duration: 0.35 }}>
-                    <Typography fontSize={14.5}>{item.answer}</Typography>
-                  </MotionBox>
-                  {!revealed.has(index) ? (
-                    <Box sx={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center' }}>
-                      <Typography fontFamily={displayFont} fontWeight={800} fontSize={14} color={tokens.mint}>Touche pour révéler</Typography>
-                    </Box>
-                  ) : null}
-                </Box>
-              </Pressable>
-            </Box>
+            <RevealQuestion key={item.question} question={item.question} answer={item.answer} onReveal={() => reveal(index)} />
           ))}
-        </Stack>
+        </div>
       ) : null}
     </PageLayout>
   );

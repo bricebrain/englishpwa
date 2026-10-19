@@ -1,11 +1,11 @@
-import VolumeUpRounded from '@mui/icons-material/VolumeUpRounded';
-import { Box, Chip, IconButton, Stack, Typography } from '@mui/material';
+import { Volume2 } from 'lucide-react';
 import { Fragment } from 'react';
 
+import { IconButton } from '@/components/ui/button';
+import { Chip } from '@/components/ui/chip';
 import { SOURCE_LABELS } from '@/helpers/passageSources';
 import { useWordContexts } from '@/hooks/useAiFeatures';
 import { speakEnglish } from '@/services/speechPlaybackService';
-import { tokens } from '@/theme';
 
 function escapeRegex(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -18,7 +18,7 @@ export function HighlightedSentence({ sentence, word }: { sentence: string; word
   return (
     <>
       {parts.map((part, index) => (index % 2 === 1
-        ? <Box key={index} component="strong" sx={{ color: tokens.violet }}>{part}</Box>
+        ? <strong key={index} className="text-violet">{part}</strong>
         : <Fragment key={index}>{part}</Fragment>))}
     </>
   );
@@ -34,29 +34,29 @@ export function WordContexts({ word }: { word: string }) {
   if (!contexts.length) return null;
 
   return (
-    <Box sx={{ p: 2, borderRadius: 5, background: tokens.surface, border: `1px solid ${tokens.border}` }}>
-      <Typography variant="overline" color={tokens.cyan} display="block" mb={1}>Dans tes contenus</Typography>
-      <Stack gap={1.25}>
+    <div className="rounded-[20px] border border-border bg-surface p-4">
+      <span className="type-overline mb-2 text-cyan">Dans tes contenus</span>
+      <div className="flex flex-col gap-2.5">
         {contexts.map((context) => (
-          <Stack key={`${context.parentId}-${context.sentence}`} direction="row" gap={0.5} alignItems="flex-start">
-            <Box flex={1} minWidth={0}>
-              <Typography fontSize={14.5} lineHeight={1.5}><HighlightedSentence sentence={context.sentence} word={word} /></Typography>
-              <Stack direction="row" gap={0.75} alignItems="center" mt={0.5}>
-                <Chip size="small" label={SOURCE_LABELS[context.source]} />
-                <Typography fontSize={12} color="text.secondary" noWrap>{context.title}</Typography>
-              </Stack>
-            </Box>
+          <div key={`${context.parentId}-${context.sentence}`} className="flex items-start gap-1">
+            <div className="min-w-0 flex-1">
+              <p className="text-[14.5px] leading-normal"><HighlightedSentence sentence={context.sentence} word={word} /></p>
+              <div className="mt-1 flex items-center gap-1.5">
+                <Chip size="sm" label={SOURCE_LABELS[context.source]} />
+                <span className="truncate text-xs text-muted">{context.title}</span>
+              </div>
+            </div>
             <IconButton
-              size="small"
+              size="sm"
               aria-label="Écouter la phrase"
               onClick={(event) => { event.stopPropagation(); speakEnglish(context.sentence); }}
-              sx={{ minWidth: 36, minHeight: 36, color: tokens.violetSoft }}
+              className="text-violet-soft"
             >
-              <VolumeUpRounded fontSize="small" />
+              <Volume2 />
             </IconButton>
-          </Stack>
+          </div>
         ))}
-      </Stack>
-    </Box>
+      </div>
+    </div>
   );
 }

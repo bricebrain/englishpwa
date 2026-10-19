@@ -1,15 +1,17 @@
-import AutoStoriesRounded from '@mui/icons-material/AutoStoriesRounded';
-import OpenInNewRounded from '@mui/icons-material/OpenInNewRounded';
-import DeleteOutlineRounded from '@mui/icons-material/DeleteOutlineRounded';
-import GraphicEqRounded from '@mui/icons-material/GraphicEqRounded';
-import LightbulbOutlined from '@mui/icons-material/LightbulbOutlined';
-import NotesRounded from '@mui/icons-material/NotesRounded';
-import ExpandLessRounded from '@mui/icons-material/ExpandLessRounded';
-import ExpandMoreRounded from '@mui/icons-material/ExpandMoreRounded';
-import SchoolOutlined from '@mui/icons-material/SchoolOutlined';
-import TranslateRounded from '@mui/icons-material/TranslateRounded';
-import VolumeUpRounded from '@mui/icons-material/VolumeUpRounded';
-import { Box, Button, ButtonBase, Card, CardContent, Chip, CircularProgress, Collapse, IconButton, Link, Stack, Typography } from '@mui/material';
+import {
+  AudioLines,
+  BookOpen,
+  ChevronDown,
+  ChevronUp,
+  ExternalLink,
+  GraduationCap,
+  Languages,
+  Lightbulb,
+  LoaderCircle,
+  NotebookPen,
+  Trash2,
+  Volume2,
+} from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import type { ReactNode } from 'react';
@@ -38,9 +40,14 @@ import { learningApi } from '@/api/learningApi';
 import { usePreparedContentDetail } from '@/hooks/useLearningQueries';
 import type { ContentChunk, ContentGrammarPoint, ContentSegment } from '@/helpers/preparedContent';
 import type { AudioTrack } from '@/hooks/useAudioPlayer';
+import { Button, IconButton } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Chip } from '@/components/ui/chip';
+import { Collapse } from '@/components/ui/collapse';
 import { IconTile } from '@/components/ui/SessionChrome';
+import { cn } from '@/lib/utils';
 import { speakEnglish } from '@/services/speechPlaybackService';
-import { gradients, tokens } from '@/theme';
+import { alpha, gradients, tokens } from '@/theme';
 import type { PreparedContent } from '@/types/learning';
 
 interface PlayerProps {
@@ -69,17 +76,17 @@ type Section = 'script' | 'translation' | 'bilingual' | 'chunks' | 'grammar';
 
 function Panel({ color, title, children }: { color: string; title: string; children: ReactNode }) {
   return (
-    <Box sx={{ mt: 1.75, p: 2, borderRadius: 4, background: `${color}12`, borderLeft: `3px solid ${color}` }}>
-      <Typography variant="overline" color={color}>{title}</Typography>
+    <div className="mt-3.5 rounded-2xl p-4" style={{ background: alpha(color, 0.07), borderLeft: `3px solid ${color}` }}>
+      <span className="type-overline" style={{ color }}>{title}</span>
       {children}
-    </Box>
+    </div>
   );
 }
 
 function SpeakButton({ text }: { text: string }) {
   return (
-    <IconButton size="small" aria-label="Écouter l’exemple" onClick={() => speakEnglish(text)} sx={{ ml: 0.25, color: tokens.textFaint, '&:hover': { color: tokens.violet } }}>
-      <VolumeUpRounded fontSize="inherit" />
+    <IconButton size="sm" aria-label="Écouter l’exemple" onClick={() => speakEnglish(text)} className="ml-0.5 text-faint hover:text-violet">
+      <Volume2 />
     </IconButton>
   );
 }
@@ -93,26 +100,25 @@ function BilingualPanel({ segments, activeId, onSelect }: {
 }) {
   return (
     <Panel color={tokens.violet} title="Lecture bilingue">
-      <Stack mt={0.75} divider={<Box sx={{ borderTop: `1px solid ${tokens.border}` }} />}>
+      <div className="mt-1.5 divide-y divide-border">
         {segments.map((segment) => {
           const active = segment.id === activeId;
           const content = (
             <>
-              <Typography lineHeight={1.7} fontSize={15.5} fontWeight={active ? 650 : undefined}>{segment.en}</Typography>
-              {segment.fr ? <Typography lineHeight={1.6} fontSize={13.5} color="text.secondary" mt={0.35}>{segment.fr}</Typography> : null}
+              <p className={cn('text-[15.5px] leading-[1.7]', active && 'font-semibold')}>{segment.en}</p>
+              {segment.fr ? <p className="mt-0.5 text-[13.5px] leading-relaxed text-muted">{segment.fr}</p> : null}
             </>
           );
-          const sx = { py: 1.1, px: 1, mx: -1, borderRadius: 2, textAlign: 'left', display: 'block', width: 'calc(100% + 16px)',
-            background: active ? 'rgba(139,108,255,0.12)' : 'transparent', transition: 'background 160ms' } as const;
+          const className = cn('-mx-2 block w-[calc(100%+16px)] rounded-lg px-2 py-2 text-left transition-colors duration-150', active && 'bg-violet/12');
           return onSelect && segment.startMs !== null ? (
-            <ButtonBase key={segment.id} onClick={() => onSelect(segment)} aria-current={active ? 'true' : undefined} sx={sx}>
+            <button type="button" key={segment.id} onClick={() => onSelect(segment)} aria-current={active ? 'true' : undefined} className={className}>
               {content}
-            </ButtonBase>
+            </button>
           ) : (
-            <Box key={segment.id} aria-current={active ? 'true' : undefined} sx={sx}>{content}</Box>
+            <div key={segment.id} aria-current={active ? 'true' : undefined} className={className}>{content}</div>
           );
         })}
-      </Stack>
+      </div>
     </Panel>
   );
 }
@@ -120,30 +126,30 @@ function BilingualPanel({ segments, activeId, onSelect }: {
 function ChunksPanel({ chunks }: { chunks: ContentChunk[] }) {
   return (
     <Panel color={tokens.coral} title="Chunks à retenir">
-      <Stack gap={1.25} mt={1}>
+      <div className="mt-2 flex flex-col gap-2.5">
         {chunks.map((chunk) => (
-          <Box key={chunk.id} sx={{ p: 1.5, borderRadius: 3, background: tokens.surface, border: `1px solid ${tokens.border}` }}>
-            <Stack direction="row" alignItems="center" gap={0.75} flexWrap="wrap" useFlexGap>
-              <Typography fontWeight={750} fontSize={15.5}>{chunk.expression}</Typography>
-              {chunk.level ? <Chip size="small" label={chunk.level} /> : null}
-              {chunk.type ? <Chip size="small" variant="outlined" label={CHUNK_TYPE_LABELS[chunk.type] ?? chunk.type} /> : null}
-            </Stack>
-            <Typography color="text.secondary" fontSize={14} mt={0.25}>{chunk.meaningFr}</Typography>
+          <div key={chunk.id} className="rounded-xl border border-border bg-surface p-3">
+            <div className="flex flex-wrap items-center gap-1.5">
+              <p className="text-[15.5px] font-bold">{chunk.expression}</p>
+              {chunk.level ? <Chip size="sm" label={chunk.level} /> : null}
+              {chunk.type ? <Chip size="sm" variant="outlined" label={CHUNK_TYPE_LABELS[chunk.type] ?? chunk.type} /> : null}
+            </div>
+            <p className="mt-0.5 text-sm text-muted">{chunk.meaningFr}</p>
             {chunk.exampleEn ? (
-              <Stack direction="row" alignItems="center" mt={0.75}>
-                <Typography fontStyle="italic" fontSize={14}>« {chunk.exampleEn} »</Typography>
+              <div className="mt-1.5 flex items-center">
+                <p className="text-sm italic">« {chunk.exampleEn} »</p>
                 <SpeakButton text={chunk.exampleEn} />
-              </Stack>
+              </div>
             ) : null}
-            {chunk.exampleFr ? <Typography fontSize={13} color="text.secondary">{chunk.exampleFr}</Typography> : null}
+            {chunk.exampleFr ? <p className="text-[13px] text-muted">{chunk.exampleFr}</p> : null}
             {chunk.explanationFr || chunk.context ? (
-              <Typography fontSize={13} color={tokens.textMuted} mt={0.75} lineHeight={1.55}>
+              <p className="mt-1.5 text-[13px] leading-[1.55] text-muted">
                 {[chunk.explanationFr, chunk.context].filter(Boolean).join(' — ')}
-              </Typography>
+              </p>
             ) : null}
-          </Box>
+          </div>
         ))}
-      </Stack>
+      </div>
     </Panel>
   );
 }
@@ -151,28 +157,42 @@ function ChunksPanel({ chunks }: { chunks: ContentChunk[] }) {
 function GrammarPanel({ points }: { points: ContentGrammarPoint[] }) {
   return (
     <Panel color={tokens.mint} title="Points de grammaire">
-      <Stack gap={1.25} mt={1}>
+      <div className="mt-2 flex flex-col gap-2.5">
         {points.map((point) => (
-          <Box key={point.id} sx={{ p: 1.5, borderRadius: 3, background: tokens.surface, border: `1px solid ${tokens.border}` }}>
-            <Stack direction="row" alignItems="center" gap={0.75} flexWrap="wrap" useFlexGap>
-              <Typography fontWeight={750} fontSize={15}>{point.title}</Typography>
-              {point.level ? <Chip size="small" label={point.level} /> : null}
-            </Stack>
-            <Typography fontSize={14} mt={0.5} lineHeight={1.6}>{point.explanationFr}</Typography>
+          <div key={point.id} className="rounded-xl border border-border bg-surface p-3">
+            <div className="flex flex-wrap items-center gap-1.5">
+              <p className="text-[15px] font-bold">{point.title}</p>
+              {point.level ? <Chip size="sm" label={point.level} /> : null}
+            </div>
+            <p className="mt-1 text-sm leading-relaxed">{point.explanationFr}</p>
             {point.sourceExcerpt ? (
-              <Typography fontSize={13} color="text.secondary" mt={0.75}>Dans le texte : « {point.sourceExcerpt} »</Typography>
+              <p className="mt-1.5 text-[13px] text-muted">Dans le texte : « {point.sourceExcerpt} »</p>
             ) : null}
             {point.exampleEn ? (
-              <Stack direction="row" alignItems="center" mt={0.5}>
-                <Typography fontStyle="italic" fontSize={14}>« {point.exampleEn} »</Typography>
+              <div className="mt-1 flex items-center">
+                <p className="text-sm italic">« {point.exampleEn} »</p>
                 <SpeakButton text={point.exampleEn} />
-              </Stack>
+              </div>
             ) : null}
-            {point.exampleFr ? <Typography fontSize={13} color="text.secondary">{point.exampleFr}</Typography> : null}
-          </Box>
+            {point.exampleFr ? <p className="text-[13px] text-muted">{point.exampleFr}</p> : null}
+          </div>
         ))}
-      </Stack>
+      </div>
     </Panel>
+  );
+}
+
+function SectionButton({ open, icon, onClick, disabled, children }: {
+  open: boolean;
+  icon: ReactNode;
+  onClick: () => void;
+  disabled?: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <Button size="sm" variant={open ? 'primary' : 'outline'} aria-pressed={open} onClick={onClick} disabled={disabled}>
+      {icon}{children}
+    </Button>
   );
 }
 
@@ -222,112 +242,104 @@ export function PreparedContentCard({ item, player, onDelete }: {
   });
 
   return (
-    <Card sx={{ height: '100%' }}>
+    <Card className="h-full">
       <CardContent>
-        <Stack direction="row" alignItems="flex-start" gap={1.5}>
-          <IconTile icon={track ? <GraphicEqRounded /> : <NotesRounded />} gradient={track ? gradients.ocean : gradients.primary} size={46} />
-          <Box minWidth={0} flex={1}>
-            <Typography variant="h3" lineHeight={1.3}>{item.title}</Typography>
-            <Stack direction="row" gap={0.5} flexWrap="wrap" useFlexGap mt={0.75}>
-              <Chip size="small" label={sourceKind ?? TYPE_LABELS[item.type ?? ''] ?? item.type ?? 'Contenu'} sx={{ background: 'rgba(139,108,255,0.15)', color: tokens.violetSoft }} />
-              {voiceLabel ? <Chip size="small" variant="outlined" label={voiceLabel} /> : null}
-              {isTextOnlyContent(item) ? <Chip size="small" variant="outlined" label="Texte seul" /> : null}
-              {item.level ? <Chip size="small" label={item.level} /> : null}
-              {durationLabel && !(isTextOnlyContent(item) && durationLabel === 'Texte') ? <Chip size="small" label={durationLabel} /> : null}
-              {getContentLanguage(item) ? <Chip size="small" label={getContentLanguage(item)} /> : null}
-              {!isTextOnlyContent(item) && getContentAudioLanguage(item) ? <Chip size="small" label={`audio ${getContentAudioLanguage(item)}`} /> : null}
-              {item.topic ?? item.source ? <Chip size="small" label={item.topic ?? item.source} /> : null}
-            </Stack>
-          </Box>
-          <IconButton aria-label="Supprimer ce contenu" onClick={() => onDelete(item)} sx={{ mt: -0.5, mr: -1, color: tokens.textFaint, '&:hover': { color: tokens.red } }}>
-            <DeleteOutlineRounded />
+        <div className="flex items-start gap-3">
+          <IconTile icon={track ? <AudioLines /> : <NotebookPen />} gradient={track ? gradients.ocean : gradients.primary} size={46} />
+          <div className="min-w-0 flex-1">
+            <h3 className="type-h3">{item.title}</h3>
+            <div className="mt-1.5 flex flex-wrap gap-1">
+              <Chip size="sm" label={sourceKind ?? TYPE_LABELS[item.type ?? ''] ?? item.type ?? 'Contenu'} className="bg-violet/15 text-violet-soft" />
+              {voiceLabel ? <Chip size="sm" variant="outlined" label={voiceLabel} /> : null}
+              {isTextOnlyContent(item) ? <Chip size="sm" variant="outlined" label="Texte seul" /> : null}
+              {item.level ? <Chip size="sm" label={item.level} /> : null}
+              {durationLabel && !(isTextOnlyContent(item) && durationLabel === 'Texte') ? <Chip size="sm" label={durationLabel} /> : null}
+              {getContentLanguage(item) ? <Chip size="sm" label={getContentLanguage(item)} /> : null}
+              {!isTextOnlyContent(item) && getContentAudioLanguage(item) ? <Chip size="sm" label={`audio ${getContentAudioLanguage(item)}`} /> : null}
+              {item.topic ?? item.source ? <Chip size="sm" label={item.topic ?? item.source} /> : null}
+            </div>
+          </div>
+          <IconButton aria-label="Supprimer ce contenu" onClick={() => onDelete(item)} className="-mr-2 -mt-1 text-faint hover:text-red">
+            <Trash2 />
           </IconButton>
-        </Stack>
+        </div>
 
-        <Typography color="text.secondary" lineHeight={1.65} mt={1.75} fontSize={14.5}>
+        <p className="mt-3.5 text-[14.5px] leading-[1.65] text-muted">
           {getContentSummary(item, isOpen('script') ? 600 : 200)}
-        </Typography>
+        </p>
         {sourceLink ? (
-          <Link href={sourceLink} target="_blank" rel="noopener noreferrer" fontSize={13} sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, mt: 0.75 }}>
-            Voir la source <OpenInNewRounded sx={{ fontSize: 14 }} />
-          </Link>
+          <a href={sourceLink} target="_blank" rel="noopener noreferrer" className="mt-1.5 inline-flex items-center gap-1 text-[13px] font-semibold text-violet underline underline-offset-2">
+            Voir la source <ExternalLink className="size-3.5" />
+          </a>
         ) : null}
 
-        <Box mt={2}>
+        <div className="mt-4">
           {track ? (
             <AudioPlayerBar track={track} {...player} />
           ) : englishScript ? (
-            <Button variant="outlined" startIcon={<VolumeUpRounded />} onClick={() => void speak()}>
-              Écouter en synthèse vocale
+            <Button variant="outline" onClick={() => void speak()}>
+              <Volume2 />Écouter en synthèse vocale
             </Button>
           ) : (
-            <Typography color="text.disabled" fontSize={13}>Pas d’audio ni de script anglais.</Typography>
+            <p className="text-[13px] text-faint">Pas d’audio ni de script anglais.</p>
           )}
-        </Box>
+        </div>
 
-        <Stack direction="row" gap={1} flexWrap="wrap" useFlexGap mt={1.75}>
+        <div className="mt-3.5 flex flex-wrap gap-2">
           {counts.segments ? (
-            <Button size="small" variant={isOpen('bilingual') ? 'contained' : 'outlined'} startIcon={<AutoStoriesRounded />} onClick={() => toggle('bilingual')}>
-              Bilingue
-            </Button>
+            <SectionButton open={isOpen('bilingual')} icon={<BookOpen />} onClick={() => toggle('bilingual')}>Bilingue</SectionButton>
           ) : null}
-          <Button size="small" variant={isOpen('script') ? 'contained' : 'outlined'} startIcon={isOpen('script') ? <ExpandLessRounded /> : <ExpandMoreRounded />} onClick={() => toggle('script')} disabled={!englishScript}>
+          <SectionButton open={isOpen('script')} icon={isOpen('script') ? <ChevronUp /> : <ChevronDown />} onClick={() => toggle('script')} disabled={!englishScript}>
             Script
-          </Button>
+          </SectionButton>
           {frenchTranslation ? (
-            <Button size="small" variant={isOpen('translation') ? 'contained' : 'outlined'} startIcon={<TranslateRounded />} onClick={() => toggle('translation')}>
-              Traduction
-            </Button>
+            <SectionButton open={isOpen('translation')} icon={<Languages />} onClick={() => toggle('translation')}>Traduction</SectionButton>
           ) : null}
           {counts.chunks ? (
-            <Button size="small" variant={isOpen('chunks') ? 'contained' : 'outlined'} startIcon={<LightbulbOutlined />} onClick={() => toggle('chunks')}>
-              Chunks · {counts.chunks}
-            </Button>
+            <SectionButton open={isOpen('chunks')} icon={<Lightbulb />} onClick={() => toggle('chunks')}>Chunks · {counts.chunks}</SectionButton>
           ) : null}
           {counts.grammarPoints ? (
-            <Button size="small" variant={isOpen('grammar') ? 'contained' : 'outlined'} startIcon={<SchoolOutlined />} onClick={() => toggle('grammar')}>
-              Grammaire · {counts.grammarPoints}
-            </Button>
+            <SectionButton open={isOpen('grammar')} icon={<GraduationCap />} onClick={() => toggle('grammar')}>Grammaire · {counts.grammarPoints}</SectionButton>
           ) : null}
-        </Stack>
+        </div>
 
         {detailPending ? (
-          <Stack direction="row" alignItems="center" gap={1} mt={2} color="text.secondary">
+          <div className="mt-4 flex items-center gap-2 text-muted">
             {detailQuery.isError ? (
               <>
-                <Typography fontSize={13.5}>Impossible de charger le détail.</Typography>
-                <Button size="small" onClick={() => detailQuery.refetch()}>Réessayer</Button>
+                <p className="text-[13.5px]">Impossible de charger le détail.</p>
+                <Button size="sm" variant="ghost" onClick={() => detailQuery.refetch()}>Réessayer</Button>
               </>
             ) : (
               <>
-                <CircularProgress size={16} />
-                <Typography fontSize={13.5}>Chargement du contenu…</Typography>
+                <LoaderCircle className="size-4 animate-spin text-violet" />
+                <p className="text-[13.5px]">Chargement du contenu…</p>
               </>
             )}
-          </Stack>
+          </div>
         ) : null}
 
-        <Collapse in={!detailPending && isOpen('bilingual')} unmountOnExit>
+        <Collapse in={!detailPending && isOpen('bilingual')}>
           <BilingualPanel segments={segments} activeId={activeSegmentId} onSelect={selectSegment} />
         </Collapse>
 
-        <Collapse in={!detailPending && isOpen('translation')} unmountOnExit>
+        <Collapse in={!detailPending && isOpen('translation')}>
           <Panel color={tokens.cyan} title="Traduction française">
-            <Typography whiteSpace="pre-wrap" lineHeight={1.75} mt={0.5} fontSize={14.5}>{frenchTranslation}</Typography>
+            <p className="mt-1 whitespace-pre-wrap text-[14.5px] leading-[1.75]">{frenchTranslation}</p>
           </Panel>
         </Collapse>
 
-        <Collapse in={!detailPending && isOpen('script')} unmountOnExit>
+        <Collapse in={!detailPending && isOpen('script')}>
           <Panel color={tokens.violet} title="Script anglais">
-            <Typography whiteSpace="pre-wrap" lineHeight={1.85} mt={0.5} fontSize={15.5}>{englishScript}</Typography>
+            <p className="mt-1 whitespace-pre-wrap text-[15.5px] leading-[1.85]">{englishScript}</p>
           </Panel>
         </Collapse>
 
-        <Collapse in={!detailPending && isOpen('chunks')} unmountOnExit>
+        <Collapse in={!detailPending && isOpen('chunks')}>
           <ChunksPanel chunks={chunks} />
         </Collapse>
 
-        <Collapse in={!detailPending && isOpen('grammar')} unmountOnExit>
+        <Collapse in={!detailPending && isOpen('grammar')}>
           <GrammarPanel points={grammarPoints} />
         </Collapse>
       </CardContent>

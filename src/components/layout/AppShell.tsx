@@ -1,36 +1,29 @@
-import AutoStoriesRounded from '@mui/icons-material/AutoStoriesRounded';
-import CloudOffRounded from '@mui/icons-material/CloudOffRounded';
-import GraphicEqRounded from '@mui/icons-material/GraphicEqRounded';
-import GridViewRounded from '@mui/icons-material/GridViewRounded';
-import HomeRounded from '@mui/icons-material/HomeRounded';
-import LibraryMusicRounded from '@mui/icons-material/LibraryMusicRounded';
-import type { SvgIconComponent } from '@mui/icons-material';
-import { Box, Stack, Typography } from '@mui/material';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AudioLines, BookOpen, CloudOff, House, LayoutGrid, ListMusic, type LucideIcon } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 import { XpToaster } from '@/components/ui/Gamification';
-import { MotionBox } from '@/components/ui/motion';
 import { spring } from '@/components/ui/springs';
 import { APP_LAYOUT } from '@/constants/layout';
 import { useAdaptiveLayout } from '@/hooks/useAdaptiveLayout';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
+import { cn } from '@/lib/utils';
 import { feedback } from '@/services/feedbackService';
-import { gradients, tokens } from '@/theme';
+import { tokens } from '@/theme';
 
 interface NavigationItem {
   label: string;
   path: string;
-  icon: SvgIconComponent;
+  icon: LucideIcon;
 }
 
 const NAVIGATION: NavigationItem[] = [
-  { label: 'Accueil', path: '/', icon: HomeRounded },
-  { label: 'Lingvist', path: '/lingvist', icon: AutoStoriesRounded },
-  { label: 'Scripts', path: '/scripts', icon: LibraryMusicRounded },
-  { label: 'Live', path: '/live', icon: GraphicEqRounded },
-  { label: 'Plus', path: '/plus', icon: GridViewRounded },
+  { label: 'Accueil', path: '/', icon: House },
+  { label: 'Lingvist', path: '/lingvist', icon: BookOpen },
+  { label: 'Scripts', path: '/scripts', icon: ListMusic },
+  { label: 'Live', path: '/live', icon: AudioLines },
+  { label: 'Plus', path: '/plus', icon: LayoutGrid },
 ];
 
 /** Écrans de session plein écran : la navigation s'efface pour favoriser la concentration. */
@@ -79,148 +72,128 @@ export function AppShell() {
   };
 
   return (
-    <Box minHeight="100dvh" position="relative">
+    <div className="relative min-h-dvh">
       <div className="aurora" aria-hidden><span /></div>
       <div className="grain" aria-hidden />
       <XpToaster />
 
       <AnimatePresence>
         {!online ? (
-          <MotionBox
+          <motion.div
             initial={{ y: -40 }} animate={{ y: 0 }} exit={{ y: -40 }}
-            sx={{
-              position: 'sticky', top: 0, zIndex: 30, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1,
-              py: 0.75, pt: 'max(6px, env(safe-area-inset-top))', background: 'rgba(255,181,71,0.15)', backdropFilter: 'blur(12px)',
-              color: tokens.amber, fontSize: 13, fontWeight: 700,
-            }}
+            className="sticky top-0 z-30 flex items-center justify-center gap-2 bg-amber/15 pb-1.5 pt-[max(6px,env(safe-area-inset-top))] text-[13px] font-bold text-amber backdrop-blur-md"
           >
-            <CloudOffRounded sx={{ fontSize: 18 }} /> Hors connexion
-          </MotionBox>
+            <CloudOff className="size-[18px]" /> Hors connexion
+          </motion.div>
         ) : null}
       </AnimatePresence>
 
       {!compact ? (
-        <Box
-          component="nav"
+        <nav
           aria-label="Navigation principale"
-          sx={{
-            position: 'fixed', inset: '0 auto 0 0', width: APP_LAYOUT.railWidth, zIndex: 10,
-            pt: 'max(20px, env(safe-area-inset-top))',
-            background: 'rgba(255,255,255,0.82)', backdropFilter: 'blur(24px) saturate(1.4)',
-            borderRight: `1px solid ${tokens.border}`,
-          }}
+          className="fixed inset-y-0 left-0 z-10 border-r border-border bg-glass pt-[max(20px,env(safe-area-inset-top))] backdrop-blur-xl backdrop-saturate-150"
+          style={{ width: APP_LAYOUT.railWidth }}
         >
-          <Stack alignItems="center" gap={1}>
-            <Box
-              component="img"
+          <div className="flex flex-col items-center gap-2">
+            <img
               src="/icons/icon-192.png"
               alt=""
-              sx={{ width: 44, height: 44, borderRadius: 3, mb: 1.5, boxShadow: `0 8px 24px -8px ${tokens.violet}` }}
+              className="mb-3 size-11 rounded-xl"
+              style={{ boxShadow: `0 8px 24px -8px ${tokens.violet}` }}
             />
             {NAVIGATION.map(({ label, path, icon: Icon }) => {
               const selected = active === path;
               return (
-                <Box
-                  component="button"
+                <button
+                  type="button"
                   key={path}
                   aria-current={selected ? 'page' : undefined}
                   onClick={() => go(path)}
-                  sx={{
-                    position: 'relative', width: 72, minHeight: 62, border: 0, borderRadius: 4, cursor: 'pointer',
-                    background: 'transparent', color: selected ? tokens.violet : 'text.secondary',
-                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 0.4,
-                  }}
+                  className={cn(
+                    'relative flex min-h-[62px] w-[72px] flex-col items-center justify-center gap-1 rounded-2xl transition-colors',
+                    selected ? 'text-violet' : 'text-muted hover:text-fg',
+                  )}
                 >
                   {selected ? (
-                    <MotionBox
+                    <motion.span
                       layoutId="rail-indicator"
                       transition={spring}
-                      sx={{ position: 'absolute', inset: 0, borderRadius: 4, background: 'rgba(139,108,255,0.18)', border: '1px solid rgba(139,108,255,0.35)' }}
+                      className="absolute inset-0 rounded-2xl border border-violet/35 bg-violet/15"
                     />
                   ) : null}
-                  <Icon sx={{ position: 'relative', fontSize: 24, color: selected ? tokens.violetSoft : undefined }} />
-                  <Typography position="relative" fontSize={11} fontWeight={selected ? 800 : 600}>{label}</Typography>
-                </Box>
+                  <Icon className="relative size-6" strokeWidth={selected ? 2.4 : 2} />
+                  <span className={cn('relative text-[11px]', selected ? 'font-extrabold' : 'font-semibold')}>{label}</span>
+                </button>
               );
             })}
-          </Stack>
-        </Box>
+          </div>
+        </nav>
       ) : null}
 
-      <Box
-        component="main"
-        sx={{
-          position: 'relative', zIndex: 1,
-          ml: compact ? 0 : `${APP_LAYOUT.railWidth}px`,
-          pb: compact && !immersive ? `calc(${APP_LAYOUT.bottomNavHeight + 28}px + env(safe-area-inset-bottom))` : 0,
-          minHeight: '100dvh',
+      <main
+        className="relative z-[1] min-h-dvh"
+        style={{
+          marginLeft: compact ? 0 : APP_LAYOUT.railWidth,
+          paddingBottom: compact && !immersive ? `calc(${APP_LAYOUT.bottomNavHeight + 28}px + env(safe-area-inset-bottom))` : 0,
         }}
       >
-        <MotionBox
+        <motion.div
           key={location.pathname}
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
         >
           <Outlet />
-        </MotionBox>
-      </Box>
+        </motion.div>
+      </main>
 
       <AnimatePresence>
         {showBottomNav ? (
-          <MotionBox
-            component="nav"
+          <motion.nav
             aria-label="Navigation principale"
             initial={{ y: 120 }}
             animate={{ y: 0 }}
             exit={{ y: 120 }}
             transition={spring}
-            sx={{
-              position: 'fixed', left: 12, right: 12, zIndex: 20,
-              bottom: 'calc(10px + env(safe-area-inset-bottom))',
-              height: APP_LAYOUT.bottomNavHeight, borderRadius: '26px', px: 0.75,
-              display: 'flex', alignItems: 'center',
-              background: 'rgba(255,255,255,0.88)', backdropFilter: 'blur(24px) saturate(1.6)',
-              border: `1px solid ${tokens.borderStrong}`,
-              boxShadow: '0 20px 50px -18px rgba(49,39,78,0.4), inset 0 1px 0 rgba(255,255,255,0.9)',
-            }}
+            className="fixed inset-x-3 bottom-[calc(10px+env(safe-area-inset-bottom))] z-20 flex items-center rounded-[26px] border border-border-strong bg-glass px-1.5 shadow-float backdrop-blur-xl backdrop-saturate-150"
+            style={{ height: APP_LAYOUT.bottomNavHeight }}
           >
             {NAVIGATION.map(({ label, path, icon: Icon }) => {
               const selected = active === path;
               return (
-                <Box
-                  component="button"
+                <button
+                  type="button"
                   key={path}
                   aria-current={selected ? 'page' : undefined}
                   aria-label={label}
                   onClick={() => go(path)}
-                  sx={{
-                    position: 'relative', flex: 1, height: 58, border: 0, background: 'transparent', cursor: 'pointer',
-                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 0.25,
-                    color: selected ? '#fff' : tokens.textMuted, WebkitTapHighlightColor: 'transparent',
-                  }}
+                  className={cn(
+                    'relative flex h-[58px] flex-1 flex-col items-center justify-center gap-0.5 transition-colors',
+                    selected ? 'text-white' : 'text-muted',
+                  )}
                 >
                   {selected ? (
-                    <MotionBox
+                    <motion.span
                       layoutId="nav-indicator"
                       transition={spring}
-                      sx={{ position: 'absolute', inset: '2px 4px', borderRadius: '20px', background: gradients.primary, boxShadow: `0 8px 22px -8px ${tokens.violet}` }}
+                      className="absolute inset-x-1 inset-y-0.5 rounded-[20px] bg-grad-primary"
+                      style={{ boxShadow: `0 8px 22px -8px ${tokens.violet}` }}
                     />
                   ) : null}
                   <motion.span
                     animate={{ y: selected ? -1 : 0, scale: selected ? 1.08 : 1 }}
                     transition={spring}
-                    style={{ position: 'relative', display: 'grid', placeItems: 'center' }}
+                    className="relative grid place-items-center"
                   >
-                    <Icon sx={{ fontSize: 24 }} />
+                    <Icon className="size-6" strokeWidth={selected ? 2.4 : 2} />
                   </motion.span>
-                  <Typography position="relative" fontSize={10.5} fontWeight={selected ? 800 : 600} lineHeight={1}>{label}</Typography>
-                </Box>
+                  <span className={cn('relative text-[10.5px] leading-none', selected ? 'font-extrabold' : 'font-semibold')}>{label}</span>
+                </button>
               );
             })}
-          </MotionBox>
+          </motion.nav>
         ) : null}
       </AnimatePresence>
-    </Box>
+    </div>
   );
 }

@@ -1,18 +1,22 @@
-import ArrowBackRounded from '@mui/icons-material/ArrowBackRounded';
-import { Box, Button, Card, CardContent, Chip, Grid, Stack, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
+import { ArrowLeft } from 'lucide-react';
+import { motion } from 'motion/react';
 import { useState } from 'react';
 
 import { PageHeader } from '@/components/common/PageHeader';
 import { QueryState } from '@/components/common/QueryState';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { GuidedArticlePanel } from '@/components/reading/GuidedArticlePanel';
-import { MotionBox, Pressable, Stagger, StaggerItem } from '@/components/ui/motion';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Chip } from '@/components/ui/chip';
+import { Pressable, Stagger, StaggerItem } from '@/components/ui/motion';
+import { Segmented } from '@/components/ui/segmented';
 import { useReadingItems } from '@/hooks/useReadingLibrary';
-import { feedback } from '@/services/feedbackService';
-import { gradients, tokens } from '@/theme';
+import { gradients } from '@/theme';
 import type { ReadingItem } from '@/types/reading';
 
 const CARD_GRADIENTS = [gradients.primary, gradients.ocean, gradients.sunrise, gradients.mint];
+const LEVELS = ['Tout', 'A2', 'B1', 'B2', 'C1'];
 
 export function ReadingPage() {
   const [level, setLevel] = useState('Tout');
@@ -24,45 +28,46 @@ export function ReadingPage() {
       <PageHeader back eyebrow="Compréhension écrite" title="Lire" subtitle="Lecture guidée et articles" />
 
       {selected ? (
-        <MotionBox initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ type: 'spring', stiffness: 260, damping: 26 }}>
-          <Button startIcon={<ArrowBackRounded />} onClick={() => setSelected(null)} sx={{ mb: 1.5, color: tokens.violetSoft }}>Bibliothèque</Button>
+        <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ type: 'spring', stiffness: 260, damping: 26 }}>
+          <Button variant="ghost" onClick={() => setSelected(null)} className="-ml-2 mb-3 text-violet-soft"><ArrowLeft />Bibliothèque</Button>
           <GuidedArticlePanel item={selected} />
-        </MotionBox>
+        </motion.div>
       ) : (
         <>
-          <ToggleButtonGroup exclusive value={level} onChange={(_, value) => { if (value) { feedback('select'); setLevel(value); } }} size="small" sx={{ mb: 2 }}>
-            {['Tout', 'A2', 'B1', 'B2', 'C1'].map((item) => <ToggleButton key={item} value={item}>{item}</ToggleButton>)}
-          </ToggleButtonGroup>
+          <Segmented
+            aria-label="Niveau"
+            size="sm"
+            value={level}
+            onChange={setLevel}
+            options={LEVELS.map((item) => ({ value: item, label: item }))}
+            className="mb-4"
+          />
           <QueryState loading={query.isLoading} error={query.isError} empty={!query.data?.length} onRetry={() => query.refetch()} />
-          <Stagger gap={0.05}>
-            <Grid container spacing={1.5}>
-              {query.data?.map((item, index) => {
-                const gradient = CARD_GRADIENTS[index % CARD_GRADIENTS.length]!;
-                return (
-                  <Grid item xs={12} sm={6} key={item.id}>
-                    <StaggerItem sx={{ height: '100%' }}>
-                      <Pressable onClick={() => setSelected(item)} aria-label={item.title} sx={{ height: '100%' }}>
-                        <Card sx={{ height: '100%', overflow: 'hidden' }}>
-                          <Box sx={{ height: 6, background: gradient }} />
-                          <CardContent>
-                            <Stack direction="row" justifyContent="space-between" gap={1} alignItems="flex-start">
-                              <Typography variant="h3" lineHeight={1.3}>{item.title}</Typography>
-                              <Chip label={item.level} size="small" sx={{ background: gradient, color: '#fff', flexShrink: 0 }} />
-                            </Stack>
-                            <Typography color="text.secondary" fontSize={13.5} mt={0.75} lineHeight={1.55}>{item.description}</Typography>
-                            <Stack direction="row" gap={0.75} mt={1.75} flexWrap="wrap" useFlexGap>
-                              <Chip size="small" label={item.category} />
-                              <Chip size="small" label={`${item.segmentCount} parties`} />
-                              <Chip size="small" label={`${item.wordCount} mots`} />
-                            </Stack>
-                          </CardContent>
-                        </Card>
-                      </Pressable>
-                    </StaggerItem>
-                  </Grid>
-                );
-              })}
-            </Grid>
+          <Stagger gap={0.05} className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {query.data?.map((item, index) => {
+              const gradient = CARD_GRADIENTS[index % CARD_GRADIENTS.length]!;
+              return (
+                <StaggerItem key={item.id} className="h-full">
+                  <Pressable onClick={() => setSelected(item)} aria-label={item.title} className="h-full">
+                    <Card className="h-full overflow-hidden">
+                      <div className="h-1.5" style={{ background: gradient }} />
+                      <CardContent>
+                        <div className="flex items-start justify-between gap-2">
+                          <h3 className="type-h3">{item.title}</h3>
+                          <Chip size="sm" label={item.level} className="text-white" style={{ background: gradient }} />
+                        </div>
+                        <p className="mt-1.5 text-[13.5px] leading-[1.55] text-muted">{item.description}</p>
+                        <div className="mt-3.5 flex flex-wrap gap-1.5">
+                          <Chip size="sm" label={item.category} />
+                          <Chip size="sm" label={`${item.segmentCount} parties`} />
+                          <Chip size="sm" label={`${item.wordCount} mots`} />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Pressable>
+                </StaggerItem>
+              );
+            })}
           </Stagger>
         </>
       )}

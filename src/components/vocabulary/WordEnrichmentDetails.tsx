@@ -1,6 +1,7 @@
-import VolumeUpRounded from '@mui/icons-material/VolumeUpRounded';
-import { Box, Chip, IconButton, Stack, Typography } from '@mui/material';
+import { Volume2 } from 'lucide-react';
 
+import { IconButton } from '@/components/ui/button';
+import { Chip } from '@/components/ui/chip';
 import {
   collocationKindLabel,
   getVocabularyCollocations,
@@ -8,8 +9,8 @@ import {
   partOfSpeechLabel,
   type VocabularyWordLike,
 } from '@/helpers/vocabularyDisplay';
+import { cn } from '@/lib/utils';
 import { speakEnglish } from '@/services/speechPlaybackService';
-import { tokens } from '@/theme';
 
 interface WordEnrichmentDetailsProps {
   word: VocabularyWordLike;
@@ -44,49 +45,49 @@ export function WordEnrichmentDetails({
   if (!senses.length && !collocations.length) return null;
 
   return (
-    <Box sx={{ p: 2, borderRadius: 5, background: tokens.surface, border: `1px solid ${tokens.border}` }}>
-      <Typography variant="overline" color={tokens.violetSoft} display="block" mb={1}>{title}</Typography>
+    <div className="rounded-[20px] border border-border bg-surface p-4">
+      <span className="type-overline mb-2 text-violet-soft">{title}</span>
 
       {senses.length ? (
-        <Stack gap={1.25}>
+        <div className="flex flex-col gap-2.5">
           {senses.map((sense) => (
-            <Box key={sense.senseKey || sense.translation} sx={{ pl: 1.5, borderLeft: `3px solid ${sense.senseKey === senseKey ? tokens.mint : tokens.violet}` }}>
-              <Stack direction="row" alignItems="center" gap={0.75} flexWrap="wrap" useFlexGap>
-                <Typography fontWeight={800}>{sense.translation}</Typography>
-                <Chip size="small" label={partOfSpeechLabel(sense.partOfSpeech)} />
-              </Stack>
+            <div key={sense.senseKey || sense.translation} className={cn('border-l-[3px] pl-3', sense.senseKey === senseKey ? 'border-mint' : 'border-violet')}>
+              <div className="flex flex-wrap items-center gap-1.5">
+                <p className="font-extrabold">{sense.translation}</p>
+                <Chip size="sm" label={partOfSpeechLabel(sense.partOfSpeech)} />
+              </div>
               {sense.exampleEn ? (
-                <Stack direction="row" alignItems="flex-start" gap={0.5} mt={0.5}>
-                  <Box flex={1} minWidth={0}>
-                    <Typography fontSize={14} fontStyle="italic">{sense.exampleEn}</Typography>
-                    {sense.exampleFr ? <Typography fontSize={13} color="text.secondary">{sense.exampleFr}</Typography> : null}
-                  </Box>
+                <div className="mt-1 flex items-start gap-1">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm italic">{sense.exampleEn}</p>
+                    {sense.exampleFr ? <p className="text-[13px] text-muted">{sense.exampleFr}</p> : null}
+                  </div>
                   <IconButton
-                    size="small"
+                    size="sm"
                     aria-label="Écouter l’exemple"
                     onClick={(event) => { event.stopPropagation(); speakEnglish(sense.exampleEn); }}
-                    sx={{ minWidth: 36, minHeight: 36, color: tokens.violetSoft }}
+                    className="text-violet-soft"
                   >
-                    <VolumeUpRounded fontSize="small" />
+                    <Volume2 />
                   </IconButton>
-                </Stack>
+                </div>
               ) : null}
-            </Box>
+            </div>
           ))}
-        </Stack>
+        </div>
       ) : null}
 
       {collocations.length ? (
-        <Stack gap={0.75} mt={senses.length ? 1.75 : 0}>
+        <div className={cn('flex flex-col gap-1.5', senses.length && 'mt-3.5')}>
           {collocations.map((item) => (
-            <Stack key={`${item.kind}-${item.en}`} direction="row" alignItems="baseline" gap={1} flexWrap="wrap" useFlexGap>
-              <Chip size="small" label={collocationKindLabel(item.kind)} sx={{ background: 'rgba(22,140,168,0.12)', color: tokens.cyan }} />
-              <Typography fontWeight={750} fontSize={14.5}>{item.en}</Typography>
-              {item.fr ? <Typography fontSize={13.5} color="text.secondary">= {item.fr}</Typography> : null}
-            </Stack>
+            <div key={`${item.kind}-${item.en}`} className="flex flex-wrap items-baseline gap-2">
+              <Chip size="sm" label={collocationKindLabel(item.kind)} className="bg-cyan/12 text-cyan" />
+              <p className="text-[14.5px] font-bold">{item.en}</p>
+              {item.fr ? <p className="text-[13.5px] text-muted">= {item.fr}</p> : null}
+            </div>
           ))}
-        </Stack>
+        </div>
       ) : null}
-    </Box>
+    </div>
   );
 }

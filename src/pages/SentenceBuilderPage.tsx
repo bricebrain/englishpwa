@@ -1,23 +1,20 @@
-import BackspaceRounded from '@mui/icons-material/BackspaceRounded';
-import CheckRounded from '@mui/icons-material/CheckRounded';
-import CloseRounded from '@mui/icons-material/CloseRounded';
-import KeyboardRounded from '@mui/icons-material/KeyboardRounded';
-import ViewModuleRounded from '@mui/icons-material/ViewModuleRounded';
-import VolumeUpRounded from '@mui/icons-material/VolumeUpRounded';
-import { Box, Button, Chip, IconButton, InputBase, Stack, styled, Typography } from '@mui/material';
-import { LayoutGroup, motion } from 'framer-motion';
+import { Check, Delete, Keyboard, LayoutGrid, Volume2, X } from 'lucide-react';
+import { LayoutGroup, motion } from 'motion/react';
 import { useMemo, useRef, useState, type FormEvent } from 'react';
 
 import { QueryState } from '@/components/common/QueryState';
 import { PageLayout } from '@/components/layout/PageLayout';
-import { MotionBox } from '@/components/ui/motion';
+import { Button, IconButton } from '@/components/ui/button';
+import { Chip } from '@/components/ui/chip';
+import { Textarea } from '@/components/ui/form';
 import { CelebrationCard, ResultPanel, SessionHeader } from '@/components/ui/SessionChrome';
 import { useCombo } from '@/hooks/useCombo';
 import { useDailySentences } from '@/hooks/useAiFeatures';
 import { evaluateSentence } from '@/helpers/sentenceEvaluation';
+import { cn } from '@/lib/utils';
 import { feedback } from '@/services/feedbackService';
 import { speakEnglish } from '@/services/speechPlaybackService';
-import { displayFont, gradients, tokens } from '@/theme';
+import { tokens } from '@/theme';
 import type { SentenceExercise } from '@/types/aiFeatures';
 
 /** Exercices de secours si les phrases du jour ne sont pas disponibles. */
@@ -125,55 +122,48 @@ export function SentenceBuilderPage() {
           <IconButton
             aria-label={keyboard ? 'Passer en mode tuiles' : 'Passer en mode clavier'}
             onClick={() => { feedback('select'); setKeyboard((value) => !value); }}
-            sx={{ color: 'text.secondary' }}
           >
-            {keyboard ? <ViewModuleRounded /> : <KeyboardRounded />}
+            {keyboard ? <LayoutGrid /> : <Keyboard />}
           </IconButton>
         )}
       />
 
-      <MotionBox key={index} initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={{ type: 'spring', stiffness: 280, damping: 26 }}>
-        <Chip label={exercise.hint} size="small" sx={{ background: gradients.sunrise, color: '#fff', mb: 2 }} />
+      <motion.div key={index} initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={{ type: 'spring', stiffness: 280, damping: 26 }}>
+        <Chip size="sm" label={exercise.hint} className="mb-4 bg-grad-sunrise text-white" />
         {generated && index === 0 ? (
-          <Typography fontSize={12.5} fontWeight={700} color={tokens.violetSoft} mb={1}>
+          <p className="mb-2 text-[12.5px] font-bold text-violet-soft">
             Phrases du jour, écrites pour toi avec tes mots à réviser
-          </Typography>
+          </p>
         ) : null}
-        <Typography variant="overline" color="text.secondary" display="block">Traduis en anglais</Typography>
-        <Typography fontFamily={displayFont} fontSize={{ xs: 26, sm: 30 }} fontWeight={750} lineHeight={1.3} mt={0.5} mb={3}>
+        <span className="type-overline text-muted">Traduis en anglais</span>
+        <p className="mb-6 mt-1 font-display text-[26px] font-bold leading-[1.3] sm:text-[30px]">
           {exercise.prompt}
-        </Typography>
+        </p>
 
-        <Box component="form" onSubmit={submit}>
+        <form onSubmit={submit}>
           {keyboard ? (
-            <InputBase
-              fullWidth
-              multiline
+            <Textarea
               autoFocus
+              rows={3}
               placeholder="Ta phrase en anglais…"
               value={answer}
               disabled={correct !== null}
               onChange={(event) => setAnswer(event.target.value)}
               onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); if (correct !== null) next(); else check(); } }}
-              inputProps={{ autoCapitalize: 'sentences', 'aria-label': 'Ta phrase' }}
-              sx={{
-                px: 2.25, py: 1.75, borderRadius: 4, fontSize: 19, fontWeight: 600, minHeight: 110, alignItems: 'flex-start',
-                background: 'rgba(49,39,78,0.05)', border: `2px solid ${tokens.border}`,
-                '&.Mui-focused': { borderColor: tokens.violet, boxShadow: '0 0 0 5px rgba(139,108,255,0.18)' },
-              }}
+              autoCapitalize="sentences"
+              aria-label="Ta phrase"
+              className="min-h-[110px] resize-none text-[19px] font-semibold"
             />
           ) : (
             <LayoutGroup>
-              <Box
-                sx={{
-                  minHeight: 116, p: 1.25, borderRadius: 5, display: 'flex', flexWrap: 'wrap', alignContent: 'flex-start', gap: 1,
-                  background: 'rgba(49,39,78,0.035)',
-                  border: `2px dashed ${correct === null ? tokens.borderStrong : correct ? tokens.mint : tokens.red}`,
-                  transition: 'border-color .3s',
-                }}
+              <div
+                className={cn(
+                  'flex min-h-[116px] flex-wrap content-start gap-2 rounded-[20px] border-2 border-dashed bg-ink/[0.035] p-2.5 transition-colors duration-300',
+                  correct === null ? 'border-border-strong' : correct ? 'border-mint' : 'border-red',
+                )}
               >
                 {placed.length === 0 ? (
-                  <Typography color="text.disabled" fontSize={14} fontWeight={600} sx={{ p: 1 }}>Touche les mots dans l’ordre…</Typography>
+                  <p className="p-2 text-sm font-semibold text-faint">Touche les mots dans l’ordre…</p>
                 ) : null}
                 {placed.map((id) => {
                   const tile = byId.get(id);
@@ -181,82 +171,77 @@ export function SentenceBuilderPage() {
                     <WordTile key={id} tile={tile} placed disabled={correct !== null} onClick={() => { feedback('tap'); setPlaced((current) => current.filter((item) => item !== id)); }} />
                   ) : null;
                 })}
-              </Box>
+              </div>
 
-              <Stack direction="row" justifyContent="flex-end" mt={0.75} minHeight={40}>
+              <div className="mt-1.5 flex min-h-10 justify-end">
                 {placed.length && correct === null ? (
-                  <Button size="small" color="inherit" startIcon={<BackspaceRounded />} onClick={() => setPlaced((current) => current.slice(0, -1))} sx={{ color: 'text.secondary' }}>
-                    Effacer
+                  <Button size="sm" variant="ghost" onClick={() => setPlaced((current) => current.slice(0, -1))} className="text-muted">
+                    <Delete />Effacer
                   </Button>
                 ) : null}
-              </Stack>
+              </div>
 
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, justifyContent: 'center', mt: 1 }}>
+              <div className="mt-2 flex flex-wrap justify-center gap-2">
                 {tiles.map((tile) => (
-                  <Box key={tile.id} sx={{ position: 'relative' }}>
+                  <div key={tile.id} className="relative">
                     {/* Emplacement fantôme pour que les tuiles restantes ne bougent pas. */}
-                    <Box sx={{ px: 1.75, height: 46, borderRadius: 3, background: 'rgba(49,39,78,0.045)', fontWeight: 700, fontSize: 17, display: 'flex', alignItems: 'center', color: 'transparent' }}>
+                    <span className="flex h-[46px] items-center rounded-xl bg-ink/[0.045] px-3.5 text-[17px] font-bold text-transparent">
                       {tile.word}
-                    </Box>
+                    </span>
                     {!placed.includes(tile.id) ? (
-                      <Box sx={{ position: 'absolute', inset: 0 }}>
+                      <div className="absolute inset-0">
                         <WordTile tile={tile} disabled={correct !== null} onClick={() => { feedback('select'); setPlaced((current) => [...current, tile.id]); }} />
-                      </Box>
+                      </div>
                     ) : null}
-                  </Box>
+                  </div>
                 ))}
-              </Box>
+              </div>
             </LayoutGroup>
           )}
 
           {correct !== null ? (
-            <Box mt={2.5}>
-              <ResultPanel tone={correct ? 'success' : 'error'} title={correct ? 'Parfait !' : 'Pas tout à fait'} icon={correct ? <CheckRounded /> : <CloseRounded />}>
-                <Stack direction="row" alignItems="center" gap={1}>
-                  <Typography fontWeight={700} fontSize={17} flex={1}>{exercise.expected}</Typography>
-                  <IconButton aria-label="Écouter la phrase" onClick={() => speakEnglish(exercise.expected)} sx={{ color: tokens.violetSoft }}>
-                    <VolumeUpRounded />
+            <div className="mt-5">
+              <ResultPanel tone={correct ? 'success' : 'error'} title={correct ? 'Parfait !' : 'Pas tout à fait'} icon={correct ? <Check /> : <X />}>
+                <div className="flex items-center gap-2">
+                  <p className="flex-1 text-[17px] font-bold">{exercise.expected}</p>
+                  <IconButton aria-label="Écouter la phrase" onClick={() => speakEnglish(exercise.expected)} className="text-violet-soft">
+                    <Volume2 />
                   </IconButton>
-                </Stack>
+                </div>
               </ResultPanel>
-            </Box>
+            </div>
           ) : null}
 
           <Button
-            fullWidth
             type="submit"
-            size="large"
-            variant="contained"
-            color={correct ? 'success' : 'primary'}
+            size="lg"
+            variant={correct ? 'success' : 'primary'}
             disabled={!builtSentence.trim()}
-            sx={{ mt: 2.5, minHeight: 56, fontSize: 17 }}
+            className="mt-5 min-h-14 w-full text-[17px]"
           >
             {correct !== null ? 'Suivant' : 'Vérifier'}
           </Button>
-        </Box>
-      </MotionBox>
+        </form>
+      </motion.div>
     </PageLayout>
   );
 }
 
-const TileButton = motion.create(styled('button')({}));
-
 function WordTile({ tile, placed = false, disabled, onClick }: { tile: Tile; placed?: boolean; disabled?: boolean; onClick: () => void }) {
   return (
-    <TileButton
+    <motion.button
       type="button"
       layoutId={tile.id}
       onClick={disabled ? undefined : onClick}
       whileTap={disabled ? undefined : { scale: 0.92 }}
       transition={{ type: 'spring', stiffness: 520, damping: 34 }}
-      sx={{
-        px: 1.75, height: 46, borderRadius: 3, border: `1.5px solid ${placed ? 'rgba(139,108,255,0.5)' : tokens.borderStrong}`,
-        borderBottomWidth: 4, cursor: disabled ? 'default' : 'pointer', font: 'inherit', fontWeight: 700, fontSize: 17,
-        color: tokens.text, background: placed ? 'rgba(139,108,255,0.16)' : tokens.surfaceRaised,
-        display: 'flex', alignItems: 'center', whiteSpace: 'nowrap', width: placed ? 'auto' : '100%',
-      }}
+      className={cn(
+        'flex h-[46px] items-center whitespace-nowrap rounded-xl border-[1.5px] border-b-4 px-3.5 text-[17px] font-bold text-fg',
+        placed ? 'w-auto border-violet/50 bg-violet/16' : 'w-full border-border-strong bg-surface',
+        disabled ? 'cursor-default' : 'cursor-pointer',
+      )}
     >
       {tile.word}
-    </TileButton>
+    </motion.button>
   );
 }

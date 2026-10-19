@@ -1,18 +1,19 @@
-import SearchRounded from '@mui/icons-material/SearchRounded';
-import TranslateRounded from '@mui/icons-material/TranslateRounded';
-import VolumeUpRounded from '@mui/icons-material/VolumeUpRounded';
-import { Box, Card, CardContent, Chip, IconButton, InputBase, Stack, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
+import { Languages, Search, Volume2 } from 'lucide-react';
+import { motion } from 'motion/react';
 import { useState, type FormEvent } from 'react';
 
 import { PageHeader } from '@/components/common/PageHeader';
 import { QueryState } from '@/components/common/QueryState';
 import { PageLayout } from '@/components/layout/PageLayout';
-import { MotionBox, Pressable } from '@/components/ui/motion';
+import { IconButton } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Chip } from '@/components/ui/chip';
+import { Pressable } from '@/components/ui/motion';
+import { Segmented } from '@/components/ui/segmented';
 import { SOURCE_LABELS } from '@/helpers/passageSources';
 import { useSemanticSearch } from '@/hooks/useAiFeatures';
 import { feedback } from '@/services/feedbackService';
 import { speakEnglish } from '@/services/speechPlaybackService';
-import { tokens } from '@/theme';
 import type { PassageSource } from '@/types/aiFeatures';
 
 const SUGGESTIONS = ['parler d’argent', 's’excuser poliment', 'prendre une décision', 'la météo', 'au travail'];
@@ -36,36 +37,38 @@ export function SearchPage() {
     <PageLayout reading>
       <PageHeader back eyebrow="Recherche par le sens" title="Rechercher" subtitle="Décris une idée, en français ou en anglais : je retrouve les passages de tes contenus qui en parlent." />
 
-      <Box component="form" onSubmit={submit} mb={2}>
-        <Stack
-          direction="row" alignItems="center" gap={1} px={2} py={0.75} borderRadius={5}
-          sx={{ background: tokens.surface, border: `2px solid ${tokens.border}`, '&:focus-within': { borderColor: tokens.violet } }}
-        >
-          <SearchRounded sx={{ color: tokens.textFaint }} />
-          <InputBase
-            fullWidth
+      <form onSubmit={submit} className="mb-4">
+        <label className="flex items-center gap-2 rounded-[20px] border-2 border-border bg-surface px-4 py-1.5 transition-colors focus-within:border-violet">
+          <Search className="size-6 shrink-0 text-faint" />
+          <input
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
             placeholder="Ex. : comment refuser poliment"
-            inputProps={{ 'aria-label': 'Recherche', enterKeyHint: 'search' }}
-            sx={{ fontSize: 17 }}
+            aria-label="Recherche"
+            enterKeyHint="search"
+            className="min-h-11 w-full bg-transparent text-[17px] outline-none placeholder:text-faint"
           />
-        </Stack>
-      </Box>
+        </label>
+      </form>
 
       {!query ? (
-        <Stack direction="row" gap={1} flexWrap="wrap" useFlexGap mb={2}>
+        <div className="mb-4 flex flex-wrap gap-2">
           {SUGGESTIONS.map((suggestion) => (
-            <Chip key={suggestion} label={suggestion} onClick={() => { setDraft(suggestion); setQuery(suggestion); }} sx={{ cursor: 'pointer' }} />
+            <Pressable key={suggestion} onClick={() => { setDraft(suggestion); setQuery(suggestion); }} aria-label={suggestion} className="w-auto">
+              <Chip label={suggestion} className="hover:bg-ink/12" />
+            </Pressable>
           ))}
-        </Stack>
+        </div>
       ) : null}
 
-      <ToggleButtonGroup exclusive size="small" value={source} onChange={(_, value) => { if (value) setSource(value); }} sx={{ mb: 2 }}>
-        <ToggleButton value="all">Tout</ToggleButton>
-        <ToggleButton value="content">Scripts</ToggleButton>
-        <ToggleButton value="reading">Articles</ToggleButton>
-      </ToggleButtonGroup>
+      <Segmented
+        aria-label="Source"
+        size="sm"
+        value={source}
+        onChange={setSource}
+        options={[{ value: 'all', label: 'Tout' }, { value: 'content', label: 'Scripts' }, { value: 'reading', label: 'Articles' }]}
+        className="mb-4"
+      />
 
       <QueryState
         loading={search.isLoading && Boolean(query)}
@@ -75,44 +78,44 @@ export function SearchPage() {
         onRetry={() => search.refetch()}
       />
 
-      <Stack gap={1.25}>
+      <div className="flex flex-col gap-2.5">
         {search.data?.map((result, index) => {
           const key = `${result.source}-${result.refId}`;
           const frVisible = showFr.has(key);
           return (
-            <MotionBox key={key} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.04 }}>
+            <motion.div key={key} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.04 }}>
               <Card>
                 <CardContent>
-                  <Stack direction="row" alignItems="center" gap={0.75} mb={1}>
-                    <Chip size="small" label={SOURCE_LABELS[result.source]} />
-                    {result.level ? <Chip size="small" label={result.level} /> : null}
-                    <Typography fontSize={12} color="text.secondary" noWrap flex={1}>{result.title}</Typography>
-                    <Typography fontSize={11.5} fontWeight={800} color={tokens.violetSoft}>{Math.round(result.score * 100)} %</Typography>
-                  </Stack>
-                  <Typography lineHeight={1.7} fontSize={15.5}>{result.text}</Typography>
+                  <div className="mb-2 flex items-center gap-1.5">
+                    <Chip size="sm" label={SOURCE_LABELS[result.source]} />
+                    {result.level ? <Chip size="sm" label={result.level} /> : null}
+                    <span className="min-w-0 flex-1 truncate text-xs text-muted">{result.title}</span>
+                    <span className="text-[11.5px] font-extrabold text-violet-soft">{Math.round(result.score * 100)} %</span>
+                  </div>
+                  <p className="text-[15.5px] leading-[1.7]">{result.text}</p>
                   {frVisible && result.textFr ? (
-                    <Typography lineHeight={1.6} fontSize={14} color="text.secondary" mt={1} sx={{ pl: 1.5, borderLeft: `3px solid ${tokens.cyan}` }}>{result.textFr}</Typography>
+                    <p className="mt-2 border-l-[3px] border-cyan pl-3 text-sm leading-relaxed text-muted">{result.textFr}</p>
                   ) : null}
-                  <Stack direction="row" gap={0.5} mt={1}>
-                    <IconButton aria-label="Écouter le passage" onClick={() => speakEnglish(result.text)} sx={{ color: tokens.violetSoft }}><VolumeUpRounded /></IconButton>
+                  <div className="mt-2 flex gap-1">
+                    <IconButton aria-label="Écouter le passage" onClick={() => speakEnglish(result.text)} className="text-violet-soft"><Volume2 /></IconButton>
                     {result.textFr ? (
                       <Pressable
                         onClick={() => setShowFr((current) => { const next = new Set(current); if (next.has(key)) next.delete(key); else next.add(key); return next; })}
                         aria-label="Afficher la traduction"
-                        sx={{ width: 'auto' }}
+                        className="w-auto"
                       >
-                        <Stack direction="row" alignItems="center" gap={0.5} px={1.25} height={40} borderRadius={3} sx={{ color: tokens.cyan, fontWeight: 700, fontSize: 14 }}>
-                          <TranslateRounded fontSize="small" /> {frVisible ? 'Masquer le français' : 'Français'}
-                        </Stack>
+                        <span className="flex h-10 items-center gap-1 rounded-xl px-2.5 text-sm font-bold text-cyan">
+                          <Languages className="size-5" /> {frVisible ? 'Masquer le français' : 'Français'}
+                        </span>
                       </Pressable>
                     ) : null}
-                  </Stack>
+                  </div>
                 </CardContent>
               </Card>
-            </MotionBox>
+            </motion.div>
           );
         })}
-      </Stack>
+      </div>
     </PageLayout>
   );
 }

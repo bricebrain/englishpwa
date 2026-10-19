@@ -1,10 +1,9 @@
-import ArrowBackRounded from '@mui/icons-material/ArrowBackRounded';
-import { Box, IconButton, Stack, Typography } from '@mui/material';
+import { ArrowLeft } from 'lucide-react';
+import { motion } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 
-import { MotionBox } from '@/components/ui/motion';
+import { IconButton } from '@/components/ui/button';
 import { softSpring } from '@/components/ui/springs';
-import { tokens } from '@/theme';
 
 interface PageHeaderProps {
   title: string;
@@ -18,24 +17,20 @@ export function PageHeader({ title, subtitle, eyebrow, back = false, action }: P
   const navigate = useNavigate();
 
   return (
-    <Box mb={3}>
-      <Stack direction="row" alignItems="center" justifyContent="space-between" gap={1} minHeight={44} mb={back ? 1 : 0}>
+    <header className="mb-6">
+      <div className={`flex min-h-11 items-center justify-between gap-2 ${back ? 'mb-2' : ''}`}>
         {back ? (
-          <IconButton
-            aria-label="Revenir en arrière"
-            onClick={() => navigate(-1)}
-            sx={{ ml: -0.5, background: 'rgba(49,39,78,0.05)', border: `1px solid ${tokens.border}` }}
-          >
-            <ArrowBackRounded />
+          <IconButton aria-label="Revenir en arrière" onClick={() => navigate(-1)} className="-ml-1 border border-border bg-ink/5 text-fg">
+            <ArrowLeft />
           </IconButton>
         ) : <span />}
         {action}
-      </Stack>
-      <MotionBox initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={softSpring}>
-        {eyebrow ? <Typography variant="overline" color={tokens.violetSoft} display="block">{eyebrow}</Typography> : null}
-        <Typography component="h1" variant="h1">{title}</Typography>
-        {subtitle ? <Typography color="text.secondary" mt={0.75} fontSize={15} lineHeight={1.5}>{subtitle}</Typography> : null}
-      </MotionBox>
-    </Box>
+      </div>
+      <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={softSpring}>
+        {eyebrow ? <span className="type-overline text-violet-soft">{eyebrow}</span> : null}
+        <h1 className="type-h1">{title}</h1>
+        {subtitle ? <p className="mt-1.5 text-[15px] leading-normal text-muted">{subtitle}</p> : null}
+      </motion.div>
+    </header>
   );
 }

@@ -1,9 +1,9 @@
-import RecordVoiceOverRounded from '@mui/icons-material/RecordVoiceOverRounded';
-import { Box, Stack, Typography } from '@mui/material';
+import { Speech } from 'lucide-react';
+import { motion } from 'motion/react';
 
 import { AudioPlayerBar } from '@/components/audio/AudioPlayerBar';
-import { MotionBox } from '@/components/ui/motion';
 import type { AudioTrack } from '@/hooks/useAudioPlayer';
+import { cn } from '@/lib/utils';
 import { tokens } from '@/theme';
 import type { AssimilDialogueLine } from '@/types/learning';
 
@@ -39,12 +39,12 @@ export function AssimilDialoguePanel({
   const lines = dialogue.length > 1 ? dialogue.slice(1) : dialogue;
 
   return (
-    <Box>
-      <Stack direction="row" alignItems="center" gap={1} mb={1.5}>
-        <RecordVoiceOverRounded sx={{ color: tokens.violetSoft }} />
-        <Typography variant="h2">Dialogue original</Typography>
-      </Stack>
-      <Stack gap={1.25}>
+    <div>
+      <div className="mb-3 flex items-center gap-2">
+        <Speech className="size-6 text-violet-soft" />
+        <h2 className="type-h2">Dialogue original</h2>
+      </div>
+      <div className="flex flex-col gap-2.5">
         {lines.map((line, index) => {
           const right = line.speakerNumber % 2 === 0;
           const track = {
@@ -56,34 +56,36 @@ export function AssimilDialoguePanel({
           };
           const playing = player.activeTrack?.id === track.id && player.playing;
           return (
-            <MotionBox
+            <motion.div
               key={`${line.speakerLabel}-${line.start}`}
               initial={{ opacity: 0, x: right ? 30 : -30 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: '-40px' }}
               transition={{ type: 'spring', stiffness: 260, damping: 24 }}
-              sx={{ display: 'flex', justifyContent: right ? 'flex-end' : 'flex-start' }}
+              className={cn('flex', right ? 'justify-end' : 'justify-start')}
             >
-              <Box
-                sx={{
-                  width: { xs: '92%', sm: '80%' }, p: 2, borderRadius: right ? '22px 22px 6px 22px' : '22px 22px 22px 6px',
-                  background: right ? 'linear-gradient(160deg, rgba(139,108,255,0.22), rgba(255,93,162,0.12))' : tokens.surfaceRaised,
-                  border: `1px solid ${playing ? tokens.violet : right ? 'rgba(139,108,255,0.3)' : tokens.border}`,
-                  boxShadow: playing ? `0 0 30px -10px ${tokens.violet}` : 'none', transition: 'border-color .3s, box-shadow .3s',
-                }}
+              <div
+                className={cn(
+                  'w-[92%] border p-4 transition-[border-color,box-shadow] duration-300 sm:w-4/5',
+                  right
+                    ? 'rounded-[22px_22px_6px_22px] bg-[linear-gradient(160deg,color-mix(in_srgb,var(--violet)_18%,transparent),color-mix(in_srgb,var(--pink)_10%,transparent))]'
+                    : 'rounded-[22px_22px_22px_6px] bg-surface',
+                  playing ? 'border-violet' : right ? 'border-violet/30' : 'border-border',
+                )}
+                style={playing ? { boxShadow: `0 0 30px -10px ${tokens.violet}` } : undefined}
               >
-                <Stack direction="row" justifyContent="space-between" alignItems="center" gap={1} mb={0.75}>
-                  <Typography variant="overline" color={right ? tokens.pink : tokens.cyan}>Voix {line.speakerNumber}</Typography>
-                  <Typography fontSize={11.5} color="text.disabled">{line.emotion} · {line.tone} · {time(line.start)}</Typography>
-                </Stack>
-                <Typography fontSize={17} fontWeight={650} lineHeight={1.5}>{line.text}</Typography>
-                {line.textFr ? <Typography color="text.secondary" fontSize={14} mt={0.5}>{line.textFr}</Typography> : null}
-                <Box mt={1.25}><AudioPlayerBar track={track} {...player} /></Box>
-              </Box>
-            </MotionBox>
+                <div className="mb-1.5 flex items-center justify-between gap-2">
+                  <span className={cn('type-overline', right ? 'text-pink' : 'text-cyan')}>Voix {line.speakerNumber}</span>
+                  <span className="text-[11.5px] text-faint">{line.emotion} · {line.tone} · {time(line.start)}</span>
+                </div>
+                <p className="text-[17px] font-semibold leading-normal">{line.text}</p>
+                {line.textFr ? <p className="mt-1 text-sm text-muted">{line.textFr}</p> : null}
+                <div className="mt-2.5"><AudioPlayerBar track={track} {...player} /></div>
+              </div>
+            </motion.div>
           );
         })}
-      </Stack>
-    </Box>
+      </div>
+    </div>
   );
 }

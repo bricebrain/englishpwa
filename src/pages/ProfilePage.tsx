@@ -1,16 +1,20 @@
-import SaveRounded from '@mui/icons-material/SaveRounded';
-import SwipeRounded from '@mui/icons-material/SwipeRounded';
-import { Box, Button, Card, CardContent, Slider, Snackbar, Stack, TextField, Typography } from '@mui/material';
-import { useState, type FormEvent } from 'react';
+import { MoveHorizontal, Save } from 'lucide-react';
+import { motion } from 'motion/react';
+import { useCallback, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { PageHeader } from '@/components/common/PageHeader';
 import { PageLayout } from '@/components/layout/PageLayout';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input, Slider } from '@/components/ui/form';
 import { LevelBadge } from '@/components/ui/Gamification';
-import { MotionBox, Pressable } from '@/components/ui/motion';
+import { Pressable } from '@/components/ui/motion';
+import { Toast } from '@/components/ui/toast';
 import { usePreferences } from '@/hooks/usePreferences';
+import { cn } from '@/lib/utils';
 import { feedback } from '@/services/feedbackService';
-import { displayFont, gradients, tokens } from '@/theme';
+import { tokens } from '@/theme';
 import type { LearningProfile } from '@/types/learning';
 
 const LEVELS: { value: LearningProfile['level']; label: string }[] = [
@@ -32,6 +36,7 @@ export function ProfilePage() {
   const { preferences, updateProfile } = usePreferences();
   const [form, setForm] = useState(preferences.profile);
   const [saved, setSaved] = useState(false);
+  const closeToast = useCallback(() => setSaved(false), []);
 
   const submit = (event: FormEvent) => {
     event.preventDefault();
@@ -44,73 +49,77 @@ export function ProfilePage() {
     <PageLayout reading>
       <PageHeader back title="Profil" subtitle="Niveau et rythme d’apprentissage" />
 
-      <Stack component="form" onSubmit={submit} gap={2}>
-        <Card sx={{ overflow: 'hidden' }}>
-          <Box sx={{ height: 84, background: gradients.primary, opacity: 0.85 }} />
-          <CardContent sx={{ pt: 0, mt: -5, position: 'relative' }}>
-            <Stack direction="row" alignItems="flex-end" justifyContent="space-between">
-              <MotionBox
+      <form onSubmit={submit} className="flex flex-col gap-4">
+        <Card className="overflow-hidden">
+          <div className="h-[84px] bg-grad-primary opacity-85" />
+          <CardContent className="relative -mt-10 pt-0">
+            <div className="flex items-end justify-between">
+              <motion.div
                 initial={{ scale: 0.6, rotate: -10 }}
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 14 }}
-                sx={{ width: 84, height: 84, borderRadius: '30%', display: 'grid', placeItems: 'center', background: tokens.surfaceRaised, border: `4px solid ${tokens.surface}`, fontFamily: displayFont, fontWeight: 800, fontSize: 36 }}
+                className="grid size-[84px] place-items-center rounded-[30%] border-4 border-surface bg-surface font-display text-4xl font-extrabold"
               >
                 {form.name.charAt(0).toUpperCase() || 'A'}
-              </MotionBox>
+              </motion.div>
               <LevelBadge />
-            </Stack>
-            <Typography variant="h2" mt={1.5}>{form.name || 'Apprenant'}</Typography>
-            <Typography color="text.secondary" fontSize={14}>Niveau {form.level} · {form.dailyGoal} mots par jour</Typography>
+            </div>
+            <h2 className="type-h2 mt-3">{form.name || 'Apprenant'}</h2>
+            <p className="text-sm text-muted">Niveau {form.level} · {form.dailyGoal} mots par jour</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardContent>
-            <TextField fullWidth label="Nom affiché" value={form.name} onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))} />
+            <label className="block">
+              <span className="mb-1.5 block text-[13px] font-bold text-muted">Nom affiché</span>
+              <Input value={form.name} onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))} />
+            </label>
 
-            <Typography variant="overline" color="text.secondary" display="block" mt={3} mb={1}>Niveau actuel</Typography>
-            <Box display="grid" gridTemplateColumns="repeat(4, 1fr)" gap={1}>
+            <span className="type-overline mb-2 mt-6 text-muted">Niveau actuel</span>
+            <div className="grid grid-cols-4 gap-2">
               {LEVELS.map(({ value, label }) => {
                 const selected = form.level === value;
                 return (
                   <Pressable key={value} silent onClick={() => { feedback('select'); setForm((current) => ({ ...current, level: value })); }} aria-pressed={selected} aria-label={`${value} ${label}`}>
-                    <Box
-                      sx={{
-                        py: 1.25, borderRadius: 4, textAlign: 'center',
-                        background: selected ? gradients.primary : 'rgba(49,39,78,0.045)',
-                        border: `1px solid ${selected ? 'transparent' : tokens.border}`,
-                        boxShadow: selected ? `0 10px 24px -10px ${tokens.violet}` : 'none',
-                        transition: 'all .25s',
-                      }}
+                    <span
+                      className={cn(
+                        'block rounded-2xl border py-2.5 text-center transition-all duration-200',
+                        selected ? 'border-transparent bg-grad-primary text-white' : 'border-border bg-ink/[0.045]',
+                      )}
+                      style={selected ? { boxShadow: `0 10px 24px -10px ${tokens.violet}` } : undefined}
                     >
-                      <Typography fontFamily={displayFont} fontWeight={800} fontSize={20}>{value}</Typography>
-                      <Typography fontSize={10.5} fontWeight={700} color={selected ? 'rgba(255,255,255,0.85)' : 'text.secondary'}>{label}</Typography>
-                    </Box>
+                      <span className="block font-display text-xl font-extrabold">{value}</span>
+                      <span className={cn('block text-[10.5px] font-bold', selected ? 'text-white/85' : 'text-muted')}>{label}</span>
+                    </span>
                   </Pressable>
                 );
               })}
-            </Box>
+            </div>
 
-            <Stack direction="row" justifyContent="space-between" alignItems="baseline" mt={3}>
-              <Typography variant="overline" color="text.secondary">Objectif quotidien</Typography>
-              <Typography fontWeight={800} color={tokens.amber}>{goalLabel(form.dailyGoal)}</Typography>
-            </Stack>
-            <Typography fontFamily={displayFont} fontWeight={800} fontSize={34}>{form.dailyGoal} <Typography component="span" color="text.secondary" fontWeight={600}>mots / jour</Typography></Typography>
+            <div className="mt-6 flex items-baseline justify-between">
+              <span className="type-overline text-muted">Objectif quotidien</span>
+              <p className="font-extrabold text-amber">{goalLabel(form.dailyGoal)}</p>
+            </div>
+            <p className="font-display text-[34px] font-extrabold">
+              {form.dailyGoal} <span className="font-sans text-base font-semibold text-muted">mots / jour</span>
+            </p>
             <Slider
-              min={5} max={50} step={5} value={form.dailyGoal}
-              onChange={(_, value) => { feedback('tap'); setForm((current) => ({ ...current, dailyGoal: value as number })); }}
+              min={5} max={50} step={5} value={[form.dailyGoal]}
+              onValueChange={([value]) => { feedback('tap'); setForm((current) => ({ ...current, dailyGoal: value ?? current.dailyGoal })); }}
               aria-label="Objectif quotidien"
+              className="mt-1"
             />
           </CardContent>
         </Card>
 
-        <Typography color="text.disabled" fontSize={12.5} textAlign="center">
+        <p className="text-center text-[12.5px] text-faint">
           Les préférences sont conservées dans ce navigateur tant que l’API de profil n’est pas configurée.
-        </Typography>
-        <Button type="submit" size="large" variant="contained" startIcon={<SaveRounded />}>Enregistrer</Button>
-        <Button size="large" variant="outlined" startIcon={<SwipeRounded />} onClick={() => navigate('/lingvist-triage')}>Trier les mots faciles</Button>
-      </Stack>
-      <Snackbar open={saved} autoHideDuration={2500} onClose={() => setSaved(false)} message="Profil enregistré ✓" />
+        </p>
+        <Button type="submit" size="lg"><Save />Enregistrer</Button>
+        <Button size="lg" variant="outline" onClick={() => navigate('/lingvist-triage')}><MoveHorizontal />Trier les mots faciles</Button>
+      </form>
+      <Toast open={saved} onClose={closeToast} message="Profil enregistré ✓" />
     </PageLayout>
   );
 }

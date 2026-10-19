@@ -1,18 +1,5 @@
-import RefreshRounded from '@mui/icons-material/RefreshRounded';
+import { RefreshCw } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import {
-  Button,
-  IconButton,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  Grid,
-  Alert,
-  Stack,
-  Typography,
-} from '@mui/material';
 import { useMemo, useState } from 'react';
 
 import { learningApi } from '@/api/learningApi';
@@ -20,13 +7,15 @@ import { PageHeader } from '@/components/common/PageHeader';
 import { QueryState } from '@/components/common/QueryState';
 import { PreparedContentCard } from '@/components/content/PreparedContentCard';
 import { PageLayout } from '@/components/layout/PageLayout';
+import { Alert } from '@/components/ui/alert';
+import { Button, IconButton } from '@/components/ui/button';
+import { Stagger, StaggerItem } from '@/components/ui/motion';
+import { Sheet } from '@/components/ui/sheet';
 import { isEnglishContent } from '@/helpers/preparedContent';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import { usePreparedContent } from '@/hooks/useLearningQueries';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { usePreferences } from '@/hooks/usePreferences';
-import { Stagger, StaggerItem } from '@/components/ui/motion';
-import { tokens } from '@/theme';
 import type { PreparedContent } from '@/types/learning';
 
 export function ScriptsPage() {
@@ -69,64 +58,56 @@ export function ScriptsPage() {
         title="Scripts & audios"
         subtitle="Audios, scripts anglais et traductions préparés pour toi"
         action={(
-          <IconButton aria-label="Actualiser" onClick={() => query.refetch()} sx={{ background: 'rgba(49,39,78,0.05)', border: `1px solid ${tokens.border}` }}>
-            <RefreshRounded />
+          <IconButton aria-label="Actualiser" onClick={() => query.refetch()} className="border border-border bg-ink/5 text-fg">
+            <RefreshCw className={query.isFetching ? 'animate-spin' : undefined} />
           </IconButton>
         )}
       />
       <QueryState loading={query.isLoading} error={query.isError} offline={!online} empty={!items.length} onRetry={() => query.refetch()} />
-      {deleteMutation.isError ? <Alert severity="error" sx={{ mb: 2 }}>La suppression n’a pas pu être enregistrée.</Alert> : null}
+      {deleteMutation.isError ? <Alert severity="error" className="mb-4">La suppression n’a pas pu être enregistrée.</Alert> : null}
 
       {englishItems.length ? (
-        <Stack direction="row" alignItems="baseline" gap={1} mb={1.5}>
-          <Typography variant="h2">Scripts anglais</Typography>
-          <Typography fontWeight={800} color={tokens.violetSoft}>{englishItems.length}</Typography>
-        </Stack>
+        <div className="mb-3 flex items-baseline gap-2">
+          <h2 className="type-h2">Scripts anglais</h2>
+          <span className="font-extrabold text-violet-soft">{englishItems.length}</span>
+        </div>
       ) : null}
-      <Stagger gap={0.05}>
-        <Grid container spacing={1.5}>
-          {englishItems.map((item) => (
-            <Grid item xs={12} sm={6} key={item.id}>
-              <StaggerItem sx={{ height: '100%' }}>
-                <PreparedContentCard item={item} player={playerProps} onDelete={setDeleteTarget} />
-              </StaggerItem>
-            </Grid>
-          ))}
-        </Grid>
+      <Stagger gap={0.05} className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {englishItems.map((item) => (
+          <StaggerItem key={item.id} className="h-full">
+            <PreparedContentCard item={item} player={playerProps} onDelete={setDeleteTarget} />
+          </StaggerItem>
+        ))}
       </Stagger>
 
       {otherItems.length ? (
-        <Stack mt={3} gap={1.25}>
-          <Typography variant="h2">Langue à vérifier · {otherItems.length}</Typography>
-          <Grid container spacing={1.5}>
+        <section className="mt-6 flex flex-col gap-2.5">
+          <h2 className="type-h2">Langue à vérifier · {otherItems.length}</h2>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {otherItems.map((item) => (
-              <Grid item xs={12} sm={6} key={item.id}>
-                <PreparedContentCard item={item} player={playerProps} onDelete={setDeleteTarget} />
-              </Grid>
+              <PreparedContentCard key={item.id} item={item} player={playerProps} onDelete={setDeleteTarget} />
             ))}
-          </Grid>
-        </Stack>
+          </div>
+        </section>
       ) : null}
 
-      <Dialog open={Boolean(deleteTarget)} onClose={() => !deleteMutation.isPending && setDeleteTarget(null)}>
-        <DialogTitle>Supprimer ce contenu ?</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            « {deleteTarget?.title} » et son audio seront supprimés du Worker. Cette action est définitive.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDeleteTarget(null)} disabled={deleteMutation.isPending}>Annuler</Button>
+      <Sheet
+        open={Boolean(deleteTarget)}
+        onOpenChange={(open) => { if (!open && !deleteMutation.isPending) setDeleteTarget(null); }}
+        title="Supprimer ce contenu ?"
+        description={<>« {deleteTarget?.title} » et son audio seront supprimés du Worker. Cette action est définitive.</>}
+      >
+        <div className="mt-6 flex flex-col gap-2.5">
           <Button
-            color="error"
-            variant="contained"
+            className="bg-red bg-none text-bg shadow-none"
             disabled={!deleteTarget || deleteMutation.isPending}
             onClick={() => deleteTarget && deleteMutation.mutate(deleteTarget.id)}
           >
             {deleteMutation.isPending ? 'Suppression…' : 'Supprimer'}
           </Button>
-        </DialogActions>
-      </Dialog>
+          <Button variant="outline" onClick={() => setDeleteTarget(null)} disabled={deleteMutation.isPending}>Annuler</Button>
+        </div>
+      </Sheet>
     </PageLayout>
   );
 }

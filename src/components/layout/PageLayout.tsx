@@ -1,4 +1,3 @@
-import { Box, Container } from '@mui/material';
 import type { PropsWithChildren } from 'react';
 
 import { APP_LAYOUT } from '@/constants/layout';
@@ -9,16 +8,11 @@ interface PageLayoutProps extends PropsWithChildren {
 
 export function PageLayout({ children, reading = false }: PageLayoutProps) {
   return (
-    <Container
-      maxWidth={false}
-      sx={{
-        maxWidth: reading ? APP_LAYOUT.readingMaxWidth : APP_LAYOUT.dashboardMaxWidth,
-        px: { xs: 2, sm: 3, md: 4 },
-        pt: 'max(16px, calc(env(safe-area-inset-top) + 8px))',
-        pb: { xs: 4, sm: 6 },
-      }}
+    <div
+      className="mx-auto w-full px-4 pb-8 pt-[max(16px,calc(env(safe-area-inset-top)+8px))] sm:px-6 sm:pb-12 md:px-8"
+      style={{ maxWidth: reading ? APP_LAYOUT.readingMaxWidth : APP_LAYOUT.dashboardMaxWidth }}
     >
-      <Box>{children}</Box>
-    </Container>
+      {children}
+    </div>
   );
 }

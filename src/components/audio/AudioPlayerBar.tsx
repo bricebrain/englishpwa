@@ -1,11 +1,13 @@
-import PauseRounded from '@mui/icons-material/PauseRounded';
-import PlayArrowRounded from '@mui/icons-material/PlayArrowRounded';
-import StopRounded from '@mui/icons-material/StopRounded';
-import { Alert, Box, IconButton, Slider, Stack, Typography } from '@mui/material';
+import { Pause, Play, Square } from 'lucide-react';
+import { motion } from 'motion/react';
 
-import { MotionBox, Pressable } from '@/components/ui/motion';
+import { Alert } from '@/components/ui/alert';
+import { IconButton } from '@/components/ui/button';
+import { Slider } from '@/components/ui/form';
+import { Pressable } from '@/components/ui/motion';
 import type { AudioTrack } from '@/hooks/useAudioPlayer';
-import { gradients, tokens } from '@/theme';
+import { cn } from '@/lib/utils';
+import { tokens } from '@/theme';
 
 interface AudioPlayerBarProps {
   track: AudioTrack;
@@ -32,16 +34,17 @@ function formatTime(value: number) {
 /** Petit égaliseur animé affiché pendant la lecture. */
 export function Equalizer({ active, color = tokens.cyan, bars = 4 }: { active: boolean; color?: string; bars?: number }) {
   return (
-    <Stack direction="row" alignItems="flex-end" gap="2px" height={16} aria-hidden>
+    <div className="flex h-4 items-end gap-0.5" aria-hidden>
       {Array.from({ length: bars }, (_, index) => (
-        <MotionBox
+        <motion.span
           key={index}
           animate={active ? { height: ['30%', '100%', '45%', '85%', '30%'] } : { height: '30%' }}
           transition={active ? { duration: 0.9 + index * 0.13, repeat: Infinity, ease: 'easeInOut' } : { duration: 0.3 }}
-          sx={{ width: 3, borderRadius: 2, background: color }}
+          className="block w-[3px] rounded-sm"
+          style={{ background: color }}
         />
       ))}
-    </Stack>
+    </div>
   );
 }
 
@@ -53,50 +56,48 @@ export function AudioPlayerBar(props: AudioPlayerBarProps) {
   const nextSpeed = SPEEDS[(SPEEDS.indexOf(props.speed) + 1) % SPEEDS.length] ?? 1;
 
   return (
-    <Box>
-      <Stack direction="row" alignItems="center" gap={1.25}>
+    <div>
+      <div className="flex items-center gap-2.5">
         <Pressable
           onClick={() => props.onToggle(props.track)}
           aria-label={isPlaying ? 'Mettre en pause' : 'Lire'}
-          sx={{ width: 48, height: 48, borderRadius: '50%', flexShrink: 0 }}
+          className="size-12 shrink-0 rounded-full"
         >
-          <Box
-            sx={{
-              width: 48, height: 48, borderRadius: '50%', display: 'grid', placeItems: 'center', color: '#fff',
-              background: isPlaying ? gradients.sunrise : gradients.ocean,
-              boxShadow: `0 8px 22px -8px ${isPlaying ? tokens.coral : tokens.cyan}`,
-              transition: 'background .3s, box-shadow .3s',
-            }}
+          <span
+            className={cn(
+              'grid size-12 place-items-center rounded-full text-white transition-[background,box-shadow] duration-300',
+              isPlaying ? 'bg-grad-sunrise' : 'bg-grad-ocean',
+            )}
+            style={{ boxShadow: `0 8px 22px -8px ${isPlaying ? tokens.coral : tokens.cyan}` }}
           >
-            {isPlaying ? <PauseRounded /> : <PlayArrowRounded />}
-          </Box>
+            {isPlaying ? <Pause className="size-6 fill-current" /> : <Play className="ml-0.5 size-6 fill-current" />}
+          </span>
         </Pressable>
-        <Stack flex={1} minWidth={0}>
+        <div className="min-w-0 flex-1">
           <Slider
-            size="small"
-            value={progress}
+            value={[progress]}
             max={Math.max(1, duration)}
+            step={0.1}
             disabled={!active || !duration}
-            onChange={(_, value) => props.onSeek(value as number)}
+            onValueChange={([value]) => props.onSeek(value ?? 0)}
             aria-label="Position de lecture"
-            sx={{ py: 1.25, '&.Mui-disabled .MuiSlider-thumb': { display: 'none' } }}
           />
-          <Stack direction="row" justifyContent="space-between" alignItems="center" mt={-0.5}>
-            <Typography fontSize={11} color="text.secondary" sx={{ fontVariantNumeric: 'tabular-nums' }}>{formatTime(progress)}</Typography>
+          <div className="-mt-0.5 flex items-center justify-between">
+            <span className="text-[11px] tabular-nums text-muted">{formatTime(progress)}</span>
             {isPlaying ? <Equalizer active /> : null}
-            <Typography fontSize={11} color="text.secondary" sx={{ fontVariantNumeric: 'tabular-nums' }}>{formatTime(duration)}</Typography>
-          </Stack>
-        </Stack>
-        <Pressable onClick={() => props.onSpeedChange(nextSpeed)} aria-label={`Vitesse ${props.speed}×, passer à ${nextSpeed}×`} sx={{ width: 'auto' }}>
-          <Box sx={{ px: 1.1, height: 32, borderRadius: 2.5, display: 'grid', placeItems: 'center', fontSize: 13, fontWeight: 800, color: tokens.violetSoft, background: 'rgba(139,108,255,0.12)', border: '1px solid rgba(139,108,255,0.25)' }}>
+            <span className="text-[11px] tabular-nums text-muted">{formatTime(duration)}</span>
+          </div>
+        </div>
+        <Pressable onClick={() => props.onSpeedChange(nextSpeed)} aria-label={`Vitesse ${props.speed}×, passer à ${nextSpeed}×`} className="w-auto">
+          <span className="grid h-8 place-items-center rounded-[10px] border border-violet/25 bg-violet/12 px-2 text-[13px] font-extrabold text-violet-soft">
             {props.speed}×
-          </Box>
+          </span>
         </Pressable>
         {active ? (
-          <IconButton aria-label="Arrêter" onClick={props.onStop} sx={{ color: 'text.secondary' }}><StopRounded /></IconButton>
+          <IconButton aria-label="Arrêter" onClick={props.onStop}><Square className="fill-current" /></IconButton>
         ) : null}
-      </Stack>
-      {active && props.error ? <Alert severity="error" sx={{ mt: 1 }}>{props.error}</Alert> : null}
-    </Box>
+      </div>
+      {active && props.error ? <Alert severity="error" className="mt-2">{props.error}</Alert> : null}
+    </div>
   );
 }

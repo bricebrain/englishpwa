@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="color-scheme" content="light" />
+    <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content="#F4F3F8" />
     <meta name="description" content="Parcours personnel d’apprentissage de l’anglais" />
     <link rel="manifest" href="/manifest.webmanifest" crossorigin="use-credentials" />
@@ -11,6 +11,18 @@
     <link rel="icon" href="/icons/icon-192.png" type="image/png" sizes="192x192" />
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
     <title>English Fluency</title>
+    <script>
+      // Applique le thème enregistré avant le premier affichage (évite un flash clair en mode sombre).
+      (function () {
+        var saved = null;
+        try { saved = localStorage.getItem('english-fluency:theme'); } catch (error) {}
+        var dark = saved === 'dark' || (saved !== 'light' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        var theme = dark ? 'dark' : 'light';
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        document.querySelector('meta[name="theme-color"]').setAttribute('content', dark ? '#1E2129' : '#F4F3F8');
+      })();
+    </script>
   </head>
   <body>
     <noscript>JavaScript est nécessaire pour utiliser English Fluency.</noscript>

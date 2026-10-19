@@ -1,23 +1,23 @@
-import AutoGraphRounded from '@mui/icons-material/AutoGraphRounded';
-import BoltRounded from '@mui/icons-material/BoltRounded';
-import TodayRounded from '@mui/icons-material/TodayRounded';
-import VerifiedRounded from '@mui/icons-material/VerifiedRounded';
-import { Box, Card, CardContent, Chip, Grid, Stack, Typography } from '@mui/material';
+import { BadgeCheck, CalendarDays, ChartLine, Zap } from 'lucide-react';
+import { motion } from 'motion/react';
 
 import { PageHeader } from '@/components/common/PageHeader';
 import { QueryState } from '@/components/common/QueryState';
 import { WeekStrip } from '@/components/home/WeekStrip';
 import { PageLayout } from '@/components/layout/PageLayout';
+import { Card, CardContent } from '@/components/ui/card';
+import { Chip } from '@/components/ui/chip';
 import { Flame } from '@/components/ui/Gamification';
-import { AnimatedNumber, MotionBox, Stagger, StaggerItem } from '@/components/ui/motion';
+import { AnimatedNumber, Stagger, StaggerItem } from '@/components/ui/motion';
 import { ProgressRing } from '@/components/ui/ProgressRing';
 import { IconTile } from '@/components/ui/SessionChrome';
 import { learnedRatio } from '@/helpers/progressRatio';
 import { useStatistics } from '@/hooks/useLearningQueries';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { useXp } from '@/hooks/useXp';
+import { cn } from '@/lib/utils';
 import { lastSevenDays } from '@/services/xpService';
-import { displayFont, gradients, tokens } from '@/theme';
+import { gradients, tokens } from '@/theme';
 
 const dayLabels = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
 const shortDay = (date: Date) => ['D', 'L', 'M', 'M', 'J', 'V', 'S'][date.getDay()]!;
@@ -25,27 +25,24 @@ const shortDay = (date: Date) => ['D', 'L', 'M', 'M', 'J', 'V', 'S'][date.getDay
 function Bars({ values, labels, gradient, highlightLast = true }: { values: number[]; labels: string[]; gradient: string; highlightLast?: boolean }) {
   const max = Math.max(1, ...values);
   return (
-    <Stack direction="row" gap={1} alignItems="flex-end" height={150}>
+    <div className="flex h-[150px] items-end gap-2">
       {values.map((value, index) => {
         const last = highlightLast && index === values.length - 1;
         return (
-          <Stack key={`${labels[index]}-${index}`} flex={1} alignItems="center" justifyContent="flex-end" height="100%" gap={0.5}>
-            <Typography fontSize={10.5} color={last ? 'text.primary' : 'text.secondary'} fontWeight={700}>{value}</Typography>
-            <MotionBox
+          <div key={`${labels[index]}-${index}`} className="flex h-full flex-1 flex-col items-center justify-end gap-1">
+            <span className={cn('text-[10.5px] font-bold', last ? 'text-fg' : 'text-muted')}>{value}</span>
+            <motion.div
               initial={{ height: 0 }}
               animate={{ height: `${Math.max(4, value / max * 78)}%` }}
               transition={{ type: 'spring', stiffness: 120, damping: 16, delay: 0.2 + index * 0.06 }}
-              sx={{
-                width: '100%', maxWidth: 30, borderRadius: '10px 10px 4px 4px',
-                background: last ? gradient : 'rgba(49,39,78,0.1)',
-                boxShadow: last ? `0 0 20px -4px ${tokens.violet}` : 'none',
-              }}
+              className={cn('w-full max-w-[30px] rounded-[10px_10px_4px_4px]', !last && 'bg-ink/10')}
+              style={last ? { background: gradient, boxShadow: `0 0 20px -4px ${tokens.violet}` } : undefined}
             />
-            <Typography fontSize={11} fontWeight={800} color={last ? tokens.violetSoft : 'text.disabled'}>{labels[index]}</Typography>
-          </Stack>
+            <span className={cn('text-[11px] font-extrabold', last ? 'text-violet-soft' : 'text-faint')}>{labels[index]}</span>
+          </div>
         );
       })}
-    </Stack>
+    </div>
   );
 }
 
@@ -60,122 +57,110 @@ export function StatisticsPage() {
     <PageLayout>
       <PageHeader back eyebrow="Ton parcours" title="Progression" subtitle="Cadence, rétention et signaux pédagogiques" />
 
-      <Card sx={{ mb: 2, overflow: 'hidden' }}>
-        <Box sx={{ position: 'absolute', inset: 0, background: 'radial-gradient(80% 120% at 100% 0%, rgba(255,93,162,0.18), transparent 60%)', pointerEvents: 'none' }} />
-        <CardContent sx={{ position: 'relative', p: { xs: 2.5, sm: 3 } }}>
-          <Stack direction="row" alignItems="center" gap={2.5}>
+      <Card className="mb-4 overflow-hidden">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(80%_120%_at_100%_0%,color-mix(in_srgb,var(--pink)_16%,transparent),transparent_60%)]" />
+        <CardContent className="relative p-5 sm:p-6">
+          <div className="flex items-center gap-5">
             <ProgressRing value={xp.progress} size={112} stroke={11}>
-              <Box textAlign="center">
-                <Typography fontSize={11} color="text.secondary" fontWeight={800}>NIVEAU</Typography>
-                <Typography fontFamily={displayFont} fontWeight={800} fontSize={40} lineHeight={1}>{xp.level}</Typography>
-              </Box>
+              <div className="text-center">
+                <p className="text-[11px] font-extrabold text-muted">NIVEAU</p>
+                <p className="font-display text-[40px] font-extrabold leading-none">{xp.level}</p>
+              </div>
             </ProgressRing>
-            <Box flex={1} minWidth={0}>
-              <Typography fontFamily={displayFont} fontWeight={800} fontSize={28} className="text-gradient">
+            <div className="min-w-0 flex-1">
+              <p className="text-gradient font-display text-[28px] font-extrabold">
                 <AnimatedNumber value={xp.totalXp} /> XP
-              </Typography>
-              <Typography color="text.secondary" fontSize={13.5}>
+              </p>
+              <p className="text-[13.5px] text-muted">
                 Encore {xp.levelSize - xp.intoLevel} XP avant le niveau {xp.level + 1}
-              </Typography>
-              <Stack direction="row" gap={1} mt={1.25} flexWrap="wrap" useFlexGap>
-                <Chip size="small" icon={<BoltRounded sx={{ color: `${tokens.amber} !important` }} />} label={`${xp.todayXp} XP aujourd’hui`} />
-                <Chip size="small" label={`Meilleur combo ×${xp.bestCombo}`} />
-              </Stack>
-            </Box>
-          </Stack>
+              </p>
+              <div className="mt-2.5 flex flex-wrap gap-2">
+                <Chip size="sm" icon={<Zap className="fill-current text-amber" />} label={`${xp.todayXp} XP aujourd’hui`} />
+                <Chip size="sm" label={`Meilleur combo ×${xp.bestCombo}`} />
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
       <QueryState loading={query.isLoading} error={query.isError} offline={!online} onRetry={() => query.refetch()} />
       {stats ? (
-        <Stagger gap={0.06}>
-          <Grid container spacing={1.5}>
-            {[
-              { label: 'Jours de suite', value: stats.streak, icon: <Flame size={22} />, gradient: gradients.sunrise, color: tokens.amber },
-              { label: 'Aujourd’hui', value: stats.reviewedToday, icon: <TodayRounded />, gradient: gradients.ocean, color: tokens.cyan },
-              { label: 'Mots appris', value: stats.learnedCount, icon: <VerifiedRounded />, gradient: gradients.mint, color: tokens.mint },
-              { label: 'Rétention', value: stats.retentionRate, suffix: '%', icon: <AutoGraphRounded />, gradient: gradients.primary, color: tokens.violetSoft },
-            ].map(({ label, value, suffix, icon, gradient, color }) => (
-              <Grid item xs={6} md={3} key={label}>
-                <StaggerItem sx={{ height: '100%' }}>
-                  <Card sx={{ height: '100%' }}>
-                    <CardContent>
-                      <IconTile icon={icon} gradient={gradient} size={38} radius={12} />
-                      <Typography fontFamily={displayFont} fontSize={{ xs: 28, sm: 32 }} fontWeight={800} color={color} mt={1.25} lineHeight={1.1}>
-                        <AnimatedNumber value={value} suffix={suffix} />
-                      </Typography>
-                      <Typography color="text.secondary" fontSize={12.5} fontWeight={600}>{label}</Typography>
-                    </CardContent>
-                  </Card>
-                </StaggerItem>
-              </Grid>
-            ))}
+        <Stagger gap={0.06} className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          {[
+            { label: 'Jours de suite', value: stats.streak, icon: <Flame size={22} />, gradient: gradients.sunrise, color: tokens.amber },
+            { label: 'Aujourd’hui', value: stats.reviewedToday, icon: <CalendarDays />, gradient: gradients.ocean, color: tokens.cyan },
+            { label: 'Mots appris', value: stats.learnedCount, icon: <BadgeCheck />, gradient: gradients.mint, color: tokens.mint },
+            { label: 'Rétention', value: stats.retentionRate, suffix: '%', icon: <ChartLine />, gradient: gradients.primary, color: tokens.violetSoft },
+          ].map(({ label, value, suffix, icon, gradient, color }) => (
+            <StaggerItem key={label} className="h-full">
+              <Card className="h-full">
+                <CardContent>
+                  <IconTile icon={icon} gradient={gradient} size={38} radius={12} />
+                  <p className="mt-2.5 font-display text-[28px] font-extrabold leading-[1.1] sm:text-[32px]" style={{ color }}>
+                    <AnimatedNumber value={value} suffix={suffix} />
+                  </p>
+                  <p className="text-[12.5px] font-semibold text-muted">{label}</p>
+                </CardContent>
+              </Card>
+            </StaggerItem>
+          ))}
 
-            <Grid item xs={12} md={6}>
-              <StaggerItem sx={{ height: '100%' }}>
-                <Card sx={{ height: '100%' }}>
-                  <CardContent>
-                    <Typography variant="h3" mb={2}>Révisions de la semaine</Typography>
-                    <WeekStrip activeDays={stats.activeDays} />
-                    <Box mt={3}><Bars values={stats.weeklyReviews} labels={dayLabels} gradient={gradients.primary} /></Box>
-                  </CardContent>
-                </Card>
-              </StaggerItem>
-            </Grid>
+          <StaggerItem className="col-span-2 h-full">
+            <Card className="h-full">
+              <CardContent>
+                <h3 className="type-h3 mb-4">Révisions de la semaine</h3>
+                <WeekStrip activeDays={stats.activeDays} />
+                <div className="mt-6"><Bars values={stats.weeklyReviews} labels={dayLabels} gradient={gradients.primary} /></div>
+              </CardContent>
+            </Card>
+          </StaggerItem>
 
-            <Grid item xs={12} md={6}>
-              <StaggerItem sx={{ height: '100%' }}>
-                <Card sx={{ height: '100%' }}>
-                  <CardContent>
-                    <Stack direction="row" justifyContent="space-between" alignItems="baseline" mb={2}>
-                      <Typography variant="h3">XP sur 7 jours</Typography>
-                      <Typography fontSize={13} color="text.secondary">sur cet appareil</Typography>
-                    </Stack>
-                    <Bars values={week.map((day) => day.xp)} labels={week.map((day) => shortDay(day.date))} gradient={gradients.sunrise} />
-                  </CardContent>
-                </Card>
-              </StaggerItem>
-            </Grid>
+          <StaggerItem className="col-span-2 h-full">
+            <Card className="h-full">
+              <CardContent>
+                <div className="mb-4 flex items-baseline justify-between">
+                  <h3 className="type-h3">XP sur 7 jours</h3>
+                  <p className="text-[13px] text-muted">sur cet appareil</p>
+                </div>
+                <Bars values={week.map((day) => day.xp)} labels={week.map((day) => shortDay(day.date))} gradient={gradients.sunrise} />
+              </CardContent>
+            </Card>
+          </StaggerItem>
 
-            <Grid item xs={12} md={6}>
-              <StaggerItem>
-                <Card>
-                  <CardContent>
-                    <Stack direction="row" justifyContent="space-between" mb={1.25}>
-                      <Typography variant="h3">Vocabulaire maîtrisé</Typography>
-                      <Typography fontWeight={800} className="text-gradient">{stats.learnedCount}/{stats.totalCount}</Typography>
-                    </Stack>
-                    <Box sx={{ height: 12, borderRadius: 9, background: 'rgba(49,39,78,0.08)', overflow: 'hidden' }}>
-                      <MotionBox
-                        initial={{ width: 0 }}
-                        animate={{ width: `${learnedRatio(stats.learnedCount, stats.totalCount) * 100}%` }}
-                        transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
-                        sx={{ height: '100%', borderRadius: 9, background: gradients.primary }}
-                      />
-                    </Box>
-                  </CardContent>
-                </Card>
-              </StaggerItem>
-            </Grid>
+          <StaggerItem className="col-span-2">
+            <Card>
+              <CardContent>
+                <div className="mb-2.5 flex justify-between">
+                  <h3 className="type-h3">Vocabulaire maîtrisé</h3>
+                  <p className="text-gradient font-extrabold">{stats.learnedCount}/{stats.totalCount}</p>
+                </div>
+                <div className="h-3 overflow-hidden rounded-full bg-ink/8">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${learnedRatio(stats.learnedCount, stats.totalCount) * 100}%` }}
+                    transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
+                    className="h-full rounded-full bg-grad-primary"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </StaggerItem>
 
-            <Grid item xs={12} md={6}>
-              <StaggerItem>
-                <Card>
-                  <CardContent>
-                    <Typography variant="h3" mb={1.5}>Diagnostic</Typography>
-                    <Typography variant="overline" color={tokens.mint} display="block" mb={0.75}>Points forts</Typography>
-                    <Stack direction="row" gap={1} flexWrap="wrap" useFlexGap>
-                      {stats.strengths.map((item) => <Chip key={item} label={item} sx={{ background: 'rgba(52,229,160,0.12)', color: tokens.mint }} />)}
-                    </Stack>
-                    <Typography variant="overline" color={tokens.amber} display="block" mt={2} mb={0.75}>À renforcer</Typography>
-                    <Stack direction="row" gap={1} flexWrap="wrap" useFlexGap>
-                      {stats.focusAreas.map((item) => <Chip key={item} label={item} sx={{ background: 'rgba(255,181,71,0.12)', color: tokens.amber }} />)}
-                    </Stack>
-                  </CardContent>
-                </Card>
-              </StaggerItem>
-            </Grid>
-          </Grid>
+          <StaggerItem className="col-span-2">
+            <Card>
+              <CardContent>
+                <h3 className="type-h3 mb-3">Diagnostic</h3>
+                <span className="type-overline mb-1.5 text-mint">Points forts</span>
+                <div className="flex flex-wrap gap-2">
+                  {stats.strengths.map((item) => <Chip key={item} label={item} className="bg-mint/12 text-mint" />)}
+                </div>
+                <span className="type-overline mb-1.5 mt-4 text-amber">À renforcer</span>
+                <div className="flex flex-wrap gap-2">
+                  {stats.focusAreas.map((item) => <Chip key={item} label={item} className="bg-amber/12 text-amber" />)}
+                </div>
+              </CardContent>
+            </Card>
+          </StaggerItem>
         </Stagger>
       ) : null}
     </PageLayout>

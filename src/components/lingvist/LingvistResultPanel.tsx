@@ -1,18 +1,13 @@
-import AutoAwesomeRounded from '@mui/icons-material/AutoAwesomeRounded';
-import CheckRounded from '@mui/icons-material/CheckRounded';
-import CloseRounded from '@mui/icons-material/CloseRounded';
-import ErrorOutlineRounded from '@mui/icons-material/ErrorOutlineRounded';
-import ExpandMoreRounded from '@mui/icons-material/ExpandMoreRounded';
-import LightbulbRounded from '@mui/icons-material/LightbulbRounded';
-import TrendingUpRounded from '@mui/icons-material/TrendingUpRounded';
-import { Accordion, AccordionDetails, AccordionSummary, Box, Stack, Typography } from '@mui/material';
+import { Check, CircleAlert, Lightbulb, Sparkles, TrendingUp, X } from 'lucide-react';
+import { motion } from 'motion/react';
 
-import { MotionBox } from '@/components/ui/motion';
+import { Disclosure } from '@/components/ui/collapse';
 import { ResultPanel } from '@/components/ui/SessionChrome';
 import { WordContexts } from '@/components/vocabulary/WordContexts';
 import { WordEnrichmentDetails } from '@/components/vocabulary/WordEnrichmentDetails';
 import { getVocabularyLemma } from '@/helpers/vocabularyDisplay';
-import { gradients, tokens } from '@/theme';
+import { cn } from '@/lib/utils';
+import { tokens } from '@/theme';
 import type { LingvistCard, LingvistDecision } from '@/types/learning';
 
 function reviewLabel(value?: string): string | null {
@@ -40,21 +35,21 @@ export function LingvistResultPanel({ card, answer, decision }: {
   const analysis = decision.analysis;
 
   return (
-    <Stack gap={1.5} mt={2}>
+    <div className="mt-4 flex flex-col gap-3">
       <ResultPanel
         tone={success ? 'success' : almost ? 'almost' : dontKnow ? 'neutral' : 'error'}
         title={success ? `Exact ! ${decision.responseTimeSeconds} s` : almost ? 'Presque !' : dontKnow ? 'À retenir' : 'Pas encore'}
-        icon={success || almost ? <CheckRounded /> : dontKnow ? <LightbulbRounded /> : <CloseRounded />}
+        icon={success || almost ? <Check /> : dontKnow ? <Lightbulb /> : <X />}
       >
         {!success && !dontKnow && answer.trim() ? (
-          <Typography fontSize={14} color="text.secondary" sx={{ textDecoration: 'line-through' }}>{answer}</Typography>
+          <p className="text-sm text-muted line-through">{answer}</p>
         ) : null}
-        <Typography fontWeight={800} fontSize={18}>
+        <p className="text-lg font-extrabold">
           {expectedDifferent ? `${card.lemma} → ${card.expectedAnswer}` : card.expectedAnswer}
-          {card.verbFormLabel ? <Typography component="span" color="text.secondary" fontWeight={600}> · {card.verbFormLabel}</Typography> : null}
-        </Typography>
-        {card.wordTraductionFr ? <Typography fontSize={14} color={tokens.violetSoft} fontWeight={700}>= {card.wordTraductionFr}</Typography> : null}
-        <Typography fontSize={14} fontStyle="italic" color="text.secondary" mt={0.75}>{card.translationFr}</Typography>
+          {card.verbFormLabel ? <span className="font-semibold text-muted"> · {card.verbFormLabel}</span> : null}
+        </p>
+        {card.wordTraductionFr ? <p className="text-sm font-bold text-violet-soft">= {card.wordTraductionFr}</p> : null}
+        <p className="mt-1.5 text-sm italic text-muted">{card.translationFr}</p>
       </ResultPanel>
 
       {card.srsWord ? (
@@ -69,71 +64,71 @@ export function LingvistResultPanel({ card, answer, decision }: {
 
       <WordContexts word={card.srsWord ? getVocabularyLemma(card.srsWord) : card.lemma} />
 
-      <Box sx={{ p: 1.75, borderRadius: 4, background: 'rgba(49,39,78,0.035)', border: `1px solid ${tokens.border}` }}>
-        <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
-          <Box>
-            <Typography fontWeight={750} fontSize={13.5}>Maîtrise · niveau {mastery}/4</Typography>
-            {nextReview ? <Typography color="text.secondary" fontSize={12}>{nextReview}</Typography> : null}
-          </Box>
-          <Stack direction="row" gap={0.25}>
+      <div className="rounded-2xl border border-border bg-ink/[0.035] p-3.5">
+        <div className="mb-2 flex items-center justify-between">
+          <div>
+            <p className="text-[13.5px] font-bold">Maîtrise · niveau {mastery}/4</p>
+            {nextReview ? <p className="text-xs text-muted">{nextReview}</p> : null}
+          </div>
+          <div className="flex gap-0.5">
             {Array.from({ length: 5 }, (_, index) => (
-              <MotionBox
+              <motion.span
                 key={index}
-                component="span"
                 initial={{ scale: 0, rotate: -40 }}
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ type: 'spring', stiffness: 500, damping: 14, delay: 0.25 + index * 0.08 }}
-                sx={{ fontSize: 18, color: index < decision.stars ? tokens.amber : 'rgba(49,39,78,0.15)', filter: index < decision.stars ? `drop-shadow(0 0 6px ${tokens.amber})` : 'none' }}
+                className={cn('text-lg', index < decision.stars ? 'text-amber' : 'text-ink/15')}
+                style={index < decision.stars ? { filter: `drop-shadow(0 0 6px ${tokens.amber})` } : undefined}
               >
                 ★
-              </MotionBox>
+              </motion.span>
             ))}
-          </Stack>
-        </Stack>
-        <Stack direction="row" gap={0.5}>
+          </div>
+        </div>
+        <div className="flex gap-1">
           {Array.from({ length: 4 }, (_, index) => (
-            <Box key={index} flex={1} height={8} borderRadius={9} sx={{ background: 'rgba(49,39,78,0.08)', overflow: 'hidden' }}>
-              <MotionBox
+            <div key={index} className="h-2 flex-1 overflow-hidden rounded-full bg-ink/8">
+              <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: index < mastery ? '100%' : 0 }}
                 transition={{ duration: 0.5, delay: 0.3 + index * 0.12 }}
-                sx={{ height: '100%', background: gradients.mint }}
+                className="h-full bg-grad-mint"
               />
-            </Box>
+            </div>
           ))}
-        </Stack>
-      </Box>
+        </div>
+      </div>
 
       {analysis ? (
-        <Accordion defaultExpanded={!success} disableGutters elevation={0} sx={{ border: `1px solid ${tokens.border}`, '&:before': { display: 'none' } }}>
-          <AccordionSummary expandIcon={<ExpandMoreRounded />}>
-            <Stack direction="row" gap={1} alignItems="center">
-              <AutoAwesomeRounded sx={{ color: tokens.violetSoft }} fontSize="small" />
-              <Typography fontWeight={800}>Analyse de ta réponse</Typography>
-            </Stack>
-          </AccordionSummary>
-          <AccordionDetails>
-            <Typography lineHeight={1.7} color="text.secondary">{analysis.explanation}</Typography>
-            <Stack gap={1.5} mt={1.75}>
-              {analysis.examples[0] ? <AnalysisLine icon={<LightbulbRounded />} label="Exemple" text={analysis.examples[0]} color={tokens.amber} /> : null}
-              {analysis.usageCases[0] ? <AnalysisLine icon={<TrendingUpRounded />} label="Usage" text={analysis.usageCases[0]} color={tokens.cyan} /> : null}
-              {analysis.commonMistakes[0] ? <AnalysisLine icon={<ErrorOutlineRounded />} label="Erreur fréquente" text={analysis.commonMistakes[0]} color={tokens.pink} /> : null}
-            </Stack>
-          </AccordionDetails>
-        </Accordion>
+        <Disclosure
+          defaultOpen={!success}
+          summary={(
+            <span className="flex items-center gap-2">
+              <Sparkles className="size-5 text-violet-soft" />
+              <span className="font-extrabold">Analyse de ta réponse</span>
+            </span>
+          )}
+        >
+          <p className="leading-[1.7] text-muted">{analysis.explanation}</p>
+          <div className="mt-3.5 flex flex-col gap-3">
+            {analysis.examples[0] ? <AnalysisLine icon={<Lightbulb />} label="Exemple" text={analysis.examples[0]} color={tokens.amber} /> : null}
+            {analysis.usageCases[0] ? <AnalysisLine icon={<TrendingUp />} label="Usage" text={analysis.usageCases[0]} color={tokens.cyan} /> : null}
+            {analysis.commonMistakes[0] ? <AnalysisLine icon={<CircleAlert />} label="Erreur fréquente" text={analysis.commonMistakes[0]} color={tokens.pink} /> : null}
+          </div>
+        </Disclosure>
       ) : null}
-    </Stack>
+    </div>
   );
 }
 
 function AnalysisLine({ icon, label, text, color }: { icon: React.ReactNode; label: string; text: string; color: string }) {
   return (
-    <Stack direction="row" gap={1.25} alignItems="flex-start">
-      <Box sx={{ color, mt: 0.1, '& svg': { fontSize: 20 } }}>{icon}</Box>
-      <Box>
-        <Typography variant="overline" color={color}>{label}</Typography>
-        <Typography fontSize={14}>{text}</Typography>
-      </Box>
-    </Stack>
+    <div className="flex items-start gap-2.5">
+      <span className="mt-0.5 [&_svg]:size-5" style={{ color }}>{icon}</span>
+      <div>
+        <span className="type-overline" style={{ color }}>{label}</span>
+        <p className="text-sm">{text}</p>
+      </div>
+    </div>
   );
 }

@@ -1,17 +1,5 @@
-import LibraryAddRounded from '@mui/icons-material/LibraryAddRounded';
-import VolumeUpRounded from '@mui/icons-material/VolumeUpRounded';
+import { ListPlus, Volume2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import {
-  Alert,
-  Box,
-  IconButton,
-  Card,
-  CardContent,
-  Chip,
-  Grid,
-  Stack,
-  Typography,
-} from '@mui/material';
 import { useParams } from 'react-router-dom';
 
 import { learningApi } from '@/api/learningApi';
@@ -21,9 +9,12 @@ import { QueryState } from '@/components/common/QueryState';
 import { AssimilExerciseCard } from '@/components/listening/AssimilExerciseCard';
 import { AssimilDialoguePanel } from '@/components/listening/AssimilDialoguePanel';
 import { PageLayout } from '@/components/layout/PageLayout';
+import { Alert } from '@/components/ui/alert';
+import { Card, CardContent } from '@/components/ui/card';
+import { Chip } from '@/components/ui/chip';
+import { Pressable } from '@/components/ui/motion';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import { speakEnglish } from '@/services/speechPlaybackService';
-import { gradients, tokens } from '@/theme';
 
 export function AssimilLessonPage() {
   const index = Number(useParams<{ index: string }>().index);
@@ -53,14 +44,14 @@ export function AssimilLessonPage() {
       <PageHeader back eyebrow={lesson ? `Leçon ${lesson.index} · ${lesson.level}` : 'Assimil'} title={lesson ? lesson.title : 'Leçon Assimil'} subtitle="Écoute active, transcription et exercices" />
       <QueryState loading={query.isLoading} error={query.isError || !Number.isFinite(index)} onRetry={() => query.refetch()} />
       {lesson ? (
-        <Stack gap={2}>
-          <Card sx={{ overflow: 'hidden' }}>
-            <Box sx={{ position: 'absolute', inset: 0, background: 'radial-gradient(90% 120% at 0% 0%, rgba(70,217,245,0.16), transparent 60%)', pointerEvents: 'none' }} />
-            <CardContent sx={{ position: 'relative' }}>
-              <Stack direction="row" gap={1} mb={1.5}>
-                <Chip label={lesson.level} sx={{ background: gradients.primary, color: '#fff' }} />
+        <div className="flex flex-col gap-4">
+          <Card className="overflow-hidden">
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(90%_120%_at_0%_0%,color-mix(in_srgb,var(--cyan)_16%,transparent),transparent_60%)]" />
+            <CardContent className="relative">
+              <div className="mb-3 flex gap-2">
+                <Chip label={lesson.level} className="bg-grad-primary text-white" />
                 <Chip label={lesson.stageLabel} />
-              </Stack>
+              </div>
               {lesson.audioUrl ? (
                 <AudioPlayerBar track={{ id: lesson.id, title: lesson.title, url: lesson.audioUrl }} {...playerProps} />
               ) : (
@@ -72,32 +63,34 @@ export function AssimilLessonPage() {
           {lesson.artifact ? (
             <>
               <Card><CardContent>
-                <Typography variant="overline" color={tokens.violetSoft}>Résumé</Typography>
-                <Typography variant="h2">{lesson.artifact.titleEn}</Typography>
-                <Typography color="text.secondary" mt={0.5}>{lesson.artifact.titleFr}</Typography>
-                <Typography mt={1.5} lineHeight={1.7}>{lesson.artifact.summaryFr}</Typography>
-                <Stack direction="row" gap={1} flexWrap="wrap" useFlexGap mt={2}>
-                  {lesson.artifact.objectives.map((objective) => <Chip key={objective} label={objective} sx={{ background: 'rgba(255,93,162,0.12)', color: tokens.pink, height: 'auto', py: 0.5, '& .MuiChip-label': { whiteSpace: 'normal' } }} />)}
-                </Stack>
+                <span className="type-overline text-violet-soft">Résumé</span>
+                <h2 className="type-h2">{lesson.artifact.titleEn}</h2>
+                <p className="mt-1 text-muted">{lesson.artifact.titleFr}</p>
+                <p className="mt-3 leading-[1.7]">{lesson.artifact.summaryFr}</p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {lesson.artifact.objectives.map((objective) => (
+                    <span key={objective} className="rounded-[10px] bg-pink/12 px-2.5 py-1 text-[13px] font-bold text-pink">{objective}</span>
+                  ))}
+                </div>
               </CardContent></Card>
 
-              <Box>
-                <Typography variant="h2" mb={1.25}>Phrases clés</Typography>
-                <Grid container spacing={1.5}>
+              <section>
+                <h2 className="type-h2 mb-2.5">Phrases clés</h2>
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                   {lesson.artifact.sentences.map((sentence) => (
-                    <Grid item xs={12} md={6} key={sentence.id}>
-                      <Card sx={{ height: '100%' }}><CardContent>
-                        <Stack direction="row" justifyContent="space-between" gap={1}>
-                          <Typography fontWeight={800} fontSize={17} lineHeight={1.4}>{sentence.textEn}</Typography>
-                          <IconButton aria-label="Écouter" onClick={() => speakEnglish(sentence.textEn)} sx={{ flexShrink: 0, background: gradients.ocean, color: '#fff', width: 40, height: 40, minWidth: 40, minHeight: 40 }}><VolumeUpRounded fontSize="small" /></IconButton>
-                        </Stack>
-                        <Typography color="text.secondary" mt={0.5}>{sentence.textFr}</Typography>
-                        <Alert severity="info" icon={false} sx={{ mt: 1.5 }}>{sentence.focus} · {sentence.pronunciationTipFr}</Alert>
-                      </CardContent></Card>
-                    </Grid>
+                    <Card key={sentence.id} className="h-full"><CardContent>
+                      <div className="flex justify-between gap-2">
+                        <p className="text-[17px] font-extrabold leading-[1.4]">{sentence.textEn}</p>
+                        <Pressable onClick={() => speakEnglish(sentence.textEn)} aria-label="Écouter" className="size-10 w-10 shrink-0 rounded-full">
+                          <span className="grid size-10 place-items-center rounded-full bg-grad-ocean text-white"><Volume2 className="size-5" /></span>
+                        </Pressable>
+                      </div>
+                      <p className="mt-1 text-muted">{sentence.textFr}</p>
+                      <Alert severity="info" icon={false} className="mt-3">{sentence.focus} · {sentence.pronunciationTipFr}</Alert>
+                    </CardContent></Card>
                   ))}
-                </Grid>
-              </Box>
+                </div>
+              </section>
 
               {lesson.audioUrl && lesson.audioAnalysis?.dialogue?.length ? (
                 <AssimilDialoguePanel
@@ -109,39 +102,46 @@ export function AssimilLessonPage() {
               ) : null}
 
               {lesson.artifact.notes?.length ? (
-                <Box>
-                  <Typography variant="h2" mb={1.25}>Notes pédagogiques</Typography>
-                  <Grid container spacing={1.5}>
+                <section>
+                  <h2 className="type-h2 mb-2.5">Notes pédagogiques</h2>
+                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                     {lesson.artifact.notes.map((note) => (
-                      <Grid item xs={12} md={6} key={note.id}>
-                        <Card sx={{ height: '100%' }}><CardContent>
-                          <Typography variant="h3">{note.topic}</Typography>
-                          <Typography lineHeight={1.7} mt={1}>{note.explanationFr}</Typography>
-                          <Stack gap={0.75} mt={1.25}>{note.examples.map((example) => <Alert key={example.en} severity="info" icon={false}>{example.en}<br />{example.fr}</Alert>)}</Stack>
-                        </CardContent></Card>
-                      </Grid>
+                      <Card key={note.id} className="h-full"><CardContent>
+                        <h3 className="type-h3">{note.topic}</h3>
+                        <p className="mt-2 leading-[1.7]">{note.explanationFr}</p>
+                        <div className="mt-2.5 flex flex-col gap-1.5">
+                          {note.examples.map((example) => <Alert key={example.en} severity="info" icon={false}>{example.en}<br />{example.fr}</Alert>)}
+                        </div>
+                      </CardContent></Card>
                     ))}
-                  </Grid>
-                </Box>
+                  </div>
+                </section>
               ) : null}
 
-              <Box>
-                <Typography variant="h2" mb={1.25}>Exercices</Typography>
-                <Stack gap={1.5}>{lesson.artifact.exercises.map((exercise) => <AssimilExerciseCard key={exercise.id} exercise={exercise} />)}</Stack>
-              </Box>
+              <section>
+                <h2 className="type-h2 mb-2.5">Exercices</h2>
+                <div className="flex flex-col gap-3">{lesson.artifact.exercises.map((exercise) => <AssimilExerciseCard key={exercise.id} exercise={exercise} />)}</div>
+              </section>
 
               <Card><CardContent>
-                <Stack direction="row" gap={1} alignItems="center"><LibraryAddRounded sx={{ color: tokens.mint }} /><Typography variant="h3">À recycler dans le SRS</Typography></Stack>
-                <Stack gap={1} mt={1.5}>{lesson.artifact.recyclingTargets.map((target) => <Box key={target.term} sx={{ pl: 1.5, borderLeft: `3px solid ${tokens.mint}` }}><Typography fontWeight={800}>{target.term}</Typography><Typography color="text.secondary" fontSize={13}>{target.reasonFr}</Typography></Box>)}</Stack>
+                <div className="flex items-center gap-2"><ListPlus className="size-6 text-mint" /><h3 className="type-h3">À recycler dans le SRS</h3></div>
+                <div className="mt-3 flex flex-col gap-2">
+                  {lesson.artifact.recyclingTargets.map((target) => (
+                    <div key={target.term} className="border-l-[3px] border-mint pl-3">
+                      <p className="font-extrabold">{target.term}</p>
+                      <p className="text-[13px] text-muted">{target.reasonFr}</p>
+                    </div>
+                  ))}
+                </div>
               </CardContent></Card>
             </>
           ) : (
             <Card><CardContent>
-              <Typography variant="h2">Transcription</Typography>
-              <Typography whiteSpace="pre-wrap" lineHeight={1.8} mt={1.5}>{lesson.transcript ?? 'La fiche guidée n’est pas encore préparée.'}</Typography>
+              <h2 className="type-h2">Transcription</h2>
+              <p className="mt-3 whitespace-pre-wrap leading-[1.8]">{lesson.transcript ?? 'La fiche guidée n’est pas encore préparée.'}</p>
             </CardContent></Card>
           )}
-        </Stack>
+        </div>
       ) : null}
     </PageLayout>
   );

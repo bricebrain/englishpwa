@@ -1,15 +1,17 @@
-import CheckRounded from '@mui/icons-material/CheckRounded';
-import CloseRounded from '@mui/icons-material/CloseRounded';
-import { Box, Button, Card, CardContent, Chip, InputBase, Stack, Typography } from '@mui/material';
+import { Check, X } from 'lucide-react';
+import { motion } from 'motion/react';
 import { useState } from 'react';
 
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Chip } from '@/components/ui/chip';
+import { Input } from '@/components/ui/form';
 import { ComboBadge } from '@/components/ui/Gamification';
-import { MotionBox } from '@/components/ui/motion';
 import { ResultPanel } from '@/components/ui/SessionChrome';
 import { useCombo } from '@/hooks/useCombo';
 import { evaluateSentence } from '@/helpers/sentenceEvaluation';
+import { cn } from '@/lib/utils';
 import { celebrate } from '@/services/feedbackService';
-import { gradients, tokens } from '@/theme';
 import type { AssimilArtifact } from '@/types/learning';
 
 type Exercise = AssimilArtifact['exercises'][number];
@@ -48,50 +50,54 @@ export function AssimilExerciseCard({ exercise }: { exercise: Exercise }) {
   return (
     <Card>
       <CardContent>
-        <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1.5} gap={1}>
-          <Chip label={TYPE_LABELS[exercise.type] ?? exercise.type} size="small" sx={{ background: gradients.sunrise, color: '#fff' }} />
-          <Stack direction="row" alignItems="center" gap={1}>
+        <div className="mb-3 flex items-center justify-between gap-2">
+          <Chip size="sm" label={TYPE_LABELS[exercise.type] ?? exercise.type} className="bg-grad-sunrise text-white" />
+          <div className="flex items-center gap-2">
             <ComboBadge combo={combo.combo} />
-            <Stack direction="row" gap={0.5}>
+            <div className="flex gap-1">
               {exercise.items.map((_, index) => (
-                <Box key={index} sx={{ width: 18, height: 6, borderRadius: 9, background: index < itemIndex ? tokens.mint : index === itemIndex && !completed ? tokens.violet : 'rgba(49,39,78,0.1)', transition: 'background .3s' }} />
+                <span
+                  key={index}
+                  className={cn(
+                    'h-1.5 w-[18px] rounded-full transition-colors duration-300',
+                    index < itemIndex ? 'bg-mint' : index === itemIndex && !completed ? 'bg-violet' : 'bg-ink/10',
+                  )}
+                />
               ))}
-            </Stack>
-          </Stack>
-        </Stack>
-        <Typography fontWeight={750} color="text.secondary" fontSize={14.5}>{exercise.instructionFr}</Typography>
+            </div>
+          </div>
+        </div>
+        <p className="text-[14.5px] font-bold text-muted">{exercise.instructionFr}</p>
         {completed ? (
-          <MotionBox initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} mt={2}>
-            <ResultPanel tone={score === exercise.items.length ? 'success' : 'neutral'} title={`Terminé : ${score}/${exercise.items.length}`} icon={<CheckRounded />} />
-          </MotionBox>
+          <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="mt-4">
+            <ResultPanel tone={score === exercise.items.length ? 'success' : 'neutral'} title={`Terminé : ${score}/${exercise.items.length}`} icon={<Check />} />
+          </motion.div>
         ) : item ? (
-          <MotionBox key={itemIndex} initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }}>
-            <Stack gap={1.5} mt={2}>
-              <Typography fontSize={19} fontWeight={750} lineHeight={1.45}>{item.prompt}</Typography>
-              <InputBase
+          <motion.div key={itemIndex} initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }}>
+            <div className="mt-4 flex flex-col gap-3">
+              <p className="text-[19px] font-bold leading-[1.45]">{item.prompt}</p>
+              <Input
                 value={answer}
                 onChange={(event) => setAnswer(event.target.value)}
                 onKeyDown={(event) => { if (event.key === 'Enter') { if (result === null) validate(); else next(); } }}
                 disabled={result !== null}
                 placeholder="Ta réponse…"
-                inputProps={{ autoCapitalize: 'none', autoComplete: 'off', 'aria-label': 'Ta réponse' }}
-                sx={{
-                  px: 2, py: 1, borderRadius: 4, fontSize: 17, fontWeight: 650,
-                  background: 'rgba(49,39,78,0.05)', border: `2px solid ${tokens.border}`,
-                  '&.Mui-focused': { borderColor: tokens.violet, boxShadow: '0 0 0 4px rgba(139,108,255,0.18)' },
-                }}
+                autoCapitalize="none"
+                autoComplete="off"
+                aria-label="Ta réponse"
+                className="text-[17px] font-semibold"
               />
               {result !== null ? (
-                <ResultPanel tone={result ? 'success' : 'error'} title={result ? 'Bonne réponse !' : 'Réponse attendue'} icon={result ? <CheckRounded /> : <CloseRounded />}>
-                  {!result ? <Typography fontWeight={750}>{item.answer}</Typography> : null}
-                  {!result && item.hintFr ? <Typography fontSize={13} color="text.secondary" mt={0.5}>{item.hintFr}</Typography> : null}
+                <ResultPanel tone={result ? 'success' : 'error'} title={result ? 'Bonne réponse !' : 'Réponse attendue'} icon={result ? <Check /> : <X />}>
+                  {!result ? <p className="font-bold">{item.answer}</p> : null}
+                  {!result && item.hintFr ? <p className="mt-1 text-[13px] text-muted">{item.hintFr}</p> : null}
                 </ResultPanel>
               ) : null}
-              <Button variant="contained" color={result ? 'success' : 'primary'} disabled={!answer.trim()} onClick={result === null ? validate : next}>
+              <Button variant={result ? 'success' : 'primary'} disabled={!answer.trim()} onClick={result === null ? validate : next}>
                 {result === null ? 'Vérifier' : 'Suivant'}
               </Button>
-            </Stack>
-          </MotionBox>
+            </div>
+          </motion.div>
         ) : null}
       </CardContent>
     </Card>

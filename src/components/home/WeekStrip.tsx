@@ -1,8 +1,7 @@
-import { Box, Stack, Typography } from '@mui/material';
+import { motion } from 'motion/react';
 
 import { Flame } from '@/components/ui/Gamification';
-import { MotionBox } from '@/components/ui/motion';
-import { tokens } from '@/theme';
+import { cn } from '@/lib/utils';
 
 const LABELS = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
 
@@ -10,28 +9,28 @@ export function WeekStrip({ activeDays }: { activeDays: boolean[] }) {
   const todayIndex = (new Date().getDay() + 6) % 7;
 
   return (
-    <Stack direction="row" justifyContent="space-between" aria-label="Activité des sept derniers jours">
+    <div className="flex justify-between" aria-label="Activité des sept derniers jours">
       {LABELS.map((label, index) => {
         const active = activeDays[index];
         const today = index === todayIndex;
         return (
-          <Stack key={`${label}-${index}`} alignItems="center" gap={0.75}>
-            <Typography fontSize={11.5} fontWeight={800} color={today ? tokens.violetSoft : 'text.disabled'}>{label}</Typography>
-            <MotionBox
+          <div key={`${label}-${index}`} className="flex flex-col items-center gap-1.5">
+            <span className={cn('text-[11.5px] font-extrabold', today ? 'text-violet-soft' : 'text-faint')}>{label}</span>
+            <motion.div
               initial={{ scale: 0, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ type: 'spring', stiffness: 500, damping: 20, delay: 0.1 + index * 0.05 }}
-              sx={{
-                width: 36, height: 36, borderRadius: '12px', display: 'grid', placeItems: 'center',
-                background: active ? 'rgba(255,122,89,0.14)' : 'rgba(49,39,78,0.045)',
-                border: today ? `2px solid ${tokens.violet}` : `1px solid ${active ? 'rgba(255,122,89,0.3)' : tokens.border}`,
-              }}
+              className={cn(
+                'grid size-9 place-items-center rounded-xl',
+                active ? 'bg-coral/14' : 'bg-ink/[0.045]',
+                today ? 'border-2 border-violet' : active ? 'border border-coral/30' : 'border border-border',
+              )}
             >
-              {active ? <Flame size={20} animated={today} /> : <Box sx={{ width: 6, height: 6, borderRadius: 9, background: tokens.textFaint }} />}
-            </MotionBox>
-          </Stack>
+              {active ? <Flame size={20} animated={today} /> : <span className="size-1.5 rounded-full bg-faint" />}
+            </motion.div>
+          </div>
         );
       })}
-    </Stack>
+    </div>
   );
 }

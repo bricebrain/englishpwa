@@ -1,4 +1,3 @@
-import { Box, Stack } from '@mui/material';
 import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
@@ -27,7 +26,7 @@ export function App() {
   usePortraitOrientationLock();
 
   return (
-    <Suspense fallback={<Stack minHeight="100dvh" alignItems="center" justifyContent="center"><Box className="shimmer" sx={{ width: 64, height: 64, borderRadius: 4 }} /></Stack>}>
+    <Suspense fallback={<div className="grid min-h-dvh place-items-center"><div className="shimmer size-16 rounded-2xl" /></div>}>
       <Routes>
         <Route element={<AppShell />}>
           <Route index element={<HomePage />} />
