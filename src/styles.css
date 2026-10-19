@@ -1,7 +1,9 @@
 @import 'tailwindcss';
 
 /*
- * Jetons « iOS épuré ».
+ * Jetons « vivant » (20 octobre 2026) : blanc lumineux ou sombre profond, au choix dans l'app ; couleurs franches et vrais
+ * dégradés pour les surfaces mises en avant, aurores animées derrière les grandes cartes.
+ * (Base d'origine : « iOS épuré ».)
  * - Fond gris groupé, cartes unies, une seule couleur d'accent (indigo).
  * - Les teintes (--violet, --mint…) servent au texte et aux icônes : plus claires en sombre pour rester lisibles.
  * - Les remplissages (--grad-*) sont des aplats sur lesquels le texte blanc reste contrasté.
@@ -9,8 +11,8 @@
  */
 :root {
   color-scheme: light;
-  --bg: #f2f2f7;
-  --surface: #ffffff;
+  --bg: #ffffff;
+  --surface: #f4f4f8;
   --surface-high: #ffffff;
   --ink: #3c3c43;
   --border: rgb(60 60 67 / 0.16);
@@ -21,7 +23,7 @@
   --chevron: #c4c4c7;
   --segment-on: #ffffff;
 
-  --violet: #5856d6;
+  --violet: #5b4ff5;
   --violet-soft: #5856d6;
   --pink: #c62a55;
   --coral: #c4501f;
@@ -37,24 +39,29 @@
   --warning-fg: #7a4600;
   --error-fg: #a1001a;
 
-  --glass: rgb(249 249 251 / 0.88);
-  --scrim: rgb(242 242 247 / 0.9);
-  --card-shadow: none;
+  --glass: rgb(255 255 255 / 0.78);
+  --scrim: rgb(255 255 255 / 0.9);
+  --card-shadow: 0 1px 2px rgb(20 20 40 / 0.04), 0 8px 24px -12px rgb(20 20 40 / 0.12);
   --float-shadow: 0 10px 30px -12px rgb(0 0 0 / 0.18), 0 1px 2px rgb(0 0 0 / 0.06);
 
-  --grad-primary: linear-gradient(#5856d6, #5856d6);
-  --grad-sunrise: linear-gradient(#e8590c, #e8590c);
-  --grad-ocean: linear-gradient(#007aff, #007aff);
-  --grad-mint: linear-gradient(#248a3d, #248a3d);
+  --grad-primary: linear-gradient(135deg, #5b4ff5 0%, #a23cf0 55%, #f0457f 100%);
+  --grad-sunrise: linear-gradient(135deg, #ff8a3d 0%, #ff4f6d 100%);
+  --grad-ocean: linear-gradient(135deg, #2f80ff 0%, #22c6e0 100%);
+  --grad-mint: linear-gradient(135deg, #20b26b 0%, #9bd94a 100%);
+  --grad-berry: linear-gradient(135deg, #b84cf5 0%, #ff5fa2 100%);
   --grad-card: none;
+  --aurora-1: #7c6cff;
+  --aurora-2: #ff6fb1;
+  --aurora-3: #ffb35c;
+  --aurora-4: #3fd4ff;
 }
 
 /* Sombre doux : gris anthracite, jamais noir, texte légèrement cassé. */
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --bg: #1f2024;
-  --surface: #2c2d32;
-  --surface-high: #36373d;
+  --bg: #0e0f14;
+  --surface: #1a1b22;
+  --surface-high: #24252e;
   --ink: #ebebf5;
   --border: rgb(235 235 245 / 0.12);
   --border-strong: rgb(235 235 245 / 0.2);
@@ -80,13 +87,20 @@
   --warning-fg: #ffd18a;
   --error-fg: #ffb0aa;
 
-  --glass: rgb(38 39 44 / 0.88);
-  --scrim: rgb(31 32 36 / 0.9);
-  --float-shadow: 0 10px 30px -12px rgb(0 0 0 / 0.5);
+  --glass: rgb(20 21 28 / 0.78);
+  --scrim: rgb(14 15 20 / 0.9);
+  --card-shadow: 0 0 0 1px rgb(255 255 255 / 0.05);
+  --float-shadow: 0 10px 30px -12px rgb(0 0 0 / 0.6);
 
-  --grad-primary: linear-gradient(#5e5ce6, #5e5ce6);
-  --grad-ocean: linear-gradient(#0a74e0, #0a74e0);
-  --grad-mint: linear-gradient(#2a9446, #2a9446);
+  --grad-primary: linear-gradient(135deg, #5146e8 0%, #8f2fd6 55%, #d63a6e 100%);
+  --grad-sunrise: linear-gradient(135deg, #e8702a 0%, #e03a5a 100%);
+  --grad-ocean: linear-gradient(135deg, #2565e0 0%, #179fbd 100%);
+  --grad-mint: linear-gradient(135deg, #179457 0%, #6fae2e 100%);
+  --grad-berry: linear-gradient(135deg, #9a3be0 0%, #e0498a 100%);
+  --aurora-1: #6a5cff;
+  --aurora-2: #e8509a;
+  --aurora-3: #ff9f43;
+  --aurora-4: #29b8e8;
 }
 
 /* Points de rupture : 600 px = Fold déplié / tablette, 900 px = grand écran. */
@@ -136,6 +150,7 @@
 @utility bg-grad-sunrise { background-image: var(--grad-sunrise); }
 @utility bg-grad-ocean { background-image: var(--grad-ocean); }
 @utility bg-grad-mint { background-image: var(--grad-mint); }
+@utility bg-grad-berry { background-image: var(--grad-berry); }
 
 /* Échelle typographique d'iOS. */
 @utility type-h1 {
@@ -228,10 +243,31 @@
   animation: shimmer 1.6s linear infinite;
 }
 
-/* Conservé pour compatibilité : en style iOS, l'accent est uni. */
+/* Texte en dégradé (titres mis en avant). */
 .text-gradient {
-  color: var(--violet);
+  background: var(--grad-primary);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
+
+/* Aurore : taches de couleur floues qui dérivent lentement derrière une grande carte. */
+@keyframes aurora-drift {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  33% { transform: translate3d(12%, -8%, 0) scale(1.15); }
+  66% { transform: translate3d(-10%, 10%, 0) scale(0.92); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+.aurora-blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(42px);
+  opacity: 0.85;
+  animation: aurora-drift 14s ease-in-out infinite;
+  will-change: transform;
+}
+@keyframes float-soft { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+.float-soft { animation: float-soft 5s ease-in-out infinite; }
 
 @media (display-mode: standalone) {
   body {
@@ -245,7 +281,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .shimmer {
+  .shimmer, .aurora-blob, .float-soft {
     animation: none;
   }
 }
