@@ -157,6 +157,26 @@ describe('Vocabulaire enrichi joint par le Worker', () => {
     expect(card?.wordTraductionFr).toBe('encore');
   });
 
+  it('Lingvist conserve la forme conjuguée attendue par la phrase', async () => {
+    apiRequest.mockResolvedValueOnce({
+      cards: [{ ...carte('range_1879'), expectedAnswer: 'ranges', sentenceWithGap: 'The price ____ from 10 to 20.', sentenceFull: 'The price ranges from 10 to 20.' }],
+      words: [motEnrichi],
+    });
+    const [card] = await learningApi.getLingvistCards('default');
+    expect(card?.expectedAnswer).toBe('ranges');
+    expect(card?.lemma).toBe('range');
+    expect(card?.srsWord?.enrichment?.displayForm).toBe('to range');
+  });
+
+  it('le tri envoie uniquement les identifiants historiques à /srs/known', async () => {
+    apiRequest.mockResolvedValueOnce({ ok: true, updated: 1 });
+    await learningApi.markWordsKnown('default', [motEnrichi.id], 'user_marked_known');
+    expect(apiRequest.mock.calls[0][0]).toBe('/srs/known');
+    expect(JSON.parse(apiRequest.mock.calls[0][1].body)).toEqual({
+      profileId: 'default', wordIds: [motEnrichi.id], source: 'user_marked_known',
+    });
+  });
+
   it('/srs/review envoie toujours le même wordId historique', async () => {
     apiRequest.mockResolvedValueOnce(undefined);
     await learningApi.reviewWord('default', motEnrichi.id, motEnrichi, 'good');

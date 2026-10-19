@@ -25,11 +25,11 @@ export interface VocabularyWordLike {
 
 export type VocabularyDirection = 'en-to-fr' | 'fr-to-en';
 
-const PARTS_OF_SPEECH: VocabularyPartOfSpeech[] = [
+const PARTS_OF_SPEECH = [
   'noun', 'verb', 'adjective', 'adverb', 'preposition', 'phrasal_verb', 'modal_verb', 'expression', 'other',
-];
+] as const;
 
-const PART_OF_SPEECH_LABELS: Record<VocabularyPartOfSpeech, string> = {
+const PART_OF_SPEECH_LABELS: Record<(typeof PARTS_OF_SPEECH)[number], string> = {
   noun: 'nom',
   verb: 'verbe',
   adjective: 'adjectif',
@@ -63,8 +63,8 @@ function stripInfinitiveTo(value: string) {
   return value.replace(/^to\s+/i, '').trim();
 }
 
-function isPartOfSpeech(value: unknown): value is VocabularyPartOfSpeech {
-  return typeof value === 'string' && (PARTS_OF_SPEECH as string[]).includes(value);
+function isPartOfSpeech(value: unknown): value is (typeof PARTS_OF_SPEECH)[number] {
+  return typeof value === 'string' && (PARTS_OF_SPEECH as readonly string[]).includes(value);
 }
 
 /** Enrichissement exploitable, ou `null` s'il est absent ou mal formé. */
@@ -75,7 +75,8 @@ function enrichmentOf(word: VocabularyWordLike | null | undefined): VocabularyEn
 }
 
 function isModal(enrichment: VocabularyEnrichmentDto) {
-  return enrichment.partOfSpeech === 'modal_verb';
+  const partOfSpeech = cleanVocabularyText(enrichment.partOfSpeech)?.replace(/_/g, ' ') ?? '';
+  return /\bmodal\b/i.test(partOfSpeech);
 }
 
 function unique(values: (string | null)[]) {
@@ -114,19 +115,17 @@ export function getVocabularyTranslation(word: VocabularyWordLike | null | undef
   return (enrichment ? cleanVocabularyText(enrichment.primaryTranslation) : null) ?? cleanVocabularyText(word.traduction);
 }
 
-/** Catégorie grammaticale normalisée (clé) si connue. */
+/** Catégorie publiée libre, avec repli sur le type historique non générique. */
 export function getVocabularyPartOfSpeech(word: VocabularyWordLike): VocabularyPartOfSpeech | null {
   const enrichment = enrichmentOf(word);
-  return enrichment && isPartOfSpeech(enrichment.partOfSpeech) ? enrichment.partOfSpeech : null;
+  return cleanVocabularyText(enrichment?.partOfSpeech) ?? cleanVocabularyText(word.type);
 }
 
 /** Libellé français de la catégorie, avec repli sur le `type` historique. */
 export function getVocabularyPartOfSpeechLabel(word: VocabularyWordLike): string | null {
   const partOfSpeech = getVocabularyPartOfSpeech(word);
-  if (partOfSpeech) return partOfSpeech === 'other' ? null : PART_OF_SPEECH_LABELS[partOfSpeech];
-  const published = enrichmentOf(word)?.partOfSpeech;
-  if (typeof published === 'string' && cleanVocabularyText(published)) return partOfSpeechLabel(published);
-  return cleanVocabularyText(word.type);
+  if (partOfSpeech) return partOfSpeechLabel(partOfSpeech);
+  return null;
 }
 
 /** Libellé d'une catégorie ; une catégorie inconnue publiée par l'atelier reste lisible. */
@@ -143,8 +142,16 @@ export function collocationKindLabel(kind: VocabularyCollocationKind): string {
 export function getVocabularySenses(word: VocabularyWordLike): VocabularySenseDto[] {
   const senses = enrichmentOf(word)?.senses;
   if (!Array.isArray(senses)) return [];
-  return senses.filter((sense): sense is VocabularySenseDto =>
-    Boolean(sense) && typeof sense === 'object' && Boolean(cleanVocabularyText(sense.translation)));
+  return senses
+    .filter((sense): sense is VocabularySenseDto =>
+      Boolean(sense) && typeof sense === 'object' && Boolean(cleanVocabularyText(sense.translation)))
+    .map((sense) => ({
+      senseKey: cleanVocabularyText(sense.senseKey) ?? '',
+      partOfSpeech: cleanVocabularyText(sense.partOfSpeech) ?? '',
+      translation: cleanVocabularyText(sense.translation)!,
+      exampleEn: cleanVocabularyText(sense.exampleEn) ?? '',
+      exampleFr: cleanVocabularyText(sense.exampleFr) ?? '',
+    }));
 }
 
 /** Collocations bien formées, éventuellement filtrées par sens et limitées. */
@@ -154,8 +161,15 @@ export function getVocabularyCollocations(
 ): VocabularyCollocationDto[] {
   const collocations = enrichmentOf(word)?.collocations;
   if (!Array.isArray(collocations)) return [];
-  const valid = collocations.filter((item): item is VocabularyCollocationDto =>
-    Boolean(item) && typeof item === 'object' && Boolean(cleanVocabularyText(item.en)));
+  const valid = collocations
+    .filter((item): item is VocabularyCollocationDto =>
+      Boolean(item) && typeof item === 'object' && Boolean(cleanVocabularyText(item.en)))
+    .map((item) => ({
+      en: cleanVocabularyText(item.en)!,
+      fr: cleanVocabularyText(item.fr) ?? '',
+      kind: Object.hasOwn(COLLOCATION_KIND_LABELS, item.kind) ? item.kind : 'collocation' as const,
+      senseKey: cleanVocabularyText(item.senseKey) ?? '',
+    }));
   const matching = options.senseKey ? valid.filter((item) => item.senseKey === options.senseKey) : [];
   const ordered = matching.length ? [...matching, ...valid.filter((item) => item.senseKey !== options.senseKey)] : valid;
   return options.limit === undefined ? ordered : ordered.slice(0, options.limit);
@@ -193,7 +207,7 @@ function splitTranslation(value: string | null) {
 /**
  * Réponses acceptables pour un rappel.
  * - `en-to-fr` (réponse en français) : traduction principale, puis traductions des sens ;
- * - `fr-to-en` (réponse en anglais) : le lemme, et la forme `to + verbe` d'un verbe lexical.
+ * - `fr-to-en` (réponse en anglais) : le lemme, et la forme d’affichage après retrait contrôlé de `to`.
  */
 export function getVocabularyAcceptedAnswers(word: VocabularyWordLike, direction: VocabularyDirection): string[] {
   const enrichment = enrichmentOf(word);
@@ -201,7 +215,7 @@ export function getVocabularyAcceptedAnswers(word: VocabularyWordLike, direction
   if (direction === 'en-to-fr') {
     if (!enrichment) return unique(splitTranslation(cleanVocabularyText(word.traduction)));
     return unique([
-      cleanVocabularyText(enrichment.primaryTranslation),
+      getVocabularyTranslation(word),
       ...getVocabularySenses(word).map((sense) => cleanVocabularyText(sense.translation)),
     ]);
   }
@@ -210,5 +224,5 @@ export function getVocabularyAcceptedAnswers(word: VocabularyWordLike, direction
   if (!enrichment) return unique([cleanVocabularyText(lemma)]);
   const displayForm = getVocabularyDisplayForm(word);
   const acceptsInfinitive = !isModal(enrichment) && /^to\s+/i.test(displayForm) && stripInfinitiveTo(displayForm).toLocaleLowerCase('en') === lemma.toLocaleLowerCase('en');
-  return unique([lemma, acceptsInfinitive ? displayForm : null]);
+  return unique([lemma, acceptsInfinitive ? stripInfinitiveTo(displayForm) : null]);
 }

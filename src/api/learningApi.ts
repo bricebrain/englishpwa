@@ -8,7 +8,7 @@ import {
 } from '@/mocks/learningData';
 import { cleanVocabularyText, getVocabularyTranslation } from '@/helpers/vocabularyDisplay';
 import { srsSessionMock, triageCandidatesMock } from '@/mocks/srsData';
-import { readingItemsMock, readingSegmentsMock, srtEpisodesMock, srtScenesMock, srtSourcesMock } from '@/mocks/readingData';
+import { readingItemsMock, readingSegmentsMock } from '@/mocks/readingData';
 import type {
   AssimilLesson,
   AssimilLevel,
@@ -24,7 +24,7 @@ import type {
   SrsTriageCandidate,
   SrsWord,
 } from '@/types/learning';
-import type { ReadingItem, ReadingSegment, SrtEpisode, SrtScene, SrtSource } from '@/types/reading';
+import type { ReadingItem, ReadingSegment } from '@/types/reading';
 
 const wait = (duration = 220) => new Promise((resolve) => window.setTimeout(resolve, duration));
 
@@ -268,23 +268,5 @@ export const learningApi = {
     return hasRemoteApi
       ? apiRequest<{ created: number; promoted: number }>('/articles/promote-words', { method: 'POST', body: JSON.stringify({ level, profileId, vocabulary: words }) })
       : localResult({ created: words.length, promoted: words.length });
-  },
-
-  async getSrtSources() {
-    if (!hasRemoteApi) return localResult(srtSourcesMock);
-    const data = await apiRequest<{ items: SrtSource[] }>('/srt/sources');
-    return data.items ?? [];
-  },
-
-  async getSrtEpisodes(sourceId: string) {
-    if (!hasRemoteApi) return localResult(srtEpisodesMock[sourceId] ?? []);
-    const data = await apiRequest<{ items: SrtEpisode[] }>(`/srt/sources/${encodeURIComponent(sourceId)}/episodes`);
-    return data.items ?? [];
-  },
-
-  async getSrtScenes(episodeId: string) {
-    if (!hasRemoteApi) return localResult(srtScenesMock[episodeId] ?? []);
-    const data = await apiRequest<{ items: SrtScene[] }>(`/srt/episodes/${encodeURIComponent(episodeId)}/scenes`);
-    return data.items ?? [];
   },
 };

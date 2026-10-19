@@ -146,7 +146,7 @@ export function FlashcardsPage() {
                     </Stack>
                   </CardFace>
 
-                  <CardFace back glow={glow}>
+                  <CardFace back glow={glow} revealed={showBack}>
                     <Stack direction="row" justifyContent="space-between" alignItems="center">
                       <Typography variant="overline" color={glow ?? tokens.violetSoft}>
                         {session.result ? RESULT_LABELS[session.result] : 'Réponse'}
@@ -225,7 +225,7 @@ export function FlashcardsPage() {
   );
 }
 
-function CardFace({ children, back = false, glow }: { children: React.ReactNode; back?: boolean; glow?: string | null }) {
+function CardFace({ children, back = false, glow, revealed = false }: { children: React.ReactNode; back?: boolean; glow?: string | null; revealed?: boolean }) {
   return (
     <Box
       sx={{
@@ -240,7 +240,7 @@ function CardFace({ children, back = false, glow }: { children: React.ReactNode;
         transition: 'border-color .3s, box-shadow .3s',
       }}
     >
-      {children}
+      {!back || revealed ? children : null}
     </Box>
   );
 }

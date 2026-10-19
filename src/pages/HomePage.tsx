@@ -33,7 +33,7 @@ const shortcuts = [
   { title: 'Phrases', subtitle: 'Construire en anglais', path: '/phrases', icon: ConstructionRounded, gradient: gradients.sunrise },
   { title: 'Tri éclair', subtitle: 'Swipe tes mots', path: '/lingvist-triage', icon: SwipeRounded, gradient: gradients.mint },
   { title: 'Écouter', subtitle: 'Assimil & audios', path: '/ecouter', icon: HeadphonesRounded, gradient: `linear-gradient(135deg, ${tokens.cyan}, ${tokens.mint})` },
-  { title: 'Lire', subtitle: 'Articles & séries', path: '/lire', icon: MenuBookRounded, gradient: `linear-gradient(135deg, ${tokens.pink}, ${tokens.violet})` },
+  { title: 'Lire', subtitle: 'Articles guidés', path: '/lire', icon: MenuBookRounded, gradient: `linear-gradient(135deg, ${tokens.pink}, ${tokens.violet})` },
 ];
 
 function getGreeting() {

@@ -1,6 +1,4 @@
 import ArrowBackRounded from '@mui/icons-material/ArrowBackRounded';
-import ArticleRounded from '@mui/icons-material/ArticleRounded';
-import SubtitlesRounded from '@mui/icons-material/SubtitlesRounded';
 import { Box, Button, Card, CardContent, Chip, Grid, Stack, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
 import { useState } from 'react';
 
@@ -8,7 +6,6 @@ import { PageHeader } from '@/components/common/PageHeader';
 import { QueryState } from '@/components/common/QueryState';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { GuidedArticlePanel } from '@/components/reading/GuidedArticlePanel';
-import { SrtLibraryPanel } from '@/components/reading/SrtLibraryPanel';
 import { MotionBox, Pressable, Stagger, StaggerItem } from '@/components/ui/motion';
 import { useReadingItems } from '@/hooks/useReadingLibrary';
 import { feedback } from '@/services/feedbackService';
@@ -18,25 +15,15 @@ import type { ReadingItem } from '@/types/reading';
 const CARD_GRADIENTS = [gradients.primary, gradients.ocean, gradients.sunrise, gradients.mint];
 
 export function ReadingPage() {
-  const [tab, setTab] = useState<'articles' | 'srt'>('articles');
   const [level, setLevel] = useState('Tout');
   const [selected, setSelected] = useState<ReadingItem | null>(null);
   const query = useReadingItems(level);
 
   return (
     <PageLayout>
-      <PageHeader back eyebrow="Compréhension écrite" title="Lire" subtitle="Lecture guidée, articles et scènes de séries" />
+      <PageHeader back eyebrow="Compréhension écrite" title="Lire" subtitle="Lecture guidée et articles" />
 
-      <ToggleButtonGroup
-        exclusive fullWidth value={tab}
-        onChange={(_, value: 'articles' | 'srt' | null) => { if (value) { feedback('select'); setTab(value); setSelected(null); } }}
-        sx={{ mb: 2.5 }}
-      >
-        <ToggleButton value="articles" sx={{ gap: 1 }}><ArticleRounded fontSize="small" /> Articles guidés</ToggleButton>
-        <ToggleButton value="srt" sx={{ gap: 1 }}><SubtitlesRounded fontSize="small" /> Scènes SRT</ToggleButton>
-      </ToggleButtonGroup>
-
-      {tab === 'srt' ? <SrtLibraryPanel /> : selected ? (
+      {selected ? (
         <MotionBox initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ type: 'spring', stiffness: 260, damping: 26 }}>
           <Button startIcon={<ArrowBackRounded />} onClick={() => setSelected(null)} sx={{ mb: 1.5, color: tokens.violetSoft }}>Bibliothèque</Button>
           <GuidedArticlePanel item={selected} />

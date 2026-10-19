@@ -47,7 +47,7 @@ describe('mot sans enrichissement : comportement historique inchangé', () => {
     expect(getVocabularyLemma(historique)).toBe('withstand');
     expect(getVocabularyDisplayForm(historique)).toBe('withstand');
     expect(getVocabularyTranslation(historique)).toBe('supporter, résister à');
-    expect(getVocabularyPartOfSpeech(historique)).toBeNull();
+    expect(getVocabularyPartOfSpeech(historique)).toBe('verbe');
     expect(getVocabularyPartOfSpeechLabel(historique)).toBe('verbe');
     expect(getVocabularyExamples(historique)[0]?.en).toBe('Few walls withstand such storms.');
     expect(getVocabularyExamples(historique).map((example) => example.en)).toContain('This bridge can withstand strong winds.');
@@ -72,11 +72,11 @@ describe('règle du « to »', () => {
     expect(getVocabularyLemma(range)).toBe('range');
   });
 
-  it('accepte « range » et « to range » en FR→EN', () => {
+  it('retire « to » de la forme affichée pour la réponse FR→EN', () => {
     const accepted = getVocabularyAcceptedAnswers(range, 'fr-to-en');
-    expect(accepted).toEqual(['range', 'to range']);
+    expect(accepted).toEqual(['range']);
     expect(evaluateRecall('range', accepted)).toBe('success');
-    expect(evaluateRecall('to range', accepted)).toBe('success');
+    expect(evaluateRecall('to range', accepted)).toBe('fail');
   });
 
   it('un modal ne devient jamais « to can », même si la donnée le contient', () => {
@@ -84,6 +84,13 @@ describe('règle du « to »', () => {
     expect(getVocabularyDisplayForm(modal('to can'))).toBe('can');
     expect(getVocabularyAcceptedAnswers(modal('to can'), 'fr-to-en')).toEqual(['can']);
     expect(evaluateRecall('to can', getVocabularyAcceptedAnswers(modal('can'), 'fr-to-en'))).toBe('fail');
+  });
+
+  it('conserve « to » pour un homographe employé comme verbe lexical', () => {
+    const word = modal('to can');
+    word.enrichment = { ...word.enrichment!, partOfSpeech: 'verb', primaryTranslation: 'mettre en conserve' };
+    expect(getVocabularyDisplayForm(word)).toBe('to can');
+    expect(getVocabularyLemma(word)).toBe('can');
   });
 
   it('un lemme publié avec « to » est nettoyé', () => {
@@ -124,9 +131,9 @@ describe('catégories publiées hors liste', () => {
   it('affiche lisiblement une catégorie inconnue', () => {
     const word: VocabularyWordLike = {
       mot: 'although', traduction: 'bien que', type: 'word',
-      enrichment: { ...rangeEnrichmentMock, lemma: 'although', displayForm: 'although', partOfSpeech: 'subordinating_conjunction' as never },
+      enrichment: { ...rangeEnrichmentMock, lemma: 'although', displayForm: 'although', partOfSpeech: 'subordinating_conjunction' },
     };
-    expect(getVocabularyPartOfSpeech(word)).toBeNull();
+    expect(getVocabularyPartOfSpeech(word)).toBe('subordinating_conjunction');
     expect(getVocabularyPartOfSpeechLabel(word)).toBe('subordinating conjunction');
   });
 });
@@ -149,5 +156,36 @@ describe('données mal formées', () => {
     expect(getVocabularyDisplayForm(sansLemme)).toBe('range');
     expect(getVocabularyTranslation(sansLemme)).toBe('intervalle');
     expect(getVocabularyTranslation({ mot: 'x', traduction: '?', enrichment: 'oops' as unknown as VocabularyEnrichmentDto })).toBeNull();
+  });
+});
+
+
+describe('replis et données partielles publiées', () => {
+  it('accepte le repli historique quand la traduction publiée est générique', () => {
+    const word = { ...range, enrichment: { ...rangeEnrichmentMock, primaryTranslation: '?', senses: [] } };
+    expect(getVocabularyTranslation(word)).toBe('intervalle');
+    expect(getVocabularyAcceptedAnswers(word, 'en-to-fr')).toEqual(['intervalle']);
+  });
+
+  it('reconnaît les modaux avec une catégorie libre', () => {
+    const word = modal('to can');
+    word.enrichment = { ...word.enrichment!, partOfSpeech: 'modal' };
+    expect(getVocabularyDisplayForm(word)).toBe('can');
+    expect(getVocabularyAcceptedAnswers(word, 'fr-to-en')).toEqual(['can']);
+  });
+
+  it('nettoie chaque champ des sens et collocations avant le rendu', () => {
+    const word = { ...range, enrichment: {
+      ...rangeEnrichmentMock,
+      senses: [{ translation: 'aller', partOfSpeech: {}, exampleEn: {}, exampleFr: 42, senseKey: {} }],
+      collocations: [{ en: 'range from', fr: {}, kind: 'invalid', senseKey: {} }],
+    } as unknown as VocabularyEnrichmentDto };
+    expect(getVocabularySenses(word)).toEqual([
+      { translation: 'aller', partOfSpeech: '', exampleEn: '', exampleFr: '', senseKey: '' },
+    ]);
+    expect(getVocabularyCollocations(word)).toEqual([
+      { en: 'range from', fr: '', kind: 'collocation', senseKey: '' },
+    ]);
+    expect(getVocabularyExamples(word)).toEqual([]);
   });
 });

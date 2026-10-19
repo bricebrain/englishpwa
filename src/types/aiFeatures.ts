@@ -1,6 +1,6 @@
 /** Fonctions IA servies par le Worker (Workers AI, Vectorize). */
 
-export type PassageSource = 'content' | 'reading' | 'srt';
+export type PassageSource = 'content' | 'reading';
 
 export interface SemanticResult {
   score: number;

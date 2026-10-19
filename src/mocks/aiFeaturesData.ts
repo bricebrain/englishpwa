@@ -4,7 +4,6 @@ import type { DailySentences, DailyStory, LiveAnalysis, SemanticResult, WordCont
 
 export const semanticCorpusMock: SemanticResult[] = [
   { score: 0, source: 'reading', refId: 'r1', parentId: 'money', title: 'Saving money — Budget', text: 'Prices range from ten to twenty euros. Saving money is hard when prices rise every month.', textFr: 'Économiser devient difficile quand les prix augmentent.', level: 'B1' },
-  { score: 0, source: 'srt', refId: 's1', parentId: 'ep1', title: 'Pilot', text: 'I am sorry, I didn’t mean to interrupt you. Please, go on.', level: 'B1' },
   { score: 0, source: 'content', refId: 'c1#0', parentId: 'cyber', title: 'WTF is happening with Cybersecurity?', text: 'Hackers rarely break in; they log in with stolen passwords. A reliable password manager makes a huge difference.', textFr: 'Les pirates entrent rarement par effraction ; ils se connectent avec des mots de passe volés.', level: 'B2' },
   { score: 0, source: 'reading', refId: 'r2', parentId: 'work', title: 'Remote work — Decisions', text: 'Before making a decision, the team took into account the cost and the time it would take.', textFr: 'Avant de décider, l’équipe a tenu compte du coût et du temps nécessaire.', level: 'B1' },
 ];

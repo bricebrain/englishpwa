@@ -32,25 +32,3 @@ export function usePromoteReadingVocabulary() {
     },
   });
 }
-
-export function useSrtSources() {
-  return useQuery({ queryKey: ['srt-sources'], queryFn: learningApi.getSrtSources, retry: 1 });
-}
-
-export function useSrtEpisodes(sourceId: string | null) {
-  return useQuery({
-    queryKey: ['srt-episodes', sourceId],
-    queryFn: () => learningApi.getSrtEpisodes(sourceId!),
-    enabled: Boolean(sourceId),
-    retry: 1,
-  });
-}
-
-export function useSrtScenes(episodeId: string | null) {
-  return useQuery({
-    queryKey: ['srt-scenes', episodeId],
-    queryFn: () => learningApi.getSrtScenes(episodeId!),
-    enabled: Boolean(episodeId),
-    retry: 1,
-  });
-}

@@ -33,7 +33,7 @@ const sections = [
     label: 'Compréhension',
     items: [
       { title: 'Écouter', subtitle: 'Assimil et écoute guidée', path: '/ecouter', icon: HeadphonesRounded, gradient: `linear-gradient(135deg, ${tokens.cyan}, ${tokens.mint})` },
-      { title: 'Lire', subtitle: 'Articles et scènes SRT', path: '/lire', icon: MenuBookRounded, gradient: `linear-gradient(135deg, ${tokens.pink}, ${tokens.violet})` },
+      { title: 'Lire', subtitle: 'Articles guidés', path: '/lire', icon: MenuBookRounded, gradient: `linear-gradient(135deg, ${tokens.pink}, ${tokens.violet})` },
       { title: 'Histoire du jour', subtitle: 'Écrite avec tes mots à réviser', path: '/histoire', icon: AutoStoriesRounded, gradient: gradients.sunrise },
       { title: 'Rechercher', subtitle: 'Par idée dans tous tes contenus', path: '/recherche', icon: SearchRounded, gradient: gradients.ocean },
     ],

@@ -4,16 +4,7 @@
  * n'en a pas, et la PWA retombe alors sur les champs historiques de `words`.
  */
 
-export type VocabularyPartOfSpeech =
-  | 'noun'
-  | 'verb'
-  | 'adjective'
-  | 'adverb'
-  | 'preposition'
-  | 'phrasal_verb'
-  | 'modal_verb'
-  | 'expression'
-  | 'other';
+export type VocabularyPartOfSpeech = string;
 
 export type VocabularyCollocationKind =
   | 'collocation'

@@ -53,7 +53,7 @@ export function useFlashcardSession(mode: ReviewMode) {
   const displayForm = currentWord ? getVocabularyDisplayForm(currentWord) : '';
   const translation = currentWord ? getVocabularyTranslation(currentWord) ?? '?' : '';
   const frontText = currentWord ? (direction === 'en-to-fr' ? displayForm : translation) : '';
-  const expected = currentWord ? (direction === 'en-to-fr' ? translation : displayForm) : '';
+  const expected = currentWord ? (direction === 'en-to-fr' ? translation : getVocabularyLemma(currentWord)) : '';
   /** Ce que la synthèse vocale prononce : le lemme, jamais « to + verbe ». */
   const spokenWord = currentWord ? getVocabularyLemma(currentWord) : '';
 

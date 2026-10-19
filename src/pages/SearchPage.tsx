@@ -65,7 +65,6 @@ export function SearchPage() {
         <ToggleButton value="all">Tout</ToggleButton>
         <ToggleButton value="content">Scripts</ToggleButton>
         <ToggleButton value="reading">Articles</ToggleButton>
-        <ToggleButton value="srt">Séries</ToggleButton>
       </ToggleButtonGroup>
 
       <QueryState
