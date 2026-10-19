@@ -17,7 +17,7 @@ const COACH_PROMPT = `Tu es mon coach d'anglais. Lance une séance de 10 minutes
 
 function StepBadge({ step, gradient }: { step: number; gradient: string }) {
   return (
-    <span className="grid size-[34px] shrink-0 place-items-center rounded-[11px] font-display font-extrabold text-white" style={{ background: gradient }}>
+    <span className="grid size-[34px] shrink-0 place-items-center rounded-[11px] font-display font-bold text-white" style={{ background: gradient }}>
       {step}
     </span>
   );
@@ -56,15 +56,15 @@ export function LivePage() {
                 key={ring}
                 animate={{ scale: [1, 1.7], opacity: [0.5, 0] }}
                 transition={{ duration: 2.2, repeat: Infinity, delay: ring * 1.1, ease: 'easeOut' }}
-                className="absolute inset-0 rounded-full bg-coral"
+                className="absolute inset-0 rounded-full bg-violet/40"
               />
             ))}
-            <span className="relative grid size-16 place-items-center rounded-full bg-grad-sunrise text-white">
+            <span className="relative grid size-16 place-items-center rounded-full bg-grad-primary text-white">
               <AudioLines className="size-8" />
             </span>
           </div>
           <div>
-            <p className="font-display text-xl font-extrabold">10 minutes pour parler</p>
+            <p className="font-display text-xl font-bold">10 minutes pour parler</p>
             <p className="text-sm text-muted">Vise la fluidité, pas la perfection. +30 XP au bilan.</p>
           </div>
         </div>

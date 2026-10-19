@@ -68,7 +68,7 @@ export function ListeningPage() {
                   <div className="flex items-start gap-3">
                     <IconTile icon={<Headphones />} gradient={gradients.ocean} />
                     <div className="min-w-0 flex-1">
-                      <p className="line-clamp-2 font-extrabold leading-tight">{item.title}</p>
+                      <p className="line-clamp-2 font-bold leading-tight">{item.title}</p>
                       <p className="mt-0.5 text-[12.5px] text-muted">{item.source} · {item.durationLabel}</p>
                     </div>
                   </div>
@@ -114,7 +114,7 @@ export function ListeningPage() {
               >
                 <span
                   className={cn(
-                    'relative z-[1] mt-3 grid size-14 shrink-0 place-items-center rounded-full font-display text-lg font-extrabold',
+                    'relative z-[1] mt-3 grid size-14 shrink-0 place-items-center rounded-full font-display text-lg font-bold',
                     listened ? 'bg-grad-mint text-[#06140E]' : 'border-2 border-border-strong bg-surface text-fg',
                   )}
                   style={listened ? { boxShadow: `0 8px 20px -8px ${tokens.mint}` } : undefined}
@@ -130,7 +130,7 @@ export function ListeningPage() {
                             <Chip size="sm" label={lesson.level} className="bg-grad-primary text-white" />
                             {lesson.artifactAvailable ? <Chip size="sm" label="Fiche prête" className="bg-mint/14 text-mint" /> : null}
                           </span>
-                          <span className="block font-extrabold leading-tight">{lesson.title}</span>
+                          <span className="block font-bold leading-tight">{lesson.title}</span>
                           <span className="block text-[12.5px] text-muted">{lesson.stageLabel}</span>
                         </span>
                         <ChevronRight className="size-6 text-violet-soft" />

@@ -1,184 +1,109 @@
-import {
-  BellOff,
-  CirclePlay,
-  CloudCheck,
-  CloudOff,
-  Download,
-  MicOff,
-  Moon,
-  Rows3,
-  Sparkles,
-  Sun,
-  SunMoon,
-  Vibrate,
-  Volume2,
-} from 'lucide-react';
-import type { ReactNode } from 'react';
+import { CirclePlay, Download, Rows3, Sparkles, Vibrate } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 import { hasRemoteApi } from '@/api/httpClient';
 import { PageHeader } from '@/components/common/PageHeader';
 import { PageLayout } from '@/components/layout/PageLayout';
-import { Alert } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { Switch } from '@/components/ui/form';
+import { ListGroup, ListRow, RowIcon, SectionFooter, SectionHeader } from '@/components/ui/list';
 import { Segmented } from '@/components/ui/segmented';
-import { IconTile } from '@/components/ui/SessionChrome';
 import { useTheme } from '@/context/ThemeContext';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 import { usePreferences } from '@/hooks/usePreferences';
-import { cn } from '@/lib/utils';
 import { celebrate, configureFeedback, feedback } from '@/services/feedbackService';
 import type { ThemePreference } from '@/services/themePreference';
-import { gradients } from '@/theme';
 
-const THEME_OPTIONS: { value: ThemePreference; label: string; icon: ReactNode }[] = [
-  { value: 'light', label: 'Clair', icon: <Sun /> },
-  { value: 'dark', label: 'Sombre', icon: <Moon /> },
-  { value: 'system', label: 'Système', icon: <SunMoon /> },
+const THEME_OPTIONS: { value: ThemePreference; label: string }[] = [
+  { value: 'light', label: 'Clair' },
+  { value: 'dark', label: 'Sombre' },
+  { value: 'system', label: 'Automatique' },
 ];
 
-function SettingRow({ icon, gradient, title, subtitle, checked, onChange }: {
-  icon: ReactNode;
-  gradient: string;
-  title: string;
-  subtitle: string;
-  checked: boolean;
-  onChange: (value: boolean) => void;
-}) {
-  return (
-    <label className="flex cursor-pointer items-center gap-3 py-2.5">
-      <IconTile icon={icon} gradient={gradient} size={40} radius={12} />
-      <span className="min-w-0 flex-1">
-        <span className="block font-bold">{title}</span>
-        <span className="block text-[12.5px] text-muted">{subtitle}</span>
-      </span>
-      <Switch checked={checked} onCheckedChange={onChange} aria-label={title} />
-    </label>
-  );
-}
-
-function InfoRow({ icon, title, subtitle }: { icon: ReactNode; title: string; subtitle: string }) {
-  return (
-    <div className="flex items-center gap-3 py-2">
-      <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-ink/[0.045] text-faint [&_svg]:size-5">{icon}</span>
-      <div>
-        <p className="text-[14.5px] font-bold">{title}</p>
-        <p className="text-[12.5px] text-muted">{subtitle}</p>
-      </div>
-    </div>
-  );
-}
-
 export function SettingsPage() {
+  const navigate = useNavigate();
   const { preferences, updatePreferences } = usePreferences();
   const theme = useTheme();
   const install = useInstallPrompt();
 
   return (
     <PageLayout reading>
-      <PageHeader back title="Paramètres" subtitle="Apparence, sensations et installation" />
-      <div className="flex flex-col gap-4">
-        <Card>
-          <CardContent>
-            <span className="type-overline text-violet-soft">Apparence</span>
-            <p className="mb-3 mt-0.5 text-[13px] text-muted">
-              {theme.preference === 'system'
-                ? `Suit le réglage de l’appareil (actuellement ${theme.resolved === 'dark' ? 'sombre' : 'clair'}).`
-                : 'Ton choix est enregistré sur cet appareil.'}
-            </p>
-            <Segmented
-              aria-label="Thème de l’application"
-              fullWidth
-              value={theme.preference}
-              onChange={theme.setPreference}
-              options={THEME_OPTIONS}
-            />
-          </CardContent>
-        </Card>
+      <PageHeader back backLabel="Plus" title="Réglages" />
 
-        <Card>
-          <CardContent>
-            <span className="type-overline text-violet-soft">Sensations</span>
-            <SettingRow
-              icon={<Volume2 />} gradient={gradients.primary}
-              title="Effets sonores" subtitle="Petits sons de réussite, d’erreur et de combo"
-              checked={preferences.soundEnabled}
-              onChange={(soundEnabled) => {
-                updatePreferences({ soundEnabled });
-                configureFeedback({ sound: soundEnabled, haptics: preferences.hapticsEnabled });
-                if (soundEnabled) feedback('success');
-              }}
-            />
-            <SettingRow
-              icon={<Vibrate />} gradient={gradients.sunrise}
-              title="Vibrations" subtitle="Retour haptique à chaque interaction"
+      <SectionHeader>Apparence</SectionHeader>
+      <div className="rounded-xl bg-surface p-2.5">
+        <Segmented aria-label="Thème de l’application" fullWidth value={theme.preference} onChange={theme.setPreference} options={THEME_OPTIONS} />
+      </div>
+      <SectionFooter>
+        {theme.preference === 'system'
+          ? `« Automatique » suit le réglage de ton téléphone (actuellement ${theme.resolved === 'dark' ? 'sombre' : 'clair'}).`
+          : 'Ton choix est enregistré sur cet appareil.'}
+      </SectionFooter>
+
+      <SectionHeader>Retours</SectionHeader>
+      <ListGroup>
+        <ListRow
+          as="label"
+          icon={<RowIcon color="#FF9500"><Vibrate /></RowIcon>}
+          title="Vibrations"
+          trailing={(
+            <Switch
               checked={preferences.hapticsEnabled}
-              onChange={(hapticsEnabled) => {
+              onCheckedChange={(hapticsEnabled) => {
                 updatePreferences({ hapticsEnabled });
-                configureFeedback({ sound: preferences.soundEnabled, haptics: hapticsEnabled });
+                configureFeedback({ haptics: hapticsEnabled });
                 if (hapticsEnabled) feedback('select');
               }}
             />
-            <Button
-              variant="outline" className="mt-2 w-full"
-              onClick={() => { feedback('complete'); void celebrate('big'); }}
-            >
-              <Sparkles />Tester la célébration
-            </Button>
-          </CardContent>
-        </Card>
+          )}
+        />
+        <ListRow
+          icon={<RowIcon color="#AF52DE"><Sparkles /></RowIcon>}
+          title="Tester une célébration"
+          last
+          onClick={() => { feedback('complete'); void celebrate('big'); }}
+        />
+      </ListGroup>
 
-        <Card>
-          <CardContent>
-            <span className="type-overline text-violet-soft">Application</span>
-            <SettingRow
-              icon={<Rows3 />} gradient={gradients.ocean}
-              title="Interface dense" subtitle="Plus de contenu à l’écran"
-              checked={preferences.denseMode}
-              onChange={(denseMode) => updatePreferences({ denseMode })}
-            />
-            <SettingRow
-              icon={<CirclePlay />} gradient={gradients.mint}
-              title="Lecture audio automatique" subtitle="Lancer l’audio à l’ouverture d’un contenu"
-              checked={preferences.autoPlayAudio}
-              onChange={(autoPlayAudio) => updatePreferences({ autoPlayAudio })}
-            />
-            <div className="mt-3">
-              {install.standalone ? (
-                <Alert severity="success">L’application est ouverte en mode installé.</Alert>
-              ) : install.canInstall ? (
-                <Button size="lg" className="w-full" onClick={install.install}>
-                  <Download />Installer English Fluency
-                </Button>
-              ) : (
-                <Alert severity="info">
-                  Pour installer l’application, utilise « Ajouter à l’écran d’accueil » dans le menu du navigateur.
-                </Alert>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+      <SectionHeader>Application</SectionHeader>
+      <ListGroup>
+        <ListRow
+          as="label"
+          icon={<RowIcon color="#0A84FF"><Rows3 /></RowIcon>}
+          title="Interface dense"
+          trailing={<Switch checked={preferences.denseMode} onCheckedChange={(denseMode) => updatePreferences({ denseMode })} />}
+        />
+        <ListRow
+          as="label"
+          icon={<RowIcon color="#34A853"><CirclePlay /></RowIcon>}
+          title="Lecture audio automatique"
+          last
+          trailing={<Switch checked={preferences.autoPlayAudio} onCheckedChange={(autoPlayAudio) => updatePreferences({ autoPlayAudio })} />}
+        />
+      </ListGroup>
 
-        <Card>
-          <CardContent>
-            <span className="type-overline text-muted">Capacités Web</span>
-            <InfoRow icon={<MicOff />} title="Enregistrement vocal désactivé" subtitle="Aucune permission microphone n’est demandée." />
-            <InfoRow icon={<BellOff />} title="Notifications désactivées" subtitle="Aucun rappel ni Web Push." />
-            <InfoRow icon={<CloudOff />} title="Mode online-first" subtitle="Les contenus ne sont pas mis en cache hors connexion." />
-          </CardContent>
-        </Card>
-
-        <div className={cn('flex items-center gap-3 rounded-[20px] border p-4', hasRemoteApi ? 'border-mint/25 bg-mint/8' : 'border-border bg-ink/[0.035]')}>
-          <CloudCheck className={cn('size-6 shrink-0', hasRemoteApi ? 'text-mint' : 'text-faint')} />
-          <div>
-            <p className="font-extrabold">{hasRemoteApi ? 'API distante configurée' : 'Mode démonstration local'}</p>
-            <p className="text-[13px] text-muted">
-              {hasRemoteApi ? 'Les données proviennent du backend configuré.' : 'Définis VITE_API_BASE_URL pour connecter un backend sécurisé, sans secret dans le navigateur.'}
-            </p>
-          </div>
-        </div>
-      </div>
+      <SectionHeader>Compte</SectionHeader>
+      <ListGroup>
+        <ListRow
+          title="Profil"
+          detail={`${preferences.profile.level} · ${preferences.profile.dailyGoal} mots / jour`}
+          chevron
+          last={install.standalone}
+          onClick={() => navigate('/profile')}
+        />
+        {install.standalone ? null : install.canInstall ? (
+          <ListRow
+            icon={<RowIcon color="#5856D6"><Download /></RowIcon>}
+            title={<span className="text-violet">Installer sur l’écran d’accueil</span>}
+            last
+            onClick={install.install}
+          />
+        ) : (
+          <ListRow title="Installer l’application" subtitle="Menu du navigateur › « Ajouter à l’écran d’accueil »" last />
+        )}
+      </ListGroup>
+      <SectionFooter>
+        {hasRemoteApi ? 'Données synchronisées avec ton serveur.' : 'Mode démonstration : aucune donnée n’est envoyée.'} Pas de micro, pas de notifications, pas de cache hors connexion.
+      </SectionFooter>
     </PageLayout>
   );
 }

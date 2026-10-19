@@ -128,7 +128,7 @@ function ChunksPanel({ chunks }: { chunks: ContentChunk[] }) {
     <Panel color={tokens.coral} title="Chunks à retenir">
       <div className="mt-2 flex flex-col gap-2.5">
         {chunks.map((chunk) => (
-          <div key={chunk.id} className="rounded-xl border border-border bg-surface p-3">
+          <div key={chunk.id} className="rounded-xl bg-surface p-3">
             <div className="flex flex-wrap items-center gap-1.5">
               <p className="text-[15.5px] font-bold">{chunk.expression}</p>
               {chunk.level ? <Chip size="sm" label={chunk.level} /> : null}
@@ -159,7 +159,7 @@ function GrammarPanel({ points }: { points: ContentGrammarPoint[] }) {
     <Panel color={tokens.mint} title="Points de grammaire">
       <div className="mt-2 flex flex-col gap-2.5">
         {points.map((point) => (
-          <div key={point.id} className="rounded-xl border border-border bg-surface p-3">
+          <div key={point.id} className="rounded-xl bg-surface p-3">
             <div className="flex flex-wrap items-center gap-1.5">
               <p className="text-[15px] font-bold">{point.title}</p>
               {point.level ? <Chip size="sm" label={point.level} /> : null}

@@ -32,7 +32,7 @@ function formatTime(value: number) {
 }
 
 /** Petit égaliseur animé affiché pendant la lecture. */
-export function Equalizer({ active, color = tokens.cyan, bars = 4 }: { active: boolean; color?: string; bars?: number }) {
+export function Equalizer({ active, color = tokens.violet, bars = 4 }: { active: boolean; color?: string; bars?: number }) {
   return (
     <div className="flex h-4 items-end gap-0.5" aria-hidden>
       {Array.from({ length: bars }, (_, index) => (
@@ -66,9 +66,9 @@ export function AudioPlayerBar(props: AudioPlayerBarProps) {
           <span
             className={cn(
               'grid size-12 place-items-center rounded-full text-white transition-[background,box-shadow] duration-300',
-              isPlaying ? 'bg-grad-sunrise' : 'bg-grad-ocean',
+              'bg-grad-primary',
             )}
-            style={{ boxShadow: `0 8px 22px -8px ${isPlaying ? tokens.coral : tokens.cyan}` }}
+            
           >
             {isPlaying ? <Pause className="size-6 fill-current" /> : <Play className="ml-0.5 size-6 fill-current" />}
           </span>
@@ -89,7 +89,7 @@ export function AudioPlayerBar(props: AudioPlayerBarProps) {
           </div>
         </div>
         <Pressable onClick={() => props.onSpeedChange(nextSpeed)} aria-label={`Vitesse ${props.speed}×, passer à ${nextSpeed}×`} className="w-auto">
-          <span className="grid h-8 place-items-center rounded-[10px] border border-violet/25 bg-violet/12 px-2 text-[13px] font-extrabold text-violet-soft">
+          <span className="grid h-8 place-items-center rounded-full bg-ink/[0.08] px-2.5 text-[13px] font-semibold tabular-nums text-fg">
             {props.speed}×
           </span>
         </Pressable>

@@ -45,7 +45,7 @@ export function WordEnrichmentDetails({
   if (!senses.length && !collocations.length) return null;
 
   return (
-    <div className="rounded-[20px] border border-border bg-surface p-4">
+    <div className="rounded-xl bg-surface p-4">
       <span className="type-overline mb-2 text-violet-soft">{title}</span>
 
       {senses.length ? (
@@ -53,7 +53,7 @@ export function WordEnrichmentDetails({
           {senses.map((sense) => (
             <div key={sense.senseKey || sense.translation} className={cn('border-l-[3px] pl-3', sense.senseKey === senseKey ? 'border-mint' : 'border-violet')}>
               <div className="flex flex-wrap items-center gap-1.5">
-                <p className="font-extrabold">{sense.translation}</p>
+                <p className="font-bold">{sense.translation}</p>
                 <Chip size="sm" label={partOfSpeechLabel(sense.partOfSpeech)} />
               </div>
               {sense.exampleEn ? (

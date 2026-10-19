@@ -242,6 +242,5 @@ export interface UserPreferences {
   profile: LearningProfile;
   denseMode: boolean;
   autoPlayAudio: boolean;
-  soundEnabled: boolean;
   hapticsEnabled: boolean;
 }

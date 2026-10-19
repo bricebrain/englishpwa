@@ -1,89 +1,95 @@
 @import 'tailwindcss';
 
 /*
- * Jetons « Daylight Aurora ».
- * - Les teintes d'accent (--violet, --mint…) servent au texte et aux icônes : plus claires en sombre pour rester lisibles.
- * - Les dégradés (--grad-*) gardent les mêmes teintes moyennes dans les deux thèmes : le texte blanc y reste contrasté.
- * - --ink sert aux voiles légers (bg-ink/5…) : encre violette en clair, gris clair en sombre.
+ * Jetons « iOS épuré ».
+ * - Fond gris groupé, cartes unies, une seule couleur d'accent (indigo).
+ * - Les teintes (--violet, --mint…) servent au texte et aux icônes : plus claires en sombre pour rester lisibles.
+ * - Les remplissages (--grad-*) sont des aplats sur lesquels le texte blanc reste contrasté.
+ * - --ink sert aux voiles légers (bg-ink/8…) comme les « fills » d'iOS.
  */
 :root {
   color-scheme: light;
-  --bg: #f4f3f8;
+  --bg: #f2f2f7;
   --surface: #ffffff;
-  --surface-high: #efedf5;
-  --ink: #31274e;
-  --border: rgb(49 39 78 / 0.1);
-  --border-strong: rgb(49 39 78 / 0.2);
-  --fg: #211b32;
-  --muted: #6c657d;
-  --faint: #8a8398;
+  --surface-high: #ffffff;
+  --ink: #3c3c43;
+  --border: rgb(60 60 67 / 0.16);
+  --border-strong: rgb(60 60 67 / 0.29);
+  --fg: #1c1c1e;
+  --muted: #6c6c70;
+  --faint: #737378;
+  --chevron: #c4c4c7;
+  --segment-on: #ffffff;
 
-  --violet: #7055e8;
-  --violet-soft: #8068de;
-  --pink: #d83e88;
-  --coral: #e85f43;
-  --amber: #b96d00;
-  --lime: #76a81d;
-  --mint: #16875d;
-  --cyan: #168ca8;
-  --red: #d63f5a;
+  --violet: #5856d6;
+  --violet-soft: #5856d6;
+  --pink: #c62a55;
+  --coral: #c4501f;
+  --amber: #9a5b00;
+  --lime: #4b7f0f;
+  --mint: #248a3d;
+  --cyan: #0b6e8f;
+  --red: #d70015;
+  --switch-on: #34c759;
 
-  --info-fg: #07566a;
-  --success-fg: #0b6040;
-  --warning-fg: #754500;
-  --error-fg: #92253a;
+  --info-fg: #0b5a76;
+  --success-fg: #1c6b30;
+  --warning-fg: #7a4600;
+  --error-fg: #a1001a;
 
-  --glass: rgb(255 255 255 / 0.88);
-  --scrim: rgb(244 243 248 / 0.88);
-  --card-shadow: 0 1px 0 rgb(255 255 255 / 0.9) inset, 0 18px 40px -28px rgb(49 39 78 / 0.28);
-  --float-shadow: 0 20px 50px -18px rgb(49 39 78 / 0.4), inset 0 1px 0 rgb(255 255 255 / 0.9);
-  --aurora-opacity: 0.3;
+  --glass: rgb(249 249 251 / 0.88);
+  --scrim: rgb(242 242 247 / 0.9);
+  --card-shadow: none;
+  --float-shadow: 0 10px 30px -12px rgb(0 0 0 / 0.18), 0 1px 2px rgb(0 0 0 / 0.06);
 
-  --grad-primary: linear-gradient(135deg, #7055e8 0%, #d83e88 100%);
-  --grad-sunrise: linear-gradient(135deg, #b96d00 0%, #e85f43 55%, #d83e88 100%);
-  --grad-ocean: linear-gradient(135deg, #168ca8 0%, #7055e8 100%);
-  --grad-mint: linear-gradient(135deg, #76a81d 0%, #16875d 100%);
-  --grad-card: linear-gradient(160deg, rgb(112 85 232 / 0.035) 0%, rgb(216 62 136 / 0.015) 100%);
+  --grad-primary: linear-gradient(#5856d6, #5856d6);
+  --grad-sunrise: linear-gradient(#e8590c, #e8590c);
+  --grad-ocean: linear-gradient(#007aff, #007aff);
+  --grad-mint: linear-gradient(#248a3d, #248a3d);
+  --grad-card: none;
 }
 
-/* Sombre « ardoise » : un gris-bleu doux plutôt qu'un noir, et un texte qui n'est pas blanc pur. */
+/* Sombre doux : gris anthracite, jamais noir, texte légèrement cassé. */
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --bg: #1e2129;
-  --surface: #282c36;
-  --surface-high: #313642;
-  --ink: #e4e6eb;
-  --border: rgb(228 230 235 / 0.1);
-  --border-strong: rgb(228 230 235 / 0.18);
-  --fg: #e4e6eb;
-  --muted: #b3b8c3;
-  --faint: #9298a5;
+  --bg: #1f2024;
+  --surface: #2c2d32;
+  --surface-high: #36373d;
+  --ink: #ebebf5;
+  --border: rgb(235 235 245 / 0.12);
+  --border-strong: rgb(235 235 245 / 0.2);
+  --fg: #ededf0;
+  --muted: #a6a6ad;
+  --faint: #93939a;
+  --chevron: #6e6e75;
+  --segment-on: #5b5c63;
 
-  --violet: #a594ff;
-  --violet-soft: #b5a8ff;
-  --pink: #f08cbc;
-  --coral: #f59a84;
-  --amber: #ebb258;
-  --lime: #b2d670;
-  --mint: #5fd0a3;
-  --cyan: #67c7de;
-  --red: #f48b9d;
+  --violet: #9c9aff;
+  --violet-soft: #9c9aff;
+  --pink: #ff7a9c;
+  --coral: #ff9a6b;
+  --amber: #ffb547;
+  --lime: #a8d96a;
+  --mint: #5bd27f;
+  --cyan: #64c8f0;
+  --red: #ff7b72;
+  --switch-on: #30c55a;
 
-  --info-fg: #9ddcec;
-  --success-fg: #98e3c3;
-  --warning-fg: #f3cd8c;
-  --error-fg: #f7b2be;
+  --info-fg: #9fdcf2;
+  --success-fg: #9fe4b2;
+  --warning-fg: #ffd18a;
+  --error-fg: #ffb0aa;
 
-  --glass: rgb(40 44 54 / 0.9);
-  --scrim: rgb(30 33 41 / 0.9);
-  --card-shadow: 0 1px 0 rgb(255 255 255 / 0.04) inset, 0 18px 40px -28px rgb(0 0 0 / 0.55);
-  --float-shadow: 0 20px 50px -18px rgb(0 0 0 / 0.6), inset 0 1px 0 rgb(255 255 255 / 0.06);
-  --aurora-opacity: 0.22;
+  --glass: rgb(38 39 44 / 0.88);
+  --scrim: rgb(31 32 36 / 0.9);
+  --float-shadow: 0 10px 30px -12px rgb(0 0 0 / 0.5);
 
-  --grad-card: linear-gradient(160deg, rgb(165 148 255 / 0.05) 0%, rgb(240 140 188 / 0.02) 100%);
+  --grad-primary: linear-gradient(#5e5ce6, #5e5ce6);
+  --grad-ocean: linear-gradient(#0a74e0, #0a74e0);
+  --grad-mint: linear-gradient(#2a9446, #2a9446);
 }
 
-/* Points de rupture alignés sur l'ancien thème : 600 px = Fold déplié / tablette, 900 px = grand écran. */
+/* Points de rupture : 600 px = Fold déplié / tablette, 900 px = grand écran. */
 @theme {
   --breakpoint-sm: 600px;
   --breakpoint-md: 900px;
@@ -92,8 +98,8 @@
 }
 
 @theme inline {
-  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-display: 'Bricolage Grotesque Variable', 'Inter Variable', system-ui, sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif;
 
   --color-bg: var(--bg);
   --color-surface: var(--surface);
@@ -104,6 +110,8 @@
   --color-fg: var(--fg);
   --color-muted: var(--muted);
   --color-faint: var(--faint);
+  --color-chevron: var(--chevron);
+  --color-segment-on: var(--segment-on);
   --color-violet: var(--violet);
   --color-violet-soft: var(--violet-soft);
   --color-pink: var(--pink);
@@ -113,6 +121,7 @@
   --color-mint: var(--mint);
   --color-cyan: var(--cyan);
   --color-red: var(--red);
+  --color-switch-on: var(--switch-on);
   --color-glass: var(--glass);
   --color-info-fg: var(--info-fg);
   --color-success-fg: var(--success-fg);
@@ -128,34 +137,33 @@
 @utility bg-grad-ocean { background-image: var(--grad-ocean); }
 @utility bg-grad-mint { background-image: var(--grad-mint); }
 
-/* Styles typographiques repris de l'ancien thème. */
+/* Échelle typographique d'iOS. */
 @utility type-h1 {
   font-family: var(--font-display);
-  font-size: 1.9rem;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  line-height: 1.1;
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 41px;
 }
 @utility type-h2 {
   font-family: var(--font-display);
-  font-size: 1.35rem;
-  font-weight: 750;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-}
-@utility type-h3 {
-  font-family: var(--font-display);
-  font-size: 1.08rem;
+  font-size: 22px;
   font-weight: 700;
   letter-spacing: -0.01em;
-  line-height: 1.3;
+  line-height: 28px;
+}
+@utility type-h3 {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 22px;
 }
 @utility type-overline {
   display: block;
-  font-size: 0.68rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  line-height: 1.6;
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 18px;
   text-transform: uppercase;
 }
 
@@ -181,10 +189,12 @@
     background: var(--bg);
     color: var(--fg);
     font-family: var(--font-sans);
-    line-height: 1.5;
+    font-size: 17px;
+    line-height: 1.35;
+    letter-spacing: -0.01em;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
-    transition: background-color 0.25s ease, color 0.25s ease;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   button:not(:disabled),
@@ -193,80 +203,13 @@
   }
 
   *:focus-visible {
-    outline: 2px solid var(--violet-soft);
+    outline: 2px solid var(--violet);
     outline-offset: 2px;
   }
 
   ::selection {
-    background: color-mix(in srgb, var(--violet) 35%, transparent);
+    background: color-mix(in srgb, var(--violet) 25%, transparent);
   }
-}
-
-/* Halos « aurore » fixes derrière toute l'application. */
-.aurora {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  overflow: hidden;
-}
-
-.aurora::before,
-.aurora::after,
-.aurora span {
-  content: '';
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
-  opacity: var(--aurora-opacity);
-  will-change: transform;
-}
-
-.aurora::before {
-  width: 70vmax;
-  height: 70vmax;
-  top: -38vmax;
-  left: -22vmax;
-  background: radial-gradient(circle, rgb(112 85 232 / 0.32), transparent 65%);
-  animation: aurora-drift-a 22s ease-in-out infinite alternate;
-}
-
-.aurora::after {
-  width: 60vmax;
-  height: 60vmax;
-  top: 10vmax;
-  right: -32vmax;
-  background: radial-gradient(circle, rgb(216 62 136 / 0.22), transparent 65%);
-  animation: aurora-drift-b 26s ease-in-out infinite alternate;
-}
-
-.aurora span {
-  width: 55vmax;
-  height: 55vmax;
-  bottom: -35vmax;
-  left: 5vmax;
-  background: radial-gradient(circle, rgb(22 140 168 / 0.16), transparent 65%);
-  animation: aurora-drift-a 30s ease-in-out infinite alternate-reverse;
-}
-
-/* Fine texture de grain pour éviter l'aspect « plat ». */
-.grain {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  opacity: 0.025;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
-@keyframes aurora-drift-a {
-  from { transform: translate3d(0, 0, 0) scale(1); }
-  to { transform: translate3d(8vmax, 6vmax, 0) scale(1.15); }
-}
-
-@keyframes aurora-drift-b {
-  from { transform: translate3d(0, 0, 0) scale(1.1); }
-  to { transform: translate3d(-10vmax, 8vmax, 0) scale(0.95); }
 }
 
 @keyframes shimmer {
@@ -277,19 +220,17 @@
 .shimmer {
   background: linear-gradient(
     90deg,
-    color-mix(in srgb, var(--ink) 4%, transparent) 25%,
+    color-mix(in srgb, var(--ink) 5%, transparent) 25%,
     color-mix(in srgb, var(--ink) 10%, transparent) 50%,
-    color-mix(in srgb, var(--ink) 4%, transparent) 75%
+    color-mix(in srgb, var(--ink) 5%, transparent) 75%
   );
   background-size: 200% 100%;
   animation: shimmer 1.6s linear infinite;
 }
 
+/* Conservé pour compatibilité : en style iOS, l'accent est uni. */
 .text-gradient {
-  background: linear-gradient(135deg, var(--violet) 0%, var(--pink) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--violet);
 }
 
 @media (display-mode: standalone) {
@@ -304,9 +245,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .aurora::before,
-  .aurora::after,
-  .aurora span,
   .shimmer {
     animation: none;
   }

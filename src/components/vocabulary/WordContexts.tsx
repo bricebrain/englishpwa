@@ -34,7 +34,7 @@ export function WordContexts({ word }: { word: string }) {
   if (!contexts.length) return null;
 
   return (
-    <div className="rounded-[20px] border border-border bg-surface p-4">
+    <div className="rounded-xl bg-surface p-4">
       <span className="type-overline mb-2 text-cyan">Dans tes contenus</span>
       <div className="flex flex-col gap-2.5">
         {contexts.map((context) => (

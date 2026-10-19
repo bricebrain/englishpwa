@@ -129,7 +129,7 @@ export function SentenceBuilderPage() {
       />
 
       <motion.div key={index} initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={{ type: 'spring', stiffness: 280, damping: 26 }}>
-        <Chip size="sm" label={exercise.hint} className="mb-4 bg-grad-sunrise text-white" />
+        <Chip size="sm" label={exercise.hint} className="mb-4 bg-violet/12 text-violet" />
         {generated && index === 0 ? (
           <p className="mb-2 text-[12.5px] font-bold text-violet-soft">
             Phrases du jour, écrites pour toi avec tes mots à réviser

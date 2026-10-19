@@ -1,37 +1,36 @@
-import { BookOpen, BookOpenText, Brain, ChartColumn, ChevronRight, Hammer, Headphones, Layers, MoveHorizontal, Search, Settings, User } from 'lucide-react';
+import { BookOpen, BookOpenText, ChartColumn, Headphones, Layers, MoveHorizontal, PenLine, Search, Settings, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 import { PageHeader } from '@/components/common/PageHeader';
 import { PageLayout } from '@/components/layout/PageLayout';
-import { Pressable, Stagger, StaggerItem } from '@/components/ui/motion';
-import { IconTile } from '@/components/ui/SessionChrome';
-import { gradients } from '@/theme';
+import { ListGroup, ListRow, RowIcon, SectionFooter, SectionHeader } from '@/components/ui/list';
+import { Stagger, StaggerItem } from '@/components/ui/motion';
 
 const sections = [
   {
-    label: 'Pratique active',
+    label: 'Pratique',
     items: [
-      { title: 'Lingvist', subtitle: 'Vocabulaire en contexte', path: '/lingvist', icon: BookOpen, gradient: gradients.primary },
-      { title: 'Tri éclair', subtitle: 'Swipe les mots faciles', path: '/lingvist-triage', icon: MoveHorizontal, gradient: gradients.mint },
-      { title: 'Construire des phrases', subtitle: 'Structures et transformations', path: '/phrases', icon: Hammer, gradient: gradients.sunrise },
-      { title: 'Flashcards', subtitle: 'Cartes dues et nouveaux mots', path: '/flashcards', icon: Layers, gradient: gradients.ocean },
+      { title: 'Lingvist', subtitle: 'Vocabulaire en contexte', path: '/lingvist', icon: BookOpen, color: '#5856D6' },
+      { title: 'Tri rapide', subtitle: 'Classer les mots connus', path: '/lingvist-triage', icon: MoveHorizontal, color: '#30B0C7' },
+      { title: 'Construire des phrases', subtitle: 'Structures et transformations', path: '/phrases', icon: PenLine, color: '#FF9500' },
+      { title: 'Flashcards', subtitle: 'Cartes dues et nouveaux mots', path: '/flashcards', icon: Layers, color: '#007AFF' },
     ],
   },
   {
     label: 'Compréhension',
     items: [
-      { title: 'Écouter', subtitle: 'Assimil et écoute guidée', path: '/ecouter', icon: Headphones, gradient: 'linear-gradient(135deg, #168CA8, #16875D)' },
-      { title: 'Lire', subtitle: 'Articles guidés', path: '/lire', icon: BookOpenText, gradient: 'linear-gradient(135deg, #D83E88, #7055E8)' },
-      { title: 'Histoire du jour', subtitle: 'Écrite avec tes mots à réviser', path: '/histoire', icon: BookOpen, gradient: gradients.sunrise },
-      { title: 'Rechercher', subtitle: 'Par idée dans tous tes contenus', path: '/recherche', icon: Search, gradient: gradients.ocean },
+      { title: 'Écouter', subtitle: 'Assimil et écoute guidée', path: '/ecouter', icon: Headphones, color: '#FF2D55' },
+      { title: 'Lire', subtitle: 'Articles guidés', path: '/lire', icon: BookOpenText, color: '#AF52DE' },
+      { title: 'Histoire du jour', subtitle: 'Écrite avec tes mots à réviser', path: '/histoire', icon: BookOpen, color: '#FF9500' },
+      { title: 'Rechercher', subtitle: 'Par idée dans tous tes contenus', path: '/recherche', icon: Search, color: '#8E8E93' },
     ],
   },
   {
     label: 'Suivi et compte',
     items: [
-      { title: 'Progression', subtitle: 'Niveau, XP et rétention', path: '/statistics', icon: ChartColumn, gradient: 'linear-gradient(135deg, #B96D00, #D83E88)' },
-      { title: 'Profil', subtitle: 'Niveau et objectif quotidien', path: '/profile', icon: User, gradient: 'linear-gradient(135deg, #8068DE, #7055E8)' },
-      { title: 'Paramètres', subtitle: 'Thème, sons, vibrations, installation', path: '/settings', icon: Settings, gradient: 'linear-gradient(135deg, #8E8AAE, #5C5880)' },
+      { title: 'Progression', subtitle: 'Niveau, XP et rétention', path: '/statistics', icon: ChartColumn, color: '#34A853' },
+      { title: 'Profil', subtitle: 'Niveau et objectif quotidien', path: '/profile', icon: User, color: '#5856D6' },
+      { title: 'Réglages', subtitle: 'Thème, sons, vibrations', path: '/settings', icon: Settings, color: '#8E8E93' },
     ],
   },
 ];
@@ -40,42 +39,30 @@ export function MorePage() {
   const navigate = useNavigate();
 
   return (
-    <PageLayout>
-      <PageHeader eyebrow="Tout l’univers" title="Plus" subtitle="Parcours, suivi et compte" />
+    <PageLayout reading>
+      <PageHeader title="Plus" />
 
-      <div className="mb-6 flex items-start gap-3 rounded-[20px] border border-violet/25 bg-[linear-gradient(135deg,color-mix(in_srgb,var(--violet)_14%,transparent),color-mix(in_srgb,var(--pink)_9%,transparent))] p-4">
-        <IconTile icon={<Brain />} size={40} />
-        <div>
-          <p className="font-extrabold">Le GPT Coach reste ton espace libre</p>
-          <p className="mt-0.5 text-[13.5px] text-muted">
-            Les conversations longues vivent dans ChatGPT ; l’application se concentre sur la pratique guidée.
-          </p>
-        </div>
-      </div>
-
-      <Stagger gap={0.04} className="flex flex-col gap-6">
+      <Stagger gap={0.05}>
         {sections.map((section) => (
-          <section key={section.label}>
-            <span className="type-overline mb-2 text-muted">{section.label}</span>
-            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-              {section.items.map(({ title, subtitle, path, icon: Icon, gradient }) => (
-                <StaggerItem key={path}>
-                  <Pressable onClick={() => navigate(path)} aria-label={title}>
-                    <span className="flex items-center gap-3 rounded-[20px] border border-border bg-surface p-3">
-                      <IconTile icon={<Icon />} gradient={gradient} />
-                      <span className="min-w-0 flex-1">
-                        <span className="block font-extrabold">{title}</span>
-                        <span className="block text-[12.5px] text-muted">{subtitle}</span>
-                      </span>
-                      <ChevronRight className="size-6 text-faint" />
-                    </span>
-                  </Pressable>
-                </StaggerItem>
+          <StaggerItem key={section.label}>
+            <SectionHeader>{section.label}</SectionHeader>
+            <ListGroup>
+              {section.items.map(({ title, subtitle, path, icon: Icon, color }, index) => (
+                <ListRow
+                  key={path}
+                  icon={<RowIcon color={color}><Icon /></RowIcon>}
+                  title={title}
+                  subtitle={subtitle}
+                  chevron
+                  last={index === section.items.length - 1}
+                  onClick={() => navigate(path)}
+                />
               ))}
-            </div>
-          </section>
+            </ListGroup>
+          </StaggerItem>
         ))}
       </Stagger>
+      <SectionFooter>Les longues conversations se font avec ton coach dans ChatGPT ; l’application se concentre sur la pratique guidée.</SectionFooter>
     </PageLayout>
   );
 }

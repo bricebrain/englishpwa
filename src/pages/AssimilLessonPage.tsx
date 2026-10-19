@@ -80,7 +80,7 @@ export function AssimilLessonPage() {
                   {lesson.artifact.sentences.map((sentence) => (
                     <Card key={sentence.id} className="h-full"><CardContent>
                       <div className="flex justify-between gap-2">
-                        <p className="text-[17px] font-extrabold leading-[1.4]">{sentence.textEn}</p>
+                        <p className="text-[17px] font-bold leading-[1.4]">{sentence.textEn}</p>
                         <Pressable onClick={() => speakEnglish(sentence.textEn)} aria-label="Écouter" className="size-10 w-10 shrink-0 rounded-full">
                           <span className="grid size-10 place-items-center rounded-full bg-grad-ocean text-white"><Volume2 className="size-5" /></span>
                         </Pressable>
@@ -128,7 +128,7 @@ export function AssimilLessonPage() {
                 <div className="mt-3 flex flex-col gap-2">
                   {lesson.artifact.recyclingTargets.map((target) => (
                     <div key={target.term} className="border-l-[3px] border-mint pl-3">
-                      <p className="font-extrabold">{target.term}</p>
+                      <p className="font-bold">{target.term}</p>
                       <p className="text-[13px] text-muted">{target.reasonFr}</p>
                     </div>
                   ))}

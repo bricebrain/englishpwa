@@ -4,7 +4,7 @@ export type ResolvedTheme = 'light' | 'dark';
 /** Clé lue aussi par le script en ligne d'`index.html`, avant le premier affichage. */
 export const THEME_STORAGE_KEY = 'english-fluency:theme';
 
-const THEME_COLORS: Record<ResolvedTheme, string> = { light: '#F4F3F8', dark: '#1E2129' };
+const THEME_COLORS: Record<ResolvedTheme, string> = { light: '#F2F2F7', dark: '#1F2024' };
 
 export function readThemePreference(): ThemePreference {
   try {

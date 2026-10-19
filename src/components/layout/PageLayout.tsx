@@ -9,7 +9,7 @@ interface PageLayoutProps extends PropsWithChildren {
 export function PageLayout({ children, reading = false }: PageLayoutProps) {
   return (
     <div
-      className="mx-auto w-full px-4 pb-8 pt-[max(16px,calc(env(safe-area-inset-top)+8px))] sm:px-6 sm:pb-12 md:px-8"
+      className="mx-auto w-full px-4 pb-8 pt-[max(12px,env(safe-area-inset-top))] sm:px-6 sm:pb-12 md:px-8"
       style={{ maxWidth: reading ? APP_LAYOUT.readingMaxWidth : APP_LAYOUT.dashboardMaxWidth }}
     >
       {children}

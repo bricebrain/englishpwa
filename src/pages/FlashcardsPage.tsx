@@ -136,7 +136,7 @@ export function FlashcardsPage() {
                     </div>
                     <div className="grid flex-1 place-items-center">
                       <div className="text-center">
-                        <p className="font-display text-[40px] font-extrabold leading-[1.1] tracking-[-0.03em] sm:text-[50px]">
+                        <p className="font-display text-[40px] font-bold leading-[1.1] tracking-[-0.03em] sm:text-[50px]">
                           {session.frontText}
                         </p>
                         {word.ipa_uk && session.direction === 'en-to-fr' ? <p className="mt-2 text-muted">/{word.ipa_uk}/</p> : null}
@@ -167,7 +167,7 @@ export function FlashcardsPage() {
                     <div className="grid flex-1 place-items-center">
                       <div className="px-2 text-center">
                         <p
-                          className="font-display text-[34px] font-extrabold leading-[1.15] tracking-[-0.02em] sm:text-[42px]"
+                          className="font-display text-[34px] font-bold leading-[1.15] tracking-[-0.02em] sm:text-[42px]"
                           style={{ color: glow ?? tokens.text }}
                         >
                           {session.expected}

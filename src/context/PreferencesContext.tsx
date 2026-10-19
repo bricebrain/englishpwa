@@ -8,8 +8,8 @@ export function PreferencesProvider({ children }: PropsWithChildren) {
   const [preferences, setPreferences] = useState(loadPreferences);
 
   useEffect(() => {
-    configureFeedback({ sound: preferences.soundEnabled, haptics: preferences.hapticsEnabled });
-  }, [preferences.hapticsEnabled, preferences.soundEnabled]);
+    configureFeedback({ haptics: preferences.hapticsEnabled });
+  }, [preferences.hapticsEnabled]);
 
   const value = useMemo<PreferencesContextValue>(() => ({
     preferences,

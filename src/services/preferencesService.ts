@@ -6,7 +6,6 @@ export const defaultPreferences: UserPreferences = {
   profile: { id: 'default', name: 'Brice', level: 'B1', dailyGoal: 20 },
   denseMode: true,
   autoPlayAudio: false,
-  soundEnabled: true,
   hapticsEnabled: true,
 };
 

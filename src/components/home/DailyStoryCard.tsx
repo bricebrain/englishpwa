@@ -1,11 +1,9 @@
-import { BookOpen, ChevronRight } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-import { Card, CardContent } from '@/components/ui/card';
+import { SectionHeader } from '@/components/ui/list';
 import { Pressable } from '@/components/ui/motion';
-import { IconTile } from '@/components/ui/SessionChrome';
 import { useDailyStory } from '@/hooks/useAiFeatures';
-import { gradients } from '@/theme';
 
 /** Accroche de l'histoire du jour (rien n'est affiché si elle n'est pas disponible). */
 export function DailyStoryCard() {
@@ -15,24 +13,20 @@ export function DailyStoryCard() {
   const teaser = story.data.textEn.split(/(?<=[.!?])\s+/).slice(0, 2).join(' ');
 
   return (
-    <Pressable onClick={() => navigate('/histoire')} aria-label="Lire l’histoire du jour">
-      <Card className="overflow-hidden">
-        <div className="absolute -right-10 -top-[50px] size-40 rounded-full bg-grad-sunrise opacity-15 blur-[20px]" />
-        <CardContent className="relative">
-          <div className="flex items-center gap-3">
-            <IconTile icon={<BookOpen />} gradient={gradients.sunrise} />
-            <div className="min-w-0 flex-1">
-              <span className="type-overline text-coral">Histoire du jour</span>
-              <h3 className="type-h3 truncate">{story.data.title}</h3>
-            </div>
-            <ChevronRight className="size-6 text-faint" />
-          </div>
-          <p className="mt-2.5 line-clamp-2 text-sm leading-[1.55] text-muted">{teaser}</p>
-          <p className="mt-2 text-[12.5px] font-bold text-violet-soft">
-            {story.data.wordsUsed.length} de tes mots à réviser · {story.data.questions.length} questions
-          </p>
-        </CardContent>
-      </Card>
-    </Pressable>
+    <section>
+      <SectionHeader>Lecture du jour</SectionHeader>
+      <Pressable onClick={() => navigate('/histoire')} aria-label="Lire l’histoire du jour">
+        <span className="flex flex-col gap-1 rounded-xl bg-surface px-4 py-3.5">
+          <span className="flex items-center justify-between gap-2">
+            <span className="truncate text-[17px] font-semibold">{story.data.title}</span>
+            <ChevronRight className="size-[18px] shrink-0 text-chevron" strokeWidth={2.6} />
+          </span>
+          <span className="line-clamp-2 text-[15px] leading-5 text-muted">{teaser}</span>
+          <span className="mt-1 text-[13px] font-medium text-violet">
+            {story.data.questions.length} questions · {story.data.wordsUsed.length} de tes mots
+          </span>
+        </span>
+      </Pressable>
+    </section>
   );
 }

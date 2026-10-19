@@ -5,7 +5,7 @@ import { awardXp, recordCombo, xpForCorrect } from '@/services/xpService';
 
 /**
  * Gère la série de bonnes réponses d'une session et déclenche les retours
- * sensoriels associés (son, vibration, XP, confettis tous les 5 d'affilée).
+ * sensoriels associés (vibration, XP).
  */
 export function useCombo(baseXp = 10) {
   const comboRef = useRef(0);
@@ -20,7 +20,7 @@ export function useCombo(baseXp = 10) {
     const previous = comboRef.current;
     const next = previous + 1;
     update(next);
-    feedback('success', next);
+    feedback('success');
     awardXp(xpForCorrect(baseXp, previous), label);
     recordCombo(next);
     if (next % 5 === 0) void celebrate('small');

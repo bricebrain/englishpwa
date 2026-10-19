@@ -1,7 +1,6 @@
 import { motion } from 'motion/react';
 import { useId, type ReactNode } from 'react';
 
-import { spring } from '@/components/ui/springs';
 import { cn } from '@/lib/utils';
 import { feedback } from '@/services/feedbackService';
 
@@ -12,7 +11,7 @@ export interface SegmentedOption<T extends string | number> {
   disabled?: boolean;
 }
 
-/** Choix exclusif façon « pilule » : l'indicateur glisse d'une option à l'autre. */
+/** Contrôle segmenté d'iOS : la pastille glisse d'une option à l'autre. */
 export function Segmented<T extends string | number>({ value, options, onChange, size = 'md', fullWidth = false, className, ...aria }: {
   value: T | null;
   options: SegmentedOption<T>[];
@@ -27,7 +26,7 @@ export function Segmented<T extends string | number>({ value, options, onChange,
     <div
       role="radiogroup"
       aria-label={aria['aria-label']}
-      className={cn('inline-flex flex-wrap gap-1 rounded-2xl border border-border bg-ink/[0.035] p-1', fullWidth && 'flex w-full', className)}
+      className={cn('inline-flex max-w-full gap-0.5 rounded-[9px] bg-ink/12 p-0.5', fullWidth && 'flex w-full', className)}
     >
       {options.map((option) => {
         const selected = option.value === value;
@@ -44,17 +43,16 @@ export function Segmented<T extends string | number>({ value, options, onChange,
               onChange(option.value);
             }}
             className={cn(
-              'relative inline-flex items-center justify-center gap-1.5 rounded-xl font-bold transition-colors disabled:opacity-40 [&_svg]:shrink-0',
-              size === 'sm' ? 'min-h-[34px] px-3 text-[13px] [&_svg]:size-4' : 'min-h-[38px] px-3.5 text-sm [&_svg]:size-[18px]',
-              fullWidth && 'flex-1',
-              selected ? 'text-white' : 'text-muted hover:text-fg',
+              'relative inline-flex flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-[7px] font-semibold text-fg transition-opacity disabled:opacity-40 [&_svg]:shrink-0',
+              size === 'sm' ? 'h-7 px-3 text-[13px] [&_svg]:size-4' : 'h-8 px-3.5 text-[13px] [&_svg]:size-4',
+              !selected && 'hover:opacity-70',
             )}
           >
             {selected ? (
               <motion.span
                 layoutId={`segmented-${id}`}
-                transition={spring}
-                className="absolute inset-0 rounded-xl bg-grad-primary shadow-[0_6px_18px_-8px_color-mix(in_srgb,var(--violet)_90%,transparent)]"
+                transition={{ type: 'spring', stiffness: 500, damping: 38 }}
+                className="absolute inset-0 rounded-[7px] bg-segment-on shadow-[0_3px_8px_rgb(0_0_0/0.12),0_3px_1px_rgb(0_0_0/0.04)]"
               />
             ) : null}
             <span className="relative inline-flex items-center gap-1.5">{option.icon}{option.label}</span>

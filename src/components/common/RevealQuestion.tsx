@@ -9,7 +9,7 @@ import { feedback } from '@/services/feedbackService';
 export function RevealQuestion({ question, answer, onReveal }: { question: string; answer: string; onReveal?: () => void }) {
   const [revealed, setRevealed] = useState(false);
   return (
-    <div className="rounded-2xl border border-border bg-ink/[0.03] p-3.5">
+    <div className="rounded-xl bg-surface p-4">
       <div className="flex items-start gap-2">
         <CircleHelp className="mt-0.5 size-5 shrink-0 text-amber" />
         <p className="text-[14.5px] font-bold">{question}</p>
@@ -19,13 +19,13 @@ export function RevealQuestion({ question, answer, onReveal }: { question: strin
         aria-label="Voir la réponse"
         className="mt-2"
       >
-        <div className="relative overflow-hidden rounded-xl bg-mint/8 p-2.5">
+        <div className="relative overflow-hidden rounded-[10px] bg-ink/[0.06] p-3">
           <motion.div animate={{ filter: revealed ? 'blur(0px)' : 'blur(7px)' }} transition={{ duration: 0.35 }}>
             <p className="text-sm">{answer}</p>
           </motion.div>
           {!revealed ? (
             <div className="absolute inset-0 grid place-items-center">
-              <span className="font-display text-[13.5px] font-extrabold text-mint">Touche pour révéler</span>
+              <span className="text-[15px] font-medium text-violet">Toucher pour révéler</span>
             </div>
           ) : null}
         </div>

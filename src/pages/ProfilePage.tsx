@@ -8,10 +8,10 @@ import { PageLayout } from '@/components/layout/PageLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input, Slider } from '@/components/ui/form';
-import { LevelBadge } from '@/components/ui/Gamification';
 import { Pressable } from '@/components/ui/motion';
 import { Toast } from '@/components/ui/toast';
 import { usePreferences } from '@/hooks/usePreferences';
+import { useXp } from '@/hooks/useXp';
 import { cn } from '@/lib/utils';
 import { feedback } from '@/services/feedbackService';
 import { tokens } from '@/theme';
@@ -34,6 +34,7 @@ function goalLabel(goal: number) {
 export function ProfilePage() {
   const navigate = useNavigate();
   const { preferences, updateProfile } = usePreferences();
+  const xp = useXp();
   const [form, setForm] = useState(preferences.profile);
   const [saved, setSaved] = useState(false);
   const closeToast = useCallback(() => setSaved(false), []);
@@ -47,22 +48,22 @@ export function ProfilePage() {
 
   return (
     <PageLayout reading>
-      <PageHeader back title="Profil" subtitle="Niveau et rythme d’apprentissage" />
+      <PageHeader back title="Profil" />
 
       <form onSubmit={submit} className="flex flex-col gap-4">
         <Card className="overflow-hidden">
-          <div className="h-[84px] bg-grad-primary opacity-85" />
+          <div className="h-[72px] bg-violet/12" />
           <CardContent className="relative -mt-10 pt-0">
             <div className="flex items-end justify-between">
               <motion.div
                 initial={{ scale: 0.6, rotate: -10 }}
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 14 }}
-                className="grid size-[84px] place-items-center rounded-[30%] border-4 border-surface bg-surface font-display text-4xl font-extrabold"
+                className="grid size-[84px] place-items-center rounded-full border-4 border-surface bg-ink/12 font-display text-4xl font-semibold"
               >
                 {form.name.charAt(0).toUpperCase() || 'A'}
               </motion.div>
-              <LevelBadge />
+              <span className="mb-1 rounded-full bg-violet/12 px-3 py-1 text-[13px] font-semibold tabular-nums text-violet">Niveau {xp.level} · {xp.totalXp} XP</span>
             </div>
             <h2 className="type-h2 mt-3">{form.name || 'Apprenant'}</h2>
             <p className="text-sm text-muted">Niveau {form.level} · {form.dailyGoal} mots par jour</p>
@@ -89,7 +90,7 @@ export function ProfilePage() {
                       )}
                       style={selected ? { boxShadow: `0 10px 24px -10px ${tokens.violet}` } : undefined}
                     >
-                      <span className="block font-display text-xl font-extrabold">{value}</span>
+                      <span className="block font-display text-xl font-bold">{value}</span>
                       <span className={cn('block text-[10.5px] font-bold', selected ? 'text-white/85' : 'text-muted')}>{label}</span>
                     </span>
                   </Pressable>
@@ -99,9 +100,9 @@ export function ProfilePage() {
 
             <div className="mt-6 flex items-baseline justify-between">
               <span className="type-overline text-muted">Objectif quotidien</span>
-              <p className="font-extrabold text-amber">{goalLabel(form.dailyGoal)}</p>
+              <p className="font-bold text-amber">{goalLabel(form.dailyGoal)}</p>
             </div>
-            <p className="font-display text-[34px] font-extrabold">
+            <p className="font-display text-[34px] font-bold">
               {form.dailyGoal} <span className="font-sans text-base font-semibold text-muted">mots / jour</span>
             </p>
             <Slider

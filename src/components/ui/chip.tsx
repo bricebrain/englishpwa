@@ -3,15 +3,15 @@ import type { CSSProperties, ReactNode } from 'react';
 
 import { cn } from '@/lib/utils';
 
-const chipVariants = cva('inline-flex max-w-full shrink-0 items-center gap-1 whitespace-nowrap font-bold [&_svg]:shrink-0', {
+const chipVariants = cva('inline-flex max-w-full shrink-0 items-center gap-1 whitespace-nowrap font-medium [&_svg]:shrink-0', {
   variants: {
     variant: {
-      filled: 'bg-ink/7 text-fg',
-      outlined: 'border border-border-strong text-fg',
+      filled: 'bg-ink/[0.08] text-muted',
+      outlined: 'border border-border-strong text-muted',
     },
     size: {
-      sm: 'h-6 rounded-lg px-2 text-[11.5px] [&_svg]:size-3.5',
-      md: 'h-7 rounded-[10px] px-2.5 text-[13px] [&_svg]:size-4',
+      sm: 'h-[22px] rounded-md px-1.5 text-xs [&_svg]:size-3.5',
+      md: 'h-7 rounded-lg px-2.5 text-[13px] [&_svg]:size-4',
     },
   },
   defaultVariants: { variant: 'filled', size: 'md' },

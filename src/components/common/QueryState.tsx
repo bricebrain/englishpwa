@@ -18,7 +18,7 @@ export function QueryState({ loading, error, empty, offline, onRetry, emptyLabel
     return (
       <div className="mb-4 flex flex-col gap-3" role="status" aria-label="Chargement">
         {Array.from({ length: skeletons }, (_, index) => (
-          <div key={index} className={`shimmer rounded-3xl border border-border ${index === 0 ? 'h-[150px]' : 'h-[88px]'}`} />
+          <div key={index} className={`shimmer rounded-2xl ${index === 0 ? 'h-[150px]' : 'h-[88px]'}`} />
         ))}
       </div>
     );
@@ -29,12 +29,12 @@ export function QueryState({ loading, error, empty, offline, onRetry, emptyLabel
       <motion.div
         initial={{ opacity: 0, scale: 0.96 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="mb-4 rounded-3xl border border-red/20 bg-red/6 px-6 py-10 text-center"
+        className="mb-4 rounded-2xl bg-surface px-6 py-10 text-center"
       >
-        <div className="mx-auto grid size-14 place-items-center rounded-full bg-red/14 text-red">
+        <div className="mx-auto grid size-12 place-items-center rounded-full bg-ink/[0.08] text-muted">
           {offline ? <CloudOff /> : <CircleAlert />}
         </div>
-        <p className="mt-3 font-extrabold">{offline ? 'Pas de connexion' : 'Impossible de charger les données'}</p>
+        <p className="mt-3 font-semibold">{offline ? 'Pas de connexion' : 'Impossible de charger les données'}</p>
         <p className="mt-1 text-sm text-muted">
           {offline ? 'Reconnecte-toi pour retrouver tes contenus.' : 'Un petit souci côté serveur.'}
         </p>

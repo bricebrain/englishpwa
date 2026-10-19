@@ -17,10 +17,10 @@ export function ProgressRing({
   value,
   size = 120,
   stroke = 12,
-  colors = [tokens.violet, tokens.pink],
-  track = alpha(tokens.ink, 0.08),
+  colors = [tokens.violet, tokens.violet],
+  track = alpha(tokens.ink, 0.12),
   children,
-  glow = true,
+  glow = false,
 }: ProgressRingProps) {
   const id = useId().replace(/:/g, '');
   const radius = (size - stroke) / 2;
@@ -55,7 +55,7 @@ export function ProgressRing({
           filter={glow ? `url(#glow-${id})` : undefined}
           initial={{ strokeDashoffset: circumference }}
           animate={{ strokeDashoffset: circumference * (1 - clamped) }}
-          transition={{ duration: 1.3, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
+          transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
         />
       </svg>
       <div className="absolute inset-0 grid place-items-center">{children}</div>

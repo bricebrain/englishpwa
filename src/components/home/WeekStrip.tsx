@@ -1,33 +1,32 @@
 import { motion } from 'motion/react';
 
-import { Flame } from '@/components/ui/Gamification';
 import { cn } from '@/lib/utils';
 
 const LABELS = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
 
+/** Sept pastilles, une par jour de la semaine : pleine si tu as pratiqué, cerclée pour aujourd'hui. */
 export function WeekStrip({ activeDays }: { activeDays: boolean[] }) {
   const todayIndex = (new Date().getDay() + 6) % 7;
 
   return (
-    <div className="flex justify-between" aria-label="Activité des sept derniers jours">
+    <div className="flex justify-between" aria-label="Activité de la semaine">
       {LABELS.map((label, index) => {
         const active = activeDays[index];
         const today = index === todayIndex;
         return (
-          <div key={`${label}-${index}`} className="flex flex-col items-center gap-1.5">
-            <span className={cn('text-[11.5px] font-extrabold', today ? 'text-violet-soft' : 'text-faint')}>{label}</span>
-            <motion.div
-              initial={{ scale: 0, opacity: 0 }}
+          <div key={`${label}-${index}`} className="flex w-8 flex-col items-center gap-1.5">
+            <span className={cn('text-xs', today ? 'font-semibold text-fg' : 'text-muted')}>{label}</span>
+            <motion.span
+              initial={{ scale: 0.3, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              transition={{ type: 'spring', stiffness: 500, damping: 20, delay: 0.1 + index * 0.05 }}
+              transition={{ type: 'spring', stiffness: 420, damping: 26, delay: 0.15 + index * 0.04 }}
+              aria-label={active ? 'Pratiqué' : 'Pas de pratique'}
               className={cn(
-                'grid size-9 place-items-center rounded-xl',
-                active ? 'bg-coral/14' : 'bg-ink/[0.045]',
-                today ? 'border-2 border-violet' : active ? 'border border-coral/30' : 'border border-border',
+                'block size-6 rounded-full',
+                active ? (today ? 'bg-violet' : 'bg-violet/50') : 'border-2 border-ink/16',
+                today && 'ring-2 ring-violet ring-offset-[3px] ring-offset-surface',
               )}
-            >
-              {active ? <Flame size={20} animated={today} /> : <span className="size-1.5 rounded-full bg-faint" />}
-            </motion.div>
+            />
           </div>
         );
       })}

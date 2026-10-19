@@ -4,13 +4,11 @@ import { useEffect, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 import { XpToaster } from '@/components/ui/Gamification';
-import { spring } from '@/components/ui/springs';
 import { APP_LAYOUT } from '@/constants/layout';
 import { useAdaptiveLayout } from '@/hooks/useAdaptiveLayout';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { cn } from '@/lib/utils';
 import { feedback } from '@/services/feedbackService';
-import { tokens } from '@/theme';
 
 interface NavigationItem {
   label: string;
@@ -19,15 +17,17 @@ interface NavigationItem {
 }
 
 const NAVIGATION: NavigationItem[] = [
-  { label: 'Accueil', path: '/', icon: House },
+  { label: 'Aujourd’hui', path: '/', icon: House },
   { label: 'Lingvist', path: '/lingvist', icon: BookOpen },
   { label: 'Scripts', path: '/scripts', icon: ListMusic },
   { label: 'Live', path: '/live', icon: AudioLines },
   { label: 'Plus', path: '/plus', icon: LayoutGrid },
 ];
 
+const TAB_PATHS = new Set(NAVIGATION.map((item) => item.path));
+
 /** Écrans de session plein écran : la navigation s'efface pour favoriser la concentration. */
-const IMMERSIVE_ROUTES = ['/flashcards', '/lingvist-triage', '/phrases'];
+const IMMERSIVE_ROUTES = ['/flashcards', '/lingvist-triage', '/phrases', '/lingvist'];
 
 function currentNavigationPath(pathname: string) {
   return NAVIGATION.find((item) => item.path === pathname)?.path ?? '/plus';
@@ -60,7 +60,9 @@ export function AppShell() {
   const compact = mode === 'compact';
   const active = currentNavigationPath(location.pathname);
   const immersive = IMMERSIVE_ROUTES.includes(location.pathname);
-  const showBottomNav = compact && !immersive && !typing;
+  const showTabBar = compact && !immersive && !typing;
+  // Un onglet apparaît en fondu ; un écran ouvert depuis un onglet glisse depuis la droite, comme sur iOS.
+  const pushed = !TAB_PATHS.has(location.pathname);
 
   useEffect(() => {
     window.scrollTo({ top: 0 });
@@ -72,18 +74,19 @@ export function AppShell() {
   };
 
   return (
-    <div className="relative min-h-dvh">
-      <div className="aurora" aria-hidden><span /></div>
-      <div className="grain" aria-hidden />
+    <div
+      className="relative min-h-dvh"
+      style={{ '--content-left': compact ? '0px' : `${APP_LAYOUT.railWidth}px` } as React.CSSProperties}
+    >
       <XpToaster />
 
       <AnimatePresence>
         {!online ? (
           <motion.div
             initial={{ y: -40 }} animate={{ y: 0 }} exit={{ y: -40 }}
-            className="sticky top-0 z-30 flex items-center justify-center gap-2 bg-amber/15 pb-1.5 pt-[max(6px,env(safe-area-inset-top))] text-[13px] font-bold text-amber backdrop-blur-md"
+            className="sticky top-0 z-30 flex items-center justify-center gap-2 bg-glass pb-1.5 pt-[max(6px,env(safe-area-inset-top))] text-[13px] font-semibold text-muted backdrop-blur-xl"
           >
-            <CloudOff className="size-[18px]" /> Hors connexion
+            <CloudOff className="size-4" /> Hors connexion
           </motion.div>
         ) : null}
       </AnimatePresence>
@@ -91,72 +94,63 @@ export function AppShell() {
       {!compact ? (
         <nav
           aria-label="Navigation principale"
-          className="fixed inset-y-0 left-0 z-10 border-r border-border bg-glass pt-[max(20px,env(safe-area-inset-top))] backdrop-blur-xl backdrop-saturate-150"
+          className="fixed inset-y-0 left-0 z-10 flex flex-col items-center gap-1 border-r border-border bg-glass pt-[max(20px,env(safe-area-inset-top))] backdrop-blur-xl"
           style={{ width: APP_LAYOUT.railWidth }}
         >
-          <div className="flex flex-col items-center gap-2">
-            <img
-              src="/icons/icon-192.png"
-              alt=""
-              className="mb-3 size-11 rounded-xl"
-              style={{ boxShadow: `0 8px 24px -8px ${tokens.violet}` }}
-            />
-            {NAVIGATION.map(({ label, path, icon: Icon }) => {
-              const selected = active === path;
-              return (
-                <button
-                  type="button"
-                  key={path}
-                  aria-current={selected ? 'page' : undefined}
-                  onClick={() => go(path)}
-                  className={cn(
-                    'relative flex min-h-[62px] w-[72px] flex-col items-center justify-center gap-1 rounded-2xl transition-colors',
-                    selected ? 'text-violet' : 'text-muted hover:text-fg',
-                  )}
-                >
-                  {selected ? (
-                    <motion.span
-                      layoutId="rail-indicator"
-                      transition={spring}
-                      className="absolute inset-0 rounded-2xl border border-violet/35 bg-violet/15"
-                    />
-                  ) : null}
-                  <Icon className="relative size-6" strokeWidth={selected ? 2.4 : 2} />
-                  <span className={cn('relative text-[11px]', selected ? 'font-extrabold' : 'font-semibold')}>{label}</span>
-                </button>
-              );
-            })}
-          </div>
+          {NAVIGATION.map(({ label, path, icon: Icon }) => {
+            const selected = active === path;
+            return (
+              <button
+                type="button"
+                key={path}
+                aria-current={selected ? 'page' : undefined}
+                onClick={() => go(path)}
+                className={cn(
+                  'relative flex min-h-[60px] w-[76px] flex-col items-center justify-center gap-1 rounded-xl transition-colors',
+                  selected ? 'text-violet' : 'text-muted hover:text-fg',
+                )}
+              >
+                {selected ? (
+                  <motion.span
+                    layoutId="rail-indicator"
+                    transition={{ type: 'spring', stiffness: 420, damping: 36 }}
+                    className="absolute inset-0 rounded-xl bg-violet/10"
+                  />
+                ) : null}
+                <Icon className="relative size-6" />
+                <span className="relative text-[11px] font-medium">{label}</span>
+              </button>
+            );
+          })}
         </nav>
       ) : null}
 
       <main
         className="relative z-[1] min-h-dvh"
         style={{
-          marginLeft: compact ? 0 : APP_LAYOUT.railWidth,
-          paddingBottom: compact && !immersive ? `calc(${APP_LAYOUT.bottomNavHeight + 28}px + env(safe-area-inset-bottom))` : 0,
+          marginLeft: 'var(--content-left)',
+          paddingBottom: showTabBar ? `calc(${APP_LAYOUT.bottomNavHeight + 24}px + env(safe-area-inset-bottom))` : 0,
         }}
       >
         <motion.div
           key={location.pathname}
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
+          initial={pushed ? { opacity: 0, x: 48 } : { opacity: 0 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={pushed ? { type: 'spring', stiffness: 380, damping: 38 } : { duration: 0.22, ease: 'easeOut' }}
         >
           <Outlet />
         </motion.div>
       </main>
 
       <AnimatePresence>
-        {showBottomNav ? (
+        {showTabBar ? (
           <motion.nav
             aria-label="Navigation principale"
-            initial={{ y: 120 }}
+            initial={{ y: 100 }}
             animate={{ y: 0 }}
-            exit={{ y: 120 }}
-            transition={spring}
-            className="fixed inset-x-3 bottom-[calc(10px+env(safe-area-inset-bottom))] z-20 flex items-center rounded-[26px] border border-border-strong bg-glass px-1.5 shadow-float backdrop-blur-xl backdrop-saturate-150"
-            style={{ height: APP_LAYOUT.bottomNavHeight }}
+            exit={{ y: 100 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 40 }}
+            className="fixed inset-x-0 bottom-0 z-20 flex border-t border-border bg-glass px-1 pb-[env(safe-area-inset-bottom)] pt-1.5 backdrop-blur-xl backdrop-saturate-150"
           >
             {NAVIGATION.map(({ label, path, icon: Icon }) => {
               const selected = active === path;
@@ -165,29 +159,20 @@ export function AppShell() {
                   type="button"
                   key={path}
                   aria-current={selected ? 'page' : undefined}
-                  aria-label={label}
                   onClick={() => go(path)}
                   className={cn(
-                    'relative flex h-[58px] flex-1 flex-col items-center justify-center gap-0.5 transition-colors',
-                    selected ? 'text-white' : 'text-muted',
+                    'flex h-[49px] flex-1 flex-col items-center justify-start gap-[3px] transition-colors duration-200',
+                    selected ? 'text-violet' : 'text-muted',
                   )}
                 >
-                  {selected ? (
-                    <motion.span
-                      layoutId="nav-indicator"
-                      transition={spring}
-                      className="absolute inset-x-1 inset-y-0.5 rounded-[20px] bg-grad-primary"
-                      style={{ boxShadow: `0 8px 22px -8px ${tokens.violet}` }}
-                    />
-                  ) : null}
                   <motion.span
-                    animate={{ y: selected ? -1 : 0, scale: selected ? 1.08 : 1 }}
-                    transition={spring}
-                    className="relative grid place-items-center"
+                    animate={selected ? { scale: [1, 0.86, 1.06, 1] } : { scale: 1 }}
+                    transition={{ duration: 0.38, ease: 'easeOut' }}
+                    className="grid place-items-center"
                   >
-                    <Icon className="size-6" strokeWidth={selected ? 2.4 : 2} />
+                    <Icon className="size-[26px]" strokeWidth={selected ? 2.2 : 1.9} />
                   </motion.span>
-                  <span className={cn('relative text-[10.5px] leading-none', selected ? 'font-extrabold' : 'font-semibold')}>{label}</span>
+                  <span className="text-[10px] font-medium leading-none">{label}</span>
                 </button>
               );
             })}

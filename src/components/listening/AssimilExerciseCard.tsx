@@ -51,7 +51,7 @@ export function AssimilExerciseCard({ exercise }: { exercise: Exercise }) {
     <Card>
       <CardContent>
         <div className="mb-3 flex items-center justify-between gap-2">
-          <Chip size="sm" label={TYPE_LABELS[exercise.type] ?? exercise.type} className="bg-grad-sunrise text-white" />
+          <Chip size="sm" label={TYPE_LABELS[exercise.type] ?? exercise.type} className="bg-violet/12 text-violet" />
           <div className="flex items-center gap-2">
             <ComboBadge combo={combo.combo} />
             <div className="flex gap-1">

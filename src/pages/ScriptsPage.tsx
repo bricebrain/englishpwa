@@ -69,7 +69,7 @@ export function ScriptsPage() {
       {englishItems.length ? (
         <div className="mb-3 flex items-baseline gap-2">
           <h2 className="type-h2">Scripts anglais</h2>
-          <span className="font-extrabold text-violet-soft">{englishItems.length}</span>
+          <span className="font-bold text-violet-soft">{englishItems.length}</span>
         </div>
       ) : null}
       <Stagger gap={0.05} className="grid grid-cols-1 gap-3 sm:grid-cols-2">

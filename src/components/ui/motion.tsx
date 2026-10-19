@@ -23,7 +23,7 @@ export function Pressable({ className, style, silent = false, onClick, children,
     <motion.button
       type="button"
       disabled={disabled}
-      whileTap={disabled ? undefined : { scale: 0.96 }}
+      whileTap={disabled ? undefined : { scale: 0.97, opacity: 0.85 }}
       transition={spring}
       onClick={(event: React.MouseEvent<HTMLElement>) => {
         if (!silent) feedback('tap');
@@ -56,8 +56,8 @@ export function StaggerItem({ children, className }: PropsWithChildren<{ classNa
   return (
     <motion.div
       variants={{
-        hidden: { opacity: 0, y: 18, scale: 0.98 },
-        show: { opacity: 1, y: 0, scale: 1, transition: softSpring },
+        hidden: { opacity: 0, y: 12 },
+        show: { opacity: 1, y: 0, transition: softSpring },
       }}
       className={className}
     >

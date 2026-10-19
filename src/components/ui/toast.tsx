@@ -1,9 +1,7 @@
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, type ReactNode } from 'react';
 
-import { spring } from '@/components/ui/springs';
-
-/** Message bref affiché au-dessus de la navigation, masqué automatiquement. */
+/** Bannière brève qui glisse depuis le haut, masquée automatiquement. */
 export function Toast({ open, message, onClose, duration = 2500, action }: {
   open: boolean;
   message: ReactNode;
@@ -22,13 +20,13 @@ export function Toast({ open, message, onClose, duration = 2500, action }: {
       {open ? (
         <motion.div
           role="status"
-          initial={{ y: 40, opacity: 0, scale: 0.95 }}
+          initial={{ y: -80, opacity: 0, scale: 0.96 }}
           animate={{ y: 0, opacity: 1, scale: 1 }}
-          exit={{ y: 30, opacity: 0, scale: 0.95 }}
-          transition={spring}
-          className="fixed inset-x-4 bottom-[calc(96px+env(safe-area-inset-bottom))] z-[1300] mx-auto flex max-w-md items-center gap-3 rounded-2xl border border-border-strong bg-surface-high px-4 py-3 font-semibold text-fg shadow-float"
+          exit={{ y: -60, opacity: 0, scale: 0.96 }}
+          transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+          className="fixed inset-x-4 top-[max(12px,env(safe-area-inset-top))] z-[1300] mx-auto flex max-w-sm items-center gap-3 rounded-full bg-glass px-5 py-3 text-[15px] font-semibold text-fg shadow-float backdrop-blur-xl"
         >
-          <span className="min-w-0 flex-1">{message}</span>
+          <span className="min-w-0 flex-1 text-center">{message}</span>
           {action}
         </motion.div>
       ) : null}

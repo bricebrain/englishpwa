@@ -79,7 +79,7 @@ function SwipeCard({ candidate, showTranslation, onToggle, onDecide, exitDirecti
 
       <div className="grid flex-1 place-items-center">
         <div className="text-center">
-          <p className="font-display text-[44px] font-extrabold leading-[1.05] tracking-[-0.03em] sm:text-[54px]">
+          <p className="font-display text-[44px] font-bold leading-[1.05] tracking-[-0.03em] sm:text-[54px]">
             {getVocabularyDisplayForm(candidate)}
           </p>
           <div className="mt-3 flex justify-center gap-[3px]" aria-label={`Fréquence ${candidate.frequence} sur 5`}>
@@ -125,7 +125,7 @@ function Stamp({ opacity, color, rotate, side, children }: {
   return (
     <motion.span
       style={{ opacity, color, borderColor: color, background: alpha(color, 0.12), rotate, [side]: 22 }}
-      className="pointer-events-none absolute top-7 z-[2] rounded-lg border-[3px] px-3 py-1 font-display text-[22px] font-extrabold tracking-[0.04em]"
+      className="pointer-events-none absolute top-7 z-[2] rounded-lg border-[3px] px-3 py-1 font-display text-[22px] font-bold tracking-[0.04em]"
     >
       {children}
     </motion.span>
@@ -218,8 +218,8 @@ export function TriagePage() {
 
 function Counter({ label, value, color }: { label: string; value: number; color?: string }) {
   return (
-    <div className="flex-1 rounded-2xl border border-border bg-ink/[0.035] py-2.5 text-center">
-      <p className="font-display text-[22px] font-extrabold" style={{ color }}><AnimatedNumber value={value} duration={0.4} /></p>
+    <div className="flex-1 rounded-xl bg-surface py-2.5 text-center">
+      <p className="font-display text-[22px] font-bold" style={{ color }}><AnimatedNumber value={value} duration={0.4} /></p>
       <p className="text-[11.5px] font-bold text-muted">{label}</p>
     </div>
   );

@@ -6,23 +6,28 @@ import { cn } from '@/lib/utils';
 
 const buttonVariants = cva(
   [
-    'relative inline-flex select-none items-center justify-center gap-2 whitespace-nowrap font-bold tracking-[-0.005em]',
-    'transition-[transform,box-shadow,filter,background-color,border-color,color] duration-150 active:scale-[0.97]',
-    'disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none [&_svg]:shrink-0',
+    'relative inline-flex select-none items-center justify-center gap-2 whitespace-nowrap font-semibold',
+    'transition-[transform,opacity,background-color,color] duration-200 ease-out active:scale-[0.97] active:opacity-80',
+    'disabled:pointer-events-none disabled:opacity-40 [&_svg]:shrink-0',
   ],
   {
     variants: {
       variant: {
-        primary: 'bg-grad-primary text-white shadow-[0_10px_28px_-10px_color-mix(in_srgb,var(--violet)_80%,transparent)] hover:brightness-110',
-        success: 'bg-grad-mint text-[#05140D] shadow-[0_10px_28px_-12px_color-mix(in_srgb,var(--mint)_80%,transparent)] hover:brightness-105',
-        secondary: 'bg-grad-sunrise text-white shadow-[0_10px_28px_-12px_color-mix(in_srgb,var(--coral)_80%,transparent)] hover:brightness-105',
-        outline: 'border border-border-strong bg-ink/[0.025] text-fg hover:border-violet-soft hover:bg-violet/8',
-        ghost: 'text-violet hover:bg-ink/6',
+        /** Bouton plein, couleur d'accent. */
+        primary: 'bg-grad-primary text-white',
+        /** Bouton plein vert, pour valider une réussite. */
+        success: 'bg-grad-mint text-white',
+        /** Bouton plein secondaire (même rendu que primary, conservé pour compatibilité). */
+        secondary: 'bg-grad-primary text-white',
+        /** Bouton « gris » d'iOS. */
+        outline: 'bg-ink/[0.08] text-fg hover:bg-ink/12',
+        /** Bouton texte, couleur d'accent. */
+        ghost: 'text-violet hover:bg-violet/8',
       },
       size: {
-        sm: 'min-h-9 rounded-xl px-3 text-[13px] [&_svg]:size-[18px]',
-        md: 'min-h-12 rounded-2xl px-[18px] text-[15px] [&_svg]:size-5',
-        lg: 'min-h-[52px] rounded-2xl px-[22px] text-base [&_svg]:size-[22px]',
+        sm: 'min-h-9 rounded-[10px] px-3.5 text-[15px] [&_svg]:size-[17px]',
+        md: 'min-h-[50px] rounded-xl px-5 text-[17px] [&_svg]:size-5',
+        lg: 'min-h-[50px] rounded-xl px-5 text-[17px] [&_svg]:size-5',
       },
     },
     defaultVariants: { variant: 'primary', size: 'md' },
@@ -43,14 +48,14 @@ Button.displayName = 'Button';
 
 const iconButtonVariants = cva(
   [
-    'inline-grid shrink-0 place-items-center rounded-full text-muted transition-[transform,background-color,color] duration-150',
-    'hover:bg-ink/6 active:scale-90 disabled:pointer-events-none disabled:opacity-40',
+    'inline-grid shrink-0 place-items-center rounded-full bg-ink/[0.08] text-muted transition-[transform,background-color,color] duration-200',
+    'hover:bg-ink/12 active:scale-90 disabled:pointer-events-none disabled:opacity-40',
   ],
   {
     variants: {
       size: {
-        sm: 'size-9 [&_svg]:size-[18px]',
-        md: 'size-11 [&_svg]:size-6',
+        sm: 'size-8 [&_svg]:size-4',
+        md: 'size-9 [&_svg]:size-[18px]',
       },
     },
     defaultVariants: { size: 'md' },
@@ -63,7 +68,7 @@ export interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>
 
 export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
   ({ className, size, type = 'button', ...props }, ref) => (
-    <button ref={ref} type={type} className={cn(iconButtonVariants({ size }), className)} {...props} />
+    <button ref={ref} type={type} className={cn(iconButtonVariants({ size }), 'before:absolute before:-inset-1 relative', className)} {...props} />
   ),
 );
 IconButton.displayName = 'IconButton';

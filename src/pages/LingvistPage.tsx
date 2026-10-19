@@ -1,4 +1,4 @@
-import { CheckCheck, CircleHelp, Lightbulb, MoveHorizontal, RefreshCw, Volume2 } from 'lucide-react';
+import { Lightbulb, MoveHorizontal, RefreshCw, Volume2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useRef, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -8,9 +8,9 @@ import { PageLayout } from '@/components/layout/PageLayout';
 import { LingvistResultPanel } from '@/components/lingvist/LingvistResultPanel';
 import { Alert } from '@/components/ui/alert';
 import { Button, IconButton } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { Chip } from '@/components/ui/chip';
 import { Input } from '@/components/ui/form';
+import { SectionHeader } from '@/components/ui/list';
 import { Pressable } from '@/components/ui/motion';
 import { CelebrationCard, SessionHeader } from '@/components/ui/SessionChrome';
 import { useCombo } from '@/hooks/useCombo';
@@ -32,18 +32,18 @@ function ClozeSentence({ sentence, typed, cue, decision, expected }: {
   const parts = sentence.split(/_{3,}/);
   const tone = decision
     ? decision.resultKind === 'success' ? tokens.mint : decision.resultKind === 'almost' ? tokens.amber : tokens.red
-    : tokens.violetSoft;
+    : tokens.violet;
   const shown = decision && decision.resultKind !== 'success' ? expected : typed;
 
   return (
-    <p className="font-display text-[26px] font-bold leading-[1.45] tracking-[-0.02em] sm:text-[32px]">
+    <p className="text-[26px] font-semibold leading-[1.4] tracking-[-0.02em] sm:text-[30px]">
       {parts[0]}
       <span
-        className="mx-0.5 inline-block min-w-[90px] rounded-t-lg border-b-[3px] px-2 text-center transition-[color,border-color,background] duration-200"
+        className="mx-0.5 inline-block min-w-[110px] rounded-t-md border-b-2 px-2 text-center transition-[color,border-color,background] duration-300"
         style={{
           color: tone,
           borderColor: tone,
-          background: decision ? alpha(tone, 0.1) : typed ? alpha(tokens.violet, 0.1) : 'transparent',
+          background: decision ? alpha(tone, 0.1) : 'transparent',
         }}
       >
         {shown ? (
@@ -53,7 +53,7 @@ function ClozeSentence({ sentence, typed, cue, decision, expected }: {
             </motion.span>
           </AnimatePresence>
         ) : (
-          <span className="text-[0.7em] font-semibold opacity-55">{cue || '• • •'}</span>
+          <span className="text-[0.72em] font-medium text-muted">{cue || '• • •'}</span>
         )}
       </span>
       {parts.slice(1).join('')}
@@ -98,11 +98,11 @@ export function LingvistPage() {
   const wrong = session.decision && session.decision.resultKind === 'error';
 
   return (
-    <PageLayout>
+    <PageLayout reading>
       {session.completed ? (
         <CelebrationCard
-          title="Session terminée !"
-          subtitle="Chaque mot rappelé s’ancre un peu plus. Bravo."
+          title="Session terminée"
+          subtitle="Chaque mot rappelé s’ancre un peu plus."
           score={total ? session.correctCount / total : 0}
           stats={[
             { label: 'Exactes', value: session.correctCount, color: tokens.mint },
@@ -113,9 +113,10 @@ export function LingvistPage() {
       ) : (
         <>
           <SessionHeader
+            title="Lingvist"
             progress={progress}
             combo={combo.combo}
-            label={total ? `${session.safeIndex + 1}/${total}` : undefined}
+            label={total ? `${session.safeIndex + 1} sur ${total}` : undefined}
             onClose={() => navigate('/')}
             action={(
               <IconButton aria-label="Trier les mots faciles" onClick={() => navigate('/lingvist-triage')}>
@@ -126,133 +127,119 @@ export function LingvistPage() {
           <QueryState loading={session.isLoading} error={session.isError} offline={!online} onRetry={() => session.refetch()} />
 
           {card ? (
-            <div className="grid grid-cols-1 items-start gap-[18px] md:grid-cols-3">
-              <div className="md:col-span-2">
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={card.id}
-                    initial={{ opacity: 0, x: 40, rotate: 1.5 }}
-                    animate={wrong ? { opacity: 1, x: [0, -12, 12, -8, 8, -4, 0], rotate: 0 } : { opacity: 1, x: 0, rotate: 0 }}
-                    exit={{ opacity: 0, x: -60, rotate: -2 }}
-                    transition={{ type: 'spring', stiffness: 300, damping: 26 }}
-                  >
-                    <Card>
-                      <CardContent className="p-5 sm:p-7">
-                        <div className="mb-5 flex flex-wrap gap-1.5">
-                          <Chip size="sm" label={card.level} className="bg-grad-primary text-white" />
-                          {card.sourceLesson ? <Chip size="sm" label={`Entendu dans ${card.sourceLesson.lessonCode}`} /> : null}
-                          {card.qualityStatus === 'rebuilt' ? <Chip size="sm" variant="outlined" label="Phrase reconstruite" className="border-amber/50 text-amber" /> : null}
-                        </div>
+            <form onSubmit={handleSubmit}>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={card.id}
+                  initial={{ opacity: 0, x: 32 }}
+                  animate={wrong ? { opacity: 1, x: [0, -10, 10, -6, 6, -3, 0] } : { opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -32 }}
+                  transition={wrong ? { duration: 0.45 } : { type: 'spring', stiffness: 360, damping: 34 }}
+                  className="flex flex-col gap-4 rounded-2xl bg-surface p-5"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="type-overline text-muted">Complète la phrase</span>
+                    <span className="flex items-center gap-1.5">
+                      {card.qualityStatus === 'rebuilt' ? <Chip size="sm" label="Reconstruite" /> : null}
+                      <span className="text-[13px] font-semibold text-muted">{card.level}</span>
+                    </span>
+                  </div>
 
-                        <ClozeSentence
-                          sentence={card.sentenceWithGap}
-                          typed={session.answer}
-                          cue={card.wordTraductionFr ? `${card.wordTraductionFr}…` : undefined}
-                          decision={session.decision}
-                          expected={card.expectedAnswer}
-                        />
+                  <ClozeSentence
+                    sentence={card.sentenceWithGap}
+                    typed={session.answer}
+                    cue={card.wordTraductionFr ? `${card.wordTraductionFr}…` : undefined}
+                    decision={session.decision}
+                    expected={card.expectedAnswer}
+                  />
 
-                        {!session.decision ? (
-                          <div className="mt-5 flex flex-wrap gap-2">
-                            <ToolChip icon={<Volume2 />} label="Écouter" onClick={() => speakEnglish(card.sentenceFull)} />
-                            {!session.hintShown ? <ToolChip icon={<Lightbulb />} label="Indice" onClick={session.requestHint} /> : null}
-                            <ToolChip icon={<RefreshCw />} label="Autre phrase" onClick={session.refreshVariant} />
-                          </div>
-                        ) : null}
+                  {card.sourceLesson ? <p className="-mt-2 text-[13px] text-muted">Entendu dans {card.sourceLesson.lessonCode}</p> : null}
 
-                        <AnimatePresence>
-                          {session.hintShown && !session.decision ? (
-                            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
-                              <div className="mt-3.5 flex items-center gap-2 rounded-2xl border border-amber/25 bg-amber/10 p-3">
-                                <Lightbulb className="size-6 shrink-0 text-amber" />
-                                <p className="text-sm">
-                                  Commence par <strong className="text-amber">« {card.expectedAnswer.charAt(0)} »</strong> · {card.expectedAnswer.length} lettres
-                                </p>
-                              </div>
-                            </motion.div>
-                          ) : null}
-                        </AnimatePresence>
+                  {!session.decision ? (
+                    <div className="flex flex-wrap gap-2">
+                      <ToolChip icon={<Volume2 />} label="Écouter" onClick={() => speakEnglish(card.sentenceFull)} />
+                      {!session.hintShown ? <ToolChip icon={<Lightbulb />} label="Indice" onClick={session.requestHint} /> : null}
+                      <ToolChip icon={<RefreshCw />} label="Autre phrase" onClick={session.refreshVariant} />
+                    </div>
+                  ) : null}
 
-                        <form onSubmit={handleSubmit} className="mt-5">
-                          <Input
-                            ref={inputRef}
-                            placeholder={card.inputPlaceholder ?? 'Tape le mot manquant'}
-                            value={session.answer}
-                            disabled={Boolean(session.decision) || session.isAnalyzing}
-                            onChange={(event) => session.setAnswer(event.target.value)}
-                            autoCapitalize="none"
-                            autoComplete="off"
-                            autoCorrect="off"
-                            spellCheck={false}
-                            enterKeyHint={session.decision ? 'next' : 'done'}
-                            aria-label="Mot manquant"
-                            className="text-xl font-bold"
-                          />
+                  <AnimatePresence>
+                    {session.hintShown && !session.decision ? (
+                      <motion.p
+                        initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
+                        className="overflow-hidden text-[15px] text-muted"
+                      >
+                        Commence par <strong className="font-semibold text-fg">« {card.expectedAnswer.charAt(0)} »</strong> · {card.expectedAnswer.length} lettres
+                      </motion.p>
+                    ) : null}
+                  </AnimatePresence>
+                </motion.div>
+              </AnimatePresence>
 
-                          {session.attemptError ? <Alert severity="error" className="mt-3">La réponse n’a pas pu être enregistrée. Réessaie.</Alert> : null}
-                          {session.decision ? <LingvistResultPanel card={card} answer={session.answer} decision={session.decision} /> : null}
+              <label htmlFor="lingvist-answer" className="mb-[7px] mt-6 block px-4 type-overline text-muted">Ta réponse</label>
+              <Input
+                id="lingvist-answer"
+                ref={inputRef}
+                placeholder={card.inputPlaceholder ?? 'Mot manquant'}
+                value={session.answer}
+                disabled={Boolean(session.decision) || session.isAnalyzing}
+                onChange={(event) => session.setAnswer(event.target.value)}
+                autoCapitalize="none"
+                autoComplete="off"
+                autoCorrect="off"
+                spellCheck={false}
+                enterKeyHint={session.decision ? 'next' : 'done'}
+                className="text-xl"
+              />
 
-                          {!session.decision ? (
-                            <div className="mt-4 flex gap-2">
-                              <Button variant="outline" onClick={session.reveal} disabled={session.isAnalyzing} className="flex-1">
-                                <CircleHelp />Je ne sais pas
-                              </Button>
-                              <Button
-                                variant="outline"
-                                onClick={() => { feedback('swipe'); session.markAlreadyKnown(); }}
-                                disabled={session.isMarkingKnown || session.isAnalyzing}
-                                className="flex-1 border-mint/35 text-mint hover:border-mint hover:bg-mint/8"
-                              >
-                                <CheckCheck />Je connais
-                              </Button>
-                            </div>
-                          ) : (
-                            <Button variant="ghost" onClick={() => speakEnglish(card.sentenceFull)} className="mt-3 w-full">
-                              <Volume2 />Réécouter la phrase
-                            </Button>
-                          )}
+              {session.attemptError ? <Alert severity="error" className="mt-3">La réponse n’a pas pu être enregistrée. Réessaie.</Alert> : null}
+              {session.decision ? <LingvistResultPanel card={card} answer={session.answer} decision={session.decision} /> : null}
 
-                          <div
-                            className="sticky bottom-[calc(88px+env(safe-area-inset-bottom))] z-[2] -mx-2 mt-1 px-2 pb-2 sm:bottom-3"
-                            style={{ background: `linear-gradient(to top, ${tokens.surface} 65%, transparent)` }}
-                          >
-                            <Button
-                              type="submit"
-                              size="lg"
-                              variant={session.decision?.resultKind === 'success' ? 'success' : 'primary'}
-                              disabled={(!session.answer.trim() && !session.decision) || session.isAnalyzing}
-                              className="mt-3 min-h-14 w-full text-[17px]"
-                            >
-                              {session.isAnalyzing ? (
-                                <>
-                                  <RefreshCw className="animate-spin" />
-                                  Analyse…
-                                </>
-                              ) : session.decision ? 'Continuer' : 'Valider'}
-                            </Button>
-                          </div>
-                        </form>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                </AnimatePresence>
+              {!session.decision && card.grammarHint ? (
+                <>
+                  <SectionHeader>Indice grammatical</SectionHeader>
+                  <p className="rounded-xl bg-surface px-4 py-3.5 text-[15px] leading-snug">{card.grammarHint}</p>
+                </>
+              ) : null}
+
+              <div className="sticky bottom-0 z-[2] -mx-4 mt-4 bg-bg/90 px-4 pb-[max(16px,env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl">
+                <Button
+                  type="submit"
+                  variant={session.decision?.resultKind === 'success' ? 'success' : 'primary'}
+                  disabled={(!session.answer.trim() && !session.decision) || session.isAnalyzing}
+                  className="w-full"
+                >
+                  {session.isAnalyzing ? (
+                    <>
+                      <RefreshCw className="animate-spin" />
+                      Analyse…
+                    </>
+                  ) : session.decision ? 'Continuer' : 'Valider'}
+                </Button>
+                {!session.decision ? (
+                  <div className="mt-1 flex">
+                    <Button variant="ghost" onClick={session.reveal} disabled={session.isAnalyzing} className="flex-1">
+                      Je ne sais pas
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      onClick={() => { feedback('swipe'); session.markAlreadyKnown(); }}
+                      disabled={session.isMarkingKnown || session.isAnalyzing}
+                      className="flex-1"
+                    >
+                      Je connais déjà
+                    </Button>
+                  </div>
+                ) : (
+                  <Button variant="ghost" onClick={() => speakEnglish(card.sentenceFull)} className="mt-1 w-full">
+                    <Volume2 />Réécouter la phrase
+                  </Button>
+                )}
+                <p className="mt-1 text-center text-[13px] tabular-nums text-muted">
+                  {session.correctCount} exacte{session.correctCount > 1 ? 's' : ''} · {Math.max(0, total - completedCards)} restante{total - completedCards > 1 ? 's' : ''}
+                </p>
               </div>
-
-              <Card>
-                <CardContent>
-                  <div className="mb-2 flex items-center gap-2">
-                    <Lightbulb className="size-5 text-cyan" />
-                    <span className="type-overline text-cyan">Indice grammatical</span>
-                  </div>
-                  <p className="text-[15px] leading-relaxed">{card.grammarHint}</p>
-                  <div className="mt-5 flex gap-2.5">
-                    <MiniStat label="Exactes" value={session.correctCount} color={tokens.mint} />
-                    <MiniStat label="Restantes" value={Math.max(0, total - completedCards)} />
-                  </div>
-                  {card.qualityReasons?.length ? <p className="mt-3 text-xs text-faint">Qualité de carte : {card.qualityReasons.join(', ')}</p> : null}
-                </CardContent>
-              </Card>
-            </div>
+            </form>
           ) : null}
         </>
       )}
@@ -263,20 +250,9 @@ export function LingvistPage() {
 function ToolChip({ icon, label, onClick }: { icon: React.ReactNode; label: string; onClick: () => void }) {
   return (
     <Pressable onClick={onClick} aria-label={label} className="w-auto">
-      <span className="flex h-[38px] items-center gap-1.5 rounded-xl border border-border bg-ink/5 px-3 text-sm font-bold text-muted [&_svg]:size-[18px] [&_svg]:text-violet-soft">
+      <span className="flex h-9 items-center gap-1.5 rounded-full bg-ink/[0.08] px-3.5 text-[15px] text-fg [&_svg]:size-[17px] [&_svg]:text-violet">
         {icon}{label}
       </span>
     </Pressable>
-  );
-}
-
-function MiniStat({ label, value, color }: { label: string; value: number; color?: string }) {
-  return (
-    <div className="flex-1 rounded-2xl border border-border bg-ink/[0.035] p-3">
-      <motion.div key={value} initial={{ scale: 1.4 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 500, damping: 15 }} className="origin-left">
-        <p className="font-display text-[26px] font-extrabold" style={{ color }}>{value}</p>
-      </motion.div>
-      <p className="text-xs font-bold text-muted">{label}</p>
-    </div>
   );
 }

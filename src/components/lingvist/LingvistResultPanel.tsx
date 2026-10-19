@@ -44,7 +44,7 @@ export function LingvistResultPanel({ card, answer, decision }: {
         {!success && !dontKnow && answer.trim() ? (
           <p className="text-sm text-muted line-through">{answer}</p>
         ) : null}
-        <p className="text-lg font-extrabold">
+        <p className="text-lg font-bold">
           {expectedDifferent ? `${card.lemma} → ${card.expectedAnswer}` : card.expectedAnswer}
           {card.verbFormLabel ? <span className="font-semibold text-muted"> · {card.verbFormLabel}</span> : null}
         </p>
@@ -64,7 +64,7 @@ export function LingvistResultPanel({ card, answer, decision }: {
 
       <WordContexts word={card.srsWord ? getVocabularyLemma(card.srsWord) : card.lemma} />
 
-      <div className="rounded-2xl border border-border bg-ink/[0.035] p-3.5">
+      <div className="rounded-xl bg-surface p-3.5">
         <div className="mb-2 flex items-center justify-between">
           <div>
             <p className="text-[13.5px] font-bold">Maîtrise · niveau {mastery}/4</p>
@@ -105,7 +105,7 @@ export function LingvistResultPanel({ card, answer, decision }: {
           summary={(
             <span className="flex items-center gap-2">
               <Sparkles className="size-5 text-violet-soft" />
-              <span className="font-extrabold">Analyse de ta réponse</span>
+              <span className="font-bold">Analyse de ta réponse</span>
             </span>
           )}
         >

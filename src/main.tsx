@@ -4,9 +4,6 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 
-import '@fontsource-variable/bricolage-grotesque';
-import '@fontsource-variable/inter';
-
 import { App } from '@/App';
 import { PreferencesProvider } from '@/context/PreferencesContext';
 import { ThemeProvider } from '@/context/ThemeContext';

@@ -90,7 +90,7 @@ export function SearchPage() {
                     <Chip size="sm" label={SOURCE_LABELS[result.source]} />
                     {result.level ? <Chip size="sm" label={result.level} /> : null}
                     <span className="min-w-0 flex-1 truncate text-xs text-muted">{result.title}</span>
-                    <span className="text-[11.5px] font-extrabold text-violet-soft">{Math.round(result.score * 100)} %</span>
+                    <span className="text-[11.5px] font-bold text-violet-soft">{Math.round(result.score * 100)} %</span>
                   </div>
                   <p className="text-[15.5px] leading-[1.7]">{result.text}</p>
                   {frVisible && result.textFr ? (
