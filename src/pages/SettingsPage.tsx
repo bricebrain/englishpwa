@@ -3,26 +3,17 @@ import { useNavigate } from 'react-router-dom';
 
 import { hasRemoteApi } from '@/api/httpClient';
 import { PageHeader } from '@/components/common/PageHeader';
+import { ThemePicker } from '@/components/vivid/ThemePicker';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { Switch } from '@/components/ui/form';
 import { ListGroup, ListRow, RowIcon, SectionFooter, SectionHeader } from '@/components/ui/list';
-import { Segmented } from '@/components/ui/segmented';
-import { useTheme } from '@/context/ThemeContext';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 import { usePreferences } from '@/hooks/usePreferences';
 import { celebrate, configureFeedback, feedback } from '@/services/feedbackService';
-import type { ThemePreference } from '@/services/themePreference';
-
-const THEME_OPTIONS: { value: ThemePreference; label: string }[] = [
-  { value: 'light', label: 'Clair' },
-  { value: 'dark', label: 'Sombre' },
-  { value: 'system', label: 'Automatique' },
-];
 
 export function SettingsPage() {
   const navigate = useNavigate();
   const { preferences, updatePreferences } = usePreferences();
-  const theme = useTheme();
   const install = useInstallPrompt();
 
   return (
@@ -30,14 +21,8 @@ export function SettingsPage() {
       <PageHeader back backLabel="Plus" title="Réglages" />
 
       <SectionHeader>Apparence</SectionHeader>
-      <div className="rounded-xl bg-surface p-2.5">
-        <Segmented aria-label="Thème de l’application" fullWidth value={theme.preference} onChange={theme.setPreference} options={THEME_OPTIONS} />
-      </div>
-      <SectionFooter>
-        {theme.preference === 'system'
-          ? `« Automatique » suit le réglage de ton téléphone (actuellement ${theme.resolved === 'dark' ? 'sombre' : 'clair'}).`
-          : 'Ton choix est enregistré sur cet appareil.'}
-      </SectionFooter>
+      <ThemePicker />
+      <SectionFooter>Ton choix est enregistré sur cet appareil. Le bouton soleil / lune de l’accueil bascule aussi en un geste.</SectionFooter>
 
       <SectionHeader>Retours</SectionHeader>
       <ListGroup>

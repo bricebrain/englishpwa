@@ -34,12 +34,12 @@ export function SessionHeader({ progress, combo = 0, label, title, onClose, acti
         {label ? <span className="min-w-12 text-right text-[15px] tabular-nums text-muted">{label}</span> : null}
         {action}
       </div>
-      <div className="h-1 overflow-hidden rounded-full bg-ink/12">
+      <div className="h-1.5 overflow-hidden rounded-full bg-ink/10">
         <motion.div
           initial={false}
           animate={{ width: `${Math.max(2, Math.min(100, progress * 100))}%` }}
           transition={{ type: 'spring', stiffness: 160, damping: 26 }}
-          className="h-full rounded-full bg-violet"
+          className="h-full rounded-full bg-grad-primary shadow-[0_0_12px_rgb(162_60_240/0.6)]"
         />
       </div>
     </div>

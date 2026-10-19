@@ -14,11 +14,11 @@ const buttonVariants = cva(
     variants: {
       variant: {
         /** Bouton plein, couleur d'accent. */
-        primary: 'bg-grad-primary text-white',
+        primary: 'bg-grad-primary text-white shadow-[0_12px_26px_-12px_rgb(91_79_245/0.75)]',
         /** Bouton plein vert, pour valider une réussite. */
-        success: 'bg-grad-mint text-white',
+        success: 'bg-grad-mint text-white shadow-[0_12px_26px_-12px_rgb(32_178_107/0.7)]',
         /** Bouton plein secondaire (même rendu que primary, conservé pour compatibilité). */
-        secondary: 'bg-grad-primary text-white',
+        secondary: 'bg-grad-primary text-white shadow-[0_12px_26px_-12px_rgb(91_79_245/0.75)]',
         /** Bouton « gris » d'iOS. */
         outline: 'bg-ink/[0.08] text-fg hover:bg-ink/12',
         /** Bouton texte, couleur d'accent. */
@@ -26,8 +26,8 @@ const buttonVariants = cva(
       },
       size: {
         sm: 'min-h-9 rounded-[10px] px-3.5 text-[15px] [&_svg]:size-[17px]',
-        md: 'min-h-[50px] rounded-xl px-5 text-[17px] [&_svg]:size-5',
-        lg: 'min-h-[50px] rounded-xl px-5 text-[17px] [&_svg]:size-5',
+        md: 'min-h-[52px] rounded-2xl px-5 text-[17px] [&_svg]:size-5',
+        lg: 'min-h-[56px] rounded-2xl px-6 text-[18px] [&_svg]:size-5',
       },
     },
     defaultVariants: { variant: 'primary', size: 'md' },

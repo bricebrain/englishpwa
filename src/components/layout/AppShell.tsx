@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 import { XpToaster } from '@/components/ui/Gamification';
+import { Aurora } from '@/components/vivid/Aurora';
 import { APP_LAYOUT } from '@/constants/layout';
 import { useAdaptiveLayout } from '@/hooks/useAdaptiveLayout';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
@@ -79,6 +80,10 @@ export function AppShell() {
       style={{ '--content-left': compact ? '0px' : `${APP_LAYOUT.railWidth}px` } as React.CSSProperties}
     >
       <XpToaster />
+      {/* Lueur d'aurore en haut de chaque écran : un peu de couleur et de mouvement, fondue vers le bas. */}
+      <div aria-hidden className="pointer-events-none fixed inset-x-0 top-0 z-0 h-[360px] opacity-40 [mask-image:linear-gradient(to_bottom,black,transparent)] dark:opacity-30">
+        <Aurora intensity={0.55} />
+      </div>
 
       <AnimatePresence>
         {!online ? (
@@ -150,7 +155,7 @@ export function AppShell() {
             animate={{ y: 0 }}
             exit={{ y: 100 }}
             transition={{ type: 'spring', stiffness: 400, damping: 40 }}
-            className="fixed inset-x-0 bottom-0 z-20 flex border-t border-border bg-glass px-1 pb-[env(safe-area-inset-bottom)] pt-1.5 backdrop-blur-xl backdrop-saturate-150"
+            className="fixed inset-x-3 bottom-[max(10px,env(safe-area-inset-bottom))] z-20 flex rounded-[28px] border border-border bg-glass p-1.5 shadow-float backdrop-blur-2xl backdrop-saturate-150"
           >
             {NAVIGATION.map(({ label, path, icon: Icon }) => {
               const selected = active === path;
@@ -161,18 +166,20 @@ export function AppShell() {
                   aria-current={selected ? 'page' : undefined}
                   onClick={() => go(path)}
                   className={cn(
-                    'flex h-[49px] flex-1 flex-col items-center justify-start gap-[3px] transition-colors duration-200',
+                    'relative flex h-[52px] flex-1 flex-col items-center justify-center gap-[3px] transition-colors duration-200',
                     selected ? 'text-violet' : 'text-muted',
                   )}
                 >
+                  {selected ? <motion.span layoutId="tab-pill" transition={{ type: 'spring', stiffness: 460, damping: 34 }}
+                    className="absolute inset-0 rounded-[22px] bg-violet/12" /> : null}
                   <motion.span
                     animate={selected ? { scale: [1, 0.86, 1.06, 1] } : { scale: 1 }}
                     transition={{ duration: 0.38, ease: 'easeOut' }}
-                    className="grid place-items-center"
+                    className="relative grid place-items-center"
                   >
                     <Icon className="size-[26px]" strokeWidth={selected ? 2.2 : 1.9} />
                   </motion.span>
-                  <span className="text-[10px] font-medium leading-none">{label}</span>
+                  <span className="relative text-[10px] font-semibold leading-none">{label}</span>
                 </button>
               );
             })}

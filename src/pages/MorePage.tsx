@@ -2,6 +2,7 @@ import { BookOpen, BookOpenText, ChartColumn, Headphones, Layers, MoveHorizontal
 import { useNavigate } from 'react-router-dom';
 
 import { PageHeader } from '@/components/common/PageHeader';
+import { ThemeToggle } from '@/components/vivid/ThemeToggle';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { ListGroup, ListRow, RowIcon, SectionFooter, SectionHeader } from '@/components/ui/list';
 import { Stagger, StaggerItem } from '@/components/ui/motion';
@@ -40,7 +41,7 @@ export function MorePage() {
 
   return (
     <PageLayout reading>
-      <PageHeader title="Plus" />
+      <PageHeader title="Plus" trailing={<ThemeToggle />} />
 
       <Stagger gap={0.05}>
         {sections.map((section) => (

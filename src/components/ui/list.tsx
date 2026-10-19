@@ -8,8 +8,8 @@ import { feedback } from '@/services/feedbackService';
 /** Titre de section d'une liste groupée (petites capitales grises). */
 export function SectionHeader({ children, action, className }: { children: ReactNode; action?: ReactNode; className?: string }) {
   return (
-    <div className={cn('mb-[7px] mt-6 flex items-end justify-between gap-2 px-4', className)}>
-      <h2 className="type-overline text-muted">{children}</h2>
+    <div className={cn('mb-2.5 mt-8 flex items-end justify-between gap-2 px-1', className)}>
+      <h2 className="text-[21px] font-bold leading-tight tracking-[-0.02em] text-fg">{children}</h2>
       {action}
     </div>
   );
@@ -19,15 +19,18 @@ export function SectionFooter({ children }: { children: ReactNode }) {
   return <p className="mt-[7px] px-4 text-[13px] leading-[18px] text-muted">{children}</p>;
 }
 
-/** Carte arrondie qui regroupe des lignes séparées par un trait fin. */
+/** Carte arrondie qui regroupe des lignes séparées par un trait fin ; elle monte doucement en entrant à l'écran. */
 export function ListGroup({ children, className }: { children: ReactNode; className?: string }) {
-  return <div className={cn('overflow-hidden rounded-xl bg-surface transition-colors duration-300', className)}>{children}</div>;
+  return <motion.div initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '0px 0px -6% 0px' }}
+    transition={{ type: 'spring', stiffness: 190, damping: 24 }}
+    className={cn('overflow-hidden rounded-[22px] bg-surface shadow-card transition-colors duration-300', className)}>{children}</motion.div>;
 }
 
 /** Pastille d'icône carrée façon Réglages iOS. */
 export function RowIcon({ color, children }: { color: string; children: ReactNode }) {
   return (
-    <span className="grid size-[30px] shrink-0 place-items-center rounded-[7px] text-white [&_svg]:size-[18px]" style={{ background: color }}>
+    <span className="grid size-[34px] shrink-0 place-items-center rounded-[11px] text-white shadow-[0_6px_14px_-6px_rgb(0_0_0/0.35)] [&_svg]:size-[18px]"
+      style={{ background: `linear-gradient(140deg, color-mix(in srgb, ${color} 72%, white) 0%, ${color} 55%, color-mix(in srgb, ${color} 85%, black) 100%)` }}>
       {children}
     </span>
   );

@@ -56,7 +56,7 @@ export function PageHeader({ title, subtitle, eyebrow, back = false, backLabel =
         ) : null}
         <motion.div style={{ opacity: titleOpacity, scale: titleScale }} className="flex origin-left items-end gap-3 px-1 pb-2 pt-1">
           <div className="min-w-0 flex-1">
-            {eyebrow ? <span className="text-[13px] font-semibold uppercase text-muted">{eyebrow}</span> : null}
+            {eyebrow ? <span className="text-[13px] font-semibold uppercase tracking-[0.06em] text-violet">{eyebrow}</span> : null}
             <h1 className="type-h1">{title}</h1>
             {subtitle ? <p className="mt-1 text-[15px] leading-snug text-muted">{subtitle}</p> : null}
           </div>

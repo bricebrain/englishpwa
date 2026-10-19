@@ -1,5 +1,8 @@
 @import 'tailwindcss';
 
+/* `dark:` suit le choix fait dans l'app (attribut data-theme), pas seulement le réglage du téléphone. */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
 /*
  * Jetons « vivant » (20 octobre 2026) : blanc lumineux ou sombre profond, au choix dans l'app ; couleurs franches et vrais
  * dégradés pour les surfaces mises en avant, aurores animées derrière les grandes cartes.
