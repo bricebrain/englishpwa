@@ -114,6 +114,7 @@ export interface SrsWord {
   fail_count: number;
   level: number;
   status: 'new' | 'learning' | 'known';
+  review_history?: Array<Record<string, unknown>>;
   enrichment?: VocabularyEnrichmentDto | null;
 }
 

@@ -124,7 +124,14 @@ export function LingvistPage() {
               </IconButton>
             )}
           />
-          <QueryState loading={session.isLoading} error={session.isError} offline={!online} onRetry={() => session.refetch()} />
+          <QueryState
+            loading={session.isLoading}
+            error={session.isError}
+            empty={session.isSuccess && total === 0}
+            emptyLabel="Aucun mot à réviser pour le moment."
+            offline={!online}
+            onRetry={() => session.refetch()}
+          />
 
           {card ? (
             <form onSubmit={handleSubmit}>

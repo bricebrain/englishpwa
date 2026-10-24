@@ -7,6 +7,7 @@ import {
   statisticsMock,
 } from '@/mocks/learningData';
 import { cleanVocabularyText, getVocabularyTranslation } from '@/helpers/vocabularyDisplay';
+import { buildReviewedWord } from '@/helpers/srsReview';
 import { srsSessionMock, triageCandidatesMock } from '@/mocks/srsData';
 import { readingItemsMock, readingSegmentsMock } from '@/mocks/readingData';
 import type {
@@ -149,7 +150,11 @@ export const learningApi = {
           body: JSON.stringify({
             profileId,
             wordId: card.wordId ?? card.id,
-            word: { ...(card.srsWord ?? { id: card.wordId ?? card.id, mot: card.lemma }), lastGrade: decision.grade },
+            word: buildReviewedWord(
+              card.srsWord ?? { id: card.wordId ?? card.id, mot: card.lemma },
+              decision.grade,
+              { ...decision.metadata, userAnswer: answer, expectedAnswer: card.expectedAnswer },
+            ),
             day: new Date().toISOString().slice(0, 10),
             count: 1,
             result: decision.resultKind === 'success' ? 'success' : decision.resultKind === 'almost' ? 'almost' : 'fail',
@@ -204,7 +209,7 @@ export const learningApi = {
     return hasRemoteApi
       ? apiRequest<void>('/srs/review', {
           method: 'POST',
-          body: JSON.stringify({ profileId, wordId, word: { ...(word as object), lastGrade: grade }, day: new Date().toISOString().slice(0, 10), count: 1, result }),
+          body: JSON.stringify({ profileId, wordId, word: buildReviewedWord(word as Partial<SrsWord>, grade), day: new Date().toISOString().slice(0, 10), count: 1, result }),
         })
       : localResult(undefined);
   },

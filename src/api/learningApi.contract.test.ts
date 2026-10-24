@@ -86,6 +86,25 @@ describe('getPreparedContent', () => {
 });
 
 describe('Révisions SRS envoyées au Worker', () => {
+  it('Lingvist envoie une progression actualisée plutôt que le mot inchangé', async () => {
+    const { lingvistCardsMock } = await import('@/mocks/learningData');
+    const { analyzeAnswerLocally, buildLingvistDecision } = await import('@/helpers/lingvistAnalysis');
+    const card = lingvistCardsMock[0]!;
+    const decision = buildLingvistDecision({
+      card, answer: card.expectedAnswer, responseTimeMs: 4000,
+      analysis: analyzeAnswerLocally(card, card.expectedAnswer),
+    });
+    const before = Date.now();
+    await learningApi.submitLingvistAnswer('default', card, card.expectedAnswer, decision);
+    const [path, init] = apiRequest.mock.calls[0];
+    const body = JSON.parse(init.body);
+    expect(path).toBe('/srs/review');
+    expect(new Date(body.word.prochaine_revision).getTime()).toBeGreaterThan(before);
+    expect(body.word.seen_count).toBe((card.srsWord?.seen_count ?? 0) + 1);
+    expect(body.word.repetitions).toBe((card.srsWord?.repetitions ?? 0) + 1);
+    expect(body.word.review_history.at(-1)).toMatchObject({ result: 'success', userAnswer: card.expectedAnswer });
+  });
+
   it('reviewWord envoie profileId, wordId, word, day et count (champs exigés par /srs/review)', async () => {
     apiRequest.mockResolvedValueOnce(undefined);
     await learningApi.reviewWord('default', 'still_0609', { id: 'still_0609', prochaine_revision: '2026-10-20' }, 'good');

@@ -43,7 +43,9 @@ function buildVariant(card: LingvistCard, variantIndex: number): LingvistCard {
 export function useLingvistSession() {
   const { preferences } = usePreferences();
   const queryClient = useQueryClient();
-  const initial = useMemo(loadLingvistProgress, []);
+  const profileId = preferences.profile.id;
+  const initial = useMemo(() => loadLingvistProgress(profileId), [profileId]);
+  const [sessionNumber, setSessionNumber] = useState(0);
   const [cardIndex, setCardIndex] = useState(initial.cardIndex);
   const [correctCount, setCorrectCount] = useState(initial.correctCount);
   const [answer, setAnswer] = useState(initial.answer);
@@ -53,9 +55,13 @@ export function useLingvistSession() {
   const startedAtRef = useRef(performance.now());
 
   const cardsQuery = useQuery({
-    queryKey: ['lingvist-session', preferences.profile.id],
-    queryFn: () => learningApi.getLingvistCards(preferences.profile.id, 20),
-    staleTime: 5 * 60 * 1000,
+    queryKey: ['lingvist-session', profileId, sessionNumber],
+    queryFn: () => learningApi.getLingvistCards(profileId, 20),
+    initialData: sessionNumber === 0 ? initial.cards : undefined,
+    // Une série reste stable pendant les réponses ; seule une nouvelle session
+    // recharge la sélection SRS après l'enregistrement des révisions.
+    staleTime: Infinity,
+    gcTime: 0,
     retry: 1,
   });
 
@@ -89,8 +95,10 @@ export function useLingvistSession() {
   });
 
   useEffect(() => {
-    saveLingvistProgress({ cardIndex, correctCount, answer });
-  }, [answer, cardIndex, correctCount]);
+    if (cardsQuery.data) {
+      saveLingvistProgress(profileId, { cardIndex, correctCount, answer, cards: cardsQuery.data });
+    }
+  }, [answer, cardIndex, cardsQuery.data, correctCount, profileId]);
 
   useEffect(() => {
     startedAtRef.current = performance.now();
@@ -124,13 +132,15 @@ export function useLingvistSession() {
   };
 
   const restart = () => {
-    clearLingvistProgress();
+    clearLingvistProgress(profileId);
+    setSessionNumber((value) => value + 1);
     setCardIndex(0);
     setCorrectCount(0);
     setAnswer('');
     setDecision(null);
     setHintShown(false);
     setVariantIndex(0);
+    attemptMutation.reset();
   };
 
   return {
