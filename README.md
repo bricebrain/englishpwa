@@ -21,9 +21,12 @@ Les variables Vercel requises sont `VITE_API_BASE_URL=/api`, `WORKER_URL` et `WO
 - flashcards SRS dues, nouvelles ou mixtes, dans les deux sens ;
 - scripts, audios et contenus préparés ;
 - parcours Assimil avec écoute, fiche, phrases et exercices ;
+- dictées par séries de cinq phrases : banque A1–B2, phrases des leçons, priorité aux inédites et historique local par profil ;
 - construction de phrases et séance Live guidée ;
 - lecture d’articles, scènes SRT et ajout de vocabulaire au SRS ;
 - profil et préférences locales.
+
+Les dictées proposent 48 phrases d’entraînement réparties entre A1 et B2, complétées dans chaque leçon par ses phrases clés, son dialogue et ses exercices de dictée. Une phrase validée est mémorisée dans ce navigateur pour le profil actif. Les séries privilégient les phrases inédites, puis réintroduisent les anciennes pour réviser. Le bouton « Nouvelle série » évite aussi la série précédente lorsque la banque le permet. Aucun endpoint de génération supplémentaire n’est nécessaire.
 
 L’enregistrement/analyse de la voix et les notifications ne font volontairement pas partie de la PWA. La lecture audio et toutes les fonctions d’apprentissage compatibles avec le Web restent disponibles. La synthèse vocale utilise OpenAI via le Worker, Gemini en secours, puis la meilleure voix anglaise du navigateur en dernier recours.
 

@@ -8,6 +8,7 @@ import { PageHeader } from '@/components/common/PageHeader';
 import { QueryState } from '@/components/common/QueryState';
 import { AssimilExerciseCard } from '@/components/listening/AssimilExerciseCard';
 import { AssimilDialoguePanel } from '@/components/listening/AssimilDialoguePanel';
+import { DictationPanel } from '@/components/listening/DictationPanel';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { Alert } from '@/components/ui/alert';
 import { Card, CardContent } from '@/components/ui/card';
@@ -59,6 +60,8 @@ export function AssimilLessonPage() {
               )}
             </CardContent>
           </Card>
+
+          <DictationPanel level={lesson.level} lesson={lesson} />
 
           {lesson.artifact ? (
             <>
@@ -120,7 +123,7 @@ export function AssimilLessonPage() {
 
               <section>
                 <h2 className="type-h2 mb-2.5">Exercices</h2>
-                <div className="flex flex-col gap-3">{lesson.artifact.exercises.map((exercise) => <AssimilExerciseCard key={exercise.id} exercise={exercise} />)}</div>
+                <div className="flex flex-col gap-3">{lesson.artifact.exercises.filter((exercise) => exercise.type !== 'dictation').map((exercise) => <AssimilExerciseCard key={`${lesson.id}-${exercise.id}`} exercise={exercise} />)}</div>
               </section>
 
               <Card><CardContent>

@@ -1,0 +1,67 @@
+import type { DictationPhrase } from '@/types/dictation';
+
+const PHRASES: Record<DictationPhrase['level'], [string, string][]> = {
+  A1: [
+    ['My sister works in a small shop.', 'Ma sœur travaille dans un petit magasin.'],
+    ['The train leaves at nine o’clock.', 'Le train part à neuf heures.'],
+    ['There is a park near my house.', 'Il y a un parc près de chez moi.'],
+    ['Can I have a glass of water, please?', 'Puis-je avoir un verre d’eau, s’il vous plaît ?'],
+    ['We have breakfast together every morning.', 'Nous prenons le petit-déjeuner ensemble chaque matin.'],
+    ['This book is very interesting.', 'Ce livre est très intéressant.'],
+    ['I usually walk to school.', 'D’habitude, je vais à l’école à pied.'],
+    ['Her birthday is in September.', 'Son anniversaire est en septembre.'],
+    ['Please open the window.', 'Ouvre la fenêtre, s’il te plaît.'],
+    ['They live on the second floor.', 'Ils habitent au deuxième étage.'],
+    ['How much does this bag cost?', 'Combien coûte ce sac ?'],
+    ['I am looking for the bus stop.', 'Je cherche l’arrêt de bus.'],
+  ],
+  A2: [
+    ['I forgot to bring my umbrella this morning.', 'J’ai oublié d’apporter mon parapluie ce matin.'],
+    ['We are going to visit our cousins next weekend.', 'Nous allons rendre visite à nos cousins le week-end prochain.'],
+    ['Could you tell me where the station is?', 'Pourriez-vous me dire où se trouve la gare ?'],
+    ['She was cooking when the phone rang.', 'Elle cuisinait quand le téléphone a sonné.'],
+    ['This restaurant is cheaper than the one near the office.', 'Ce restaurant est moins cher que celui près du bureau.'],
+    ['You should drink more water during the day.', 'Tu devrais boire plus d’eau pendant la journée.'],
+    ['I have never tried Japanese food before.', 'Je n’ai encore jamais goûté à la cuisine japonaise.'],
+    ['It takes about twenty minutes to get there.', 'Il faut environ vingt minutes pour y aller.'],
+    ['We need to buy some bread on the way home.', 'Nous devons acheter du pain sur le chemin du retour.'],
+    ['He is learning English because he wants to travel.', 'Il apprend l’anglais parce qu’il veut voyager.'],
+    ['Please let me know when you arrive.', 'Préviens-moi quand tu arrives, s’il te plaît.'],
+    ['I would like to book a table for two.', 'Je voudrais réserver une table pour deux personnes.'],
+  ],
+  B1: [
+    ['I have been waiting for your reply since Monday.', 'J’attends ta réponse depuis lundi.'],
+    ['If it rains tomorrow, we will stay at home.', 'S’il pleut demain, nous resterons à la maison.'],
+    ['Would you mind sending me the report before lunch?', 'Pourriez-vous m’envoyer le rapport avant le déjeuner ?'],
+    ['She managed to finish the project on time.', 'Elle a réussi à terminer le projet à temps.'],
+    ['We used to spend our holidays by the sea.', 'Nous passions autrefois nos vacances au bord de la mer.'],
+    ['Although the journey was long, we enjoyed every minute.', 'Bien que le trajet ait été long, nous avons apprécié chaque minute.'],
+    ['I wish I had more time to practise speaking.', 'J’aimerais avoir plus de temps pour m’entraîner à parler.'],
+    ['The meeting has been postponed until next Thursday.', 'La réunion a été reportée à jeudi prochain.'],
+    ['You do not have to make a decision right now.', 'Tu n’es pas obligé de prendre une décision maintenant.'],
+    ['By the time I arrived, everyone had already left.', 'Quand je suis arrivé, tout le monde était déjà parti.'],
+    ['Let me know if there is anything I can do to help.', 'Dis-moi si je peux faire quelque chose pour aider.'],
+    ['I am getting used to working with a new team.', 'Je m’habitue à travailler avec une nouvelle équipe.'],
+  ],
+  B2: [
+    ['Had I known about the delay, I would have taken another train.', 'Si j’avais su qu’il y avait du retard, j’aurais pris un autre train.'],
+    ['The proposal is likely to raise a number of concerns.', 'La proposition risque de susciter plusieurs inquiétudes.'],
+    ['Despite the initial setbacks, the team exceeded its targets.', 'Malgré les difficultés initiales, l’équipe a dépassé ses objectifs.'],
+    ['We need to weigh up the benefits against the potential risks.', 'Nous devons mettre en balance les avantages et les risques potentiels.'],
+    ['Not only did she apologise, but she also offered to help.', 'Elle s’est excusée et a également proposé son aide.'],
+    ['The sooner we address this issue, the better the outcome will be.', 'Plus vite nous traiterons ce problème, meilleur sera le résultat.'],
+    ['I would rather we discussed the details in person.', 'Je préférerais que nous discutions des détails en personne.'],
+    ['There is no point in rushing a decision of this importance.', 'Il est inutile de précipiter une décision aussi importante.'],
+    ['The findings suggest that further research may be necessary.', 'Les résultats laissent penser que des recherches supplémentaires pourraient être nécessaires.'],
+    ['She was on the verge of leaving when the offer came through.', 'Elle était sur le point de partir quand l’offre est arrivée.'],
+    ['Unless we reach an agreement, the launch will have to be delayed.', 'À moins de parvenir à un accord, il faudra retarder le lancement.'],
+    ['What matters most is whether the solution is sustainable.', 'Ce qui compte le plus, c’est de savoir si la solution est durable.'],
+  ],
+};
+
+export const dictationPhrases: DictationPhrase[] = Object.entries(PHRASES).flatMap(([level, phrases]) =>
+  phrases.map(([text, translation], index) => ({
+    id: `practice-${level}-${index}`, text, translation,
+    level: level as DictationPhrase['level'], source: 'Entraînement par niveau',
+  })),
+);

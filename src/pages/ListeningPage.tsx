@@ -7,6 +7,7 @@ import { AudioPlayerBar } from '@/components/audio/AudioPlayerBar';
 import { PageHeader } from '@/components/common/PageHeader';
 import { QueryState } from '@/components/common/QueryState';
 import { PageLayout } from '@/components/layout/PageLayout';
+import { DictationPanel } from '@/components/listening/DictationPanel';
 import { Card, CardContent } from '@/components/ui/card';
 import { Chip } from '@/components/ui/chip';
 import { Pressable } from '@/components/ui/motion';
@@ -14,6 +15,7 @@ import { Segmented } from '@/components/ui/segmented';
 import { IconTile } from '@/components/ui/SessionChrome';
 import { useAssimilLessons, useAssimilProgress, usePreparedContent } from '@/hooks/useLearningQueries';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
+import { usePreferences } from '@/hooks/usePreferences';
 import { cn } from '@/lib/utils';
 import { gradients, tokens } from '@/theme';
 import type { AssimilLevel } from '@/types/learning';
@@ -23,6 +25,7 @@ const LEVELS: AssimilLevel[] = ['all', 'A1', 'A2', 'B1', 'B2'];
 export function ListeningPage() {
   const navigate = useNavigate();
   const [level, setLevel] = useState<AssimilLevel>('B1');
+  const { preferences } = usePreferences();
   const lessonsQuery = useAssimilLessons(level);
   const progressQuery = useAssimilProgress();
   const contentQuery = usePreparedContent();
@@ -81,6 +84,8 @@ export function ListeningPage() {
           ))}
         </div>
       ) : null}
+
+      <DictationPanel level={preferences.profile.level === 'C1' ? 'B2' : preferences.profile.level} />
 
       <div className="mb-4 flex flex-col justify-between gap-2.5 sm:flex-row sm:items-center">
         <div>
