@@ -232,13 +232,6 @@ export interface AssimilProgress {
   lastAt: string | null;
 }
 
-export interface StatisticsData extends DashboardData {
-  retentionRate: number;
-  weeklyReviews: number[];
-  strengths: string[];
-  focusAreas: string[];
-}
-
 export interface UserPreferences {
   profile: LearningProfile;
   denseMode: boolean;

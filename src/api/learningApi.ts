@@ -4,7 +4,6 @@ import {
   dashboardMock,
   lingvistCardsMock,
   preparedContentMock,
-  statisticsMock,
 } from '@/mocks/learningData';
 import { cleanVocabularyText, getVocabularyTranslation } from '@/helpers/vocabularyDisplay';
 import { buildReviewedWord } from '@/helpers/srsReview';
@@ -193,9 +192,9 @@ export const learningApi = {
   },
 
   async getStatistics(profileId: string) {
-    if (!hasRemoteApi) return localResult(statisticsMock);
+    if (!hasRemoteApi) return localResult({ ...normalizeSrsStats(dashboardMock), demo: true });
     const stats = await apiRequest<unknown>(`/srs/stats?profileId=${encodeURIComponent(profileId)}`);
-    return { ...statisticsMock, ...normalizeSrsStats(stats) };
+    return { ...normalizeSrsStats(stats), demo: false };
   },
 
   getSrsSession(profileId: string, limit = 100) {

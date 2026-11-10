@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { PageHeader } from '@/components/common/PageHeader';
 import { QueryState } from '@/components/common/QueryState';
 import { DailyStoryCard } from '@/components/home/DailyStoryCard';
+import { SentenceLabEntry } from '@/components/home/SentenceLabEntry';
 import { WeekStrip } from '@/components/home/WeekStrip';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { SectionHeader } from '@/components/ui/list';
@@ -90,6 +91,7 @@ export function HomePage() {
         )}
       />
 
+      <SentenceLabEntry />
       <QueryState loading={dashboard.isLoading} error={dashboard.isError} offline={!online} onRetry={() => dashboard.refetch()} />
 
       {data ? (
@@ -140,7 +142,7 @@ export function HomePage() {
             <div className="flex flex-col gap-3 rounded-[22px] bg-surface px-4 py-4 shadow-card">
               <WeekStrip activeDays={data.activeDays} />
               <p className="text-[15px] text-muted">
-                {data.streak > 1 ? `${data.streak} jours d’affilée` : `${activeCount} jour${activeCount > 1 ? 's' : ''} de pratique`} · {data.learnedCount.toLocaleString('fr-FR')} mots maîtrisés
+                {data.streak > 1 ? `${data.streak} jours d’affilée` : `${activeCount} jour${activeCount > 1 ? 's' : ''} de pratique`} · {data.learnedCount.toLocaleString('fr-FR')} mots classés connus
               </p>
             </div>
           </Reveal>
@@ -169,7 +171,7 @@ export function HomePage() {
             <Pressable onClick={() => navigate('/statistics')} aria-label="Voir la progression">
               <span className="flex flex-col gap-3 rounded-[22px] bg-surface px-4 py-4 shadow-card">
                 <span className="flex items-baseline justify-between">
-                  <span className="text-[17px] font-semibold">Vocabulaire maîtrisé</span>
+                  <span className="text-[17px] font-semibold">Vocabulaire classé connu</span>
                   <span className="text-gradient text-[22px] font-bold tabular-nums">
                     <AnimatedNumber value={Math.round(learnedRatio(data.learnedCount, data.totalCount) * 100)} suffix=" %" />
                   </span>

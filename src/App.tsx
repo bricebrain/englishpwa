@@ -16,6 +16,7 @@ const ProfilePage = lazy(() => import('@/pages/ProfilePage').then((module) => ({
 const ReadingPage = lazy(() => import('@/pages/ReadingPage').then((module) => ({ default: module.ReadingPage })));
 const ScriptsPage = lazy(() => import('@/pages/ScriptsPage').then((module) => ({ default: module.ScriptsPage })));
 const SentenceBuilderPage = lazy(() => import('@/pages/SentenceBuilderPage').then((module) => ({ default: module.SentenceBuilderPage })));
+const SentenceLabPage = lazy(() => import('@/pages/SentenceLabPage').then((module) => ({ default: module.SentenceLabPage })));
 const SearchPage = lazy(() => import('@/pages/SearchPage').then((module) => ({ default: module.SearchPage })));
 const StoryPage = lazy(() => import('@/pages/StoryPage').then((module) => ({ default: module.StoryPage })));
 const SettingsPage = lazy(() => import('@/pages/SettingsPage').then((module) => ({ default: module.SettingsPage })));
@@ -35,6 +36,7 @@ export function App() {
           <Route path="live" element={<LivePage />} />
           <Route path="plus" element={<MorePage />} />
           <Route path="phrases" element={<SentenceBuilderPage />} />
+          <Route path="sentence-lab" element={<SentenceLabPage />} />
           <Route path="ecouter" element={<ListeningPage />} />
           <Route path="lire" element={<ReadingPage />} />
           <Route path="flashcards" element={<FlashcardsPage />} />

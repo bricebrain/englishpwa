@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/form';
 import { ComboBadge } from '@/components/ui/Gamification';
 import { ResultPanel } from '@/components/ui/SessionChrome';
 import { useCombo } from '@/hooks/useCombo';
+import { evaluateOpenAnswer } from '@/helpers/openAnswerEvaluation';
 import { evaluateSentence } from '@/helpers/sentenceEvaluation';
 import { cn } from '@/lib/utils';
 import { celebrate } from '@/services/feedbackService';
@@ -26,17 +27,20 @@ const TYPE_LABELS: Record<Exercise['type'], string> = {
 export function AssimilExerciseCard({ exercise }: { exercise: Exercise }) {
   const [itemIndex, setItemIndex] = useState(0);
   const [answer, setAnswer] = useState('');
-  const [result, setResult] = useState<boolean | null>(null);
+  const [result, setResult] = useState<'correct' | 'incorrect' | 'uncertain' | null>(null);
   const [score, setScore] = useState(0);
   const combo = useCombo(8);
   const completed = itemIndex >= exercise.items.length;
   const item = exercise.items[Math.min(itemIndex, exercise.items.length - 1)];
 
   const validate = () => {
-    if (!item || !answer.trim()) return;
-    const correct = evaluateSentence(answer, item.answer);
-    setResult(correct);
-    if (correct) { setScore((value) => value + 1); combo.hit(); } else combo.miss();
+    if (!item || !answer.trim() || result !== null) return;
+    const outcome = exercise.type === 'translation'
+      ? evaluateOpenAnswer(answer, [item.answer]).outcome
+      : evaluateSentence(answer, item.answer) ? 'correct' : 'incorrect';
+    setResult(outcome);
+    if (outcome === 'correct') { setScore((value) => value + 1); combo.hit(); }
+    else if (outcome === 'incorrect') combo.miss();
   };
 
   const next = () => {
@@ -70,7 +74,7 @@ export function AssimilExerciseCard({ exercise }: { exercise: Exercise }) {
         <p className="text-[14.5px] font-bold text-muted">{exercise.instructionFr}</p>
         {completed ? (
           <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="mt-4">
-            <ResultPanel tone={score === exercise.items.length ? 'success' : 'neutral'} title={`Terminé : ${score}/${exercise.items.length}`} icon={<Check />} />
+            <ResultPanel tone={score === exercise.items.length ? 'success' : 'neutral'} title={exercise.type === 'translation' ? `Terminé : ${score} formulation(s) reconnue(s), ${exercise.items.length - score} à vérifier` : `Terminé : ${score}/${exercise.items.length}`} icon={<Check />} />
           </motion.div>
         ) : item ? (
           <motion.div key={itemIndex} initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }}>
@@ -88,12 +92,12 @@ export function AssimilExerciseCard({ exercise }: { exercise: Exercise }) {
                 className="text-[17px] font-semibold"
               />
               {result !== null ? (
-                <ResultPanel tone={result ? 'success' : 'error'} title={result ? 'Bonne réponse !' : 'Réponse attendue'} icon={result ? <Check /> : <X />}>
-                  {!result ? <p className="font-bold">{item.answer}</p> : null}
-                  {!result && item.hintFr ? <p className="mt-1 text-[13px] text-muted">{item.hintFr}</p> : null}
+                <ResultPanel tone={result === 'correct' ? 'success' : result === 'uncertain' ? 'neutral' : 'error'} title={result === 'correct' ? 'Bonne réponse !' : result === 'uncertain' ? 'Formulation à vérifier, sans pénalité' : 'Réponse attendue'} icon={result === 'correct' ? <Check /> : <X />}>
+                  {result !== 'correct' ? <p className="font-bold">{item.answer}</p> : null}
+                  {result !== 'correct' && item.hintFr ? <p className="mt-1 text-[13px] text-muted">{item.hintFr}</p> : null}
                 </ResultPanel>
               ) : null}
-              <Button variant={result ? 'success' : 'primary'} disabled={!answer.trim()} onClick={result === null ? validate : next}>
+              <Button variant={result === 'correct' ? 'success' : 'primary'} disabled={!answer.trim()} onClick={result === null ? validate : next}>
                 {result === null ? 'Vérifier' : 'Suivant'}
               </Button>
             </div>

@@ -30,6 +30,12 @@ Les dictées proposent 48 phrases d’entraînement réparties entre A1 et B2, c
 
 L’enregistrement/analyse de la voix et les notifications ne font volontairement pas partie de la PWA. La lecture audio et toutes les fonctions d’apprentissage compatibles avec le Web restent disponibles. La synthèse vocale utilise OpenAI via le Worker, Gemini en secours, puis la meilleure voix anglaise du navigateur en dernier recours.
 
+## Évolution pédagogique
+
+Le pilote **Sentence Lab**, accessible depuis l’accueil et Plus (`/sentence-lab`), relie une lecture courte, des transformations, la correction d’erreurs et une production personnelle autour de trois constructions. Le suivi par profil est local au navigateur. Les réponses non reconnues sont conservées « à vérifier », sans pénalité ; la maîtrise demande des réutilisations différées dans plusieurs contextes.
+
+L’audit, l’architecture progressive et les limites du pilote sont décrits dans [docs/pedagogical-engine.md](docs/pedagogical-engine.md). Les modules existants sont conservés, y compris la construction de phrases à `/phrases`.
+
 ## Commandes
 
 - `npm run dev` : serveur Vite local ;
@@ -42,3 +48,16 @@ L’enregistrement/analyse de la voix et les notifications ne font volontairemen
 
 `vercel.json` configure le build Vite, le proxy `/api` et le fallback `index.html` nécessaire aux liens profonds React Router. Le manifeste rend l’application installable. Aucun service worker métier ni cache hors ligne n’est ajouté dans cette version online-first.
 # englishpwa
+
+## Première tranche du suivi commun
+
+Le profil pédagogique local version 1 conserve ses preuves Sentence Lab et accepte désormais un journal `observations` optionnel. Les anciens profils restent lisibles. Lingvist, flashcards, triage, dictées et construction de phrases alimentent le même profil, sans convertir leurs résultats en maîtrise grammaticale ou en autonomie productive.
+
+- Sentence Lab : six constructions A2–B1, deux contextes par construction, parcours guidé et production mélangée de trois objectifs. Les nouveaux contenus sont des propositions éditoriales à relire.
+- Le mode mélangé privilégie les constructions dues puis déjà travaillées ; ses résultats comptent comme productions, jamais comme transferts différés certifiés.
+- Le tri « Je reconnais » enregistre une déclaration locale, masquée au tri pendant sept jours. Il n’appelle plus le marquage serveur « connu ». Les anciens mots déjà retirés côté serveur ne sont pas restaurés automatiquement.
+- Les flashcards distinguent reconnaissance et rappel en traduction ; Lingvist mesure un usage guidé. Les aides consultées restent prises en compte même après masquage.
+- Les réponses ouvertes inconnues restent à vérifier dans Sentence Lab, la construction de phrases et les traductions Assimil. Aucun correcteur IA exhaustif n’est ajouté ; les exercices à réponse exacte conservent leur correction dédiée.
+- La page Progression présente les compteurs API sans diagnostics, rétention ou graphiques de démonstration ajoutés artificiellement. Le mode démonstration est signalé. Les observations locales et les XP sont présentés séparément.
+
+Le suivi est local au profil et au navigateur. Il n’est pas synchronisé entre appareils et ne reconstitue pas les anciennes activités. Les erreurs identifiées dans Sentence Lab orientent ses prochaines échéances. Les autres activités n’ont pas de liens explicites vers les constructions : aucune compétence grammaticale n’est déduite automatiquement du texte d’une réponse. L’intégration des lectures et des bilans Live, le catalogue de trente structures et la synchronisation serveur restent des étapes ultérieures.

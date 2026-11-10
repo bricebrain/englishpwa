@@ -252,3 +252,13 @@ describe('Compatibilité avec le Worker déployé sans totalCount', () => {
     apiRequest.mockReset();
   });
 });
+
+
+it('ne complète pas les statistiques serveur avec des diagnostics de démonstration', async () => {
+  apiRequest.mockResolvedValueOnce({ reviewedToday: 7, learnedCount: 12, totalCount: 100 });
+  const stats = await learningApi.getStatistics('default');
+  expect(stats).toMatchObject({ reviewedToday: 7, learnedCount: 12, totalCount: 100, demo: false });
+  expect(stats).not.toHaveProperty('retentionRate');
+  expect(stats).not.toHaveProperty('strengths');
+  expect(stats).not.toHaveProperty('weeklyReviews');
+});

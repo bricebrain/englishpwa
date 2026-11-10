@@ -2,7 +2,6 @@ import type {
   DashboardData,
   LingvistCard,
   PreparedContent,
-  StatisticsData,
 } from '@/types/learning';
 import { srsWordsMock } from '@/mocks/srsData';
 
@@ -145,11 +144,3 @@ export const preparedContentMock: PreparedContent[] = [
     type: 'script_audio',
   },
 ];
-
-export const statisticsMock: StatisticsData = {
-  ...dashboardMock,
-  retentionRate: 87,
-  weeklyReviews: [14, 20, 0, 18, 24, 17, 8],
-  strengths: ['Vocabulaire professionnel', 'Compréhension contextuelle'],
-  focusAreas: ['Phrasal verbs', 'Choix des temps', 'Activation orale libre'],
-};

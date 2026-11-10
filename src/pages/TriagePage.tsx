@@ -109,7 +109,7 @@ function SwipeCard({ candidate, showTranslation, onToggle, onDecide, exitDirecti
 
       <div className="flex justify-between text-xs font-bold text-faint">
         <span>← À apprendre</span>
-        <span>Je connais →</span>
+        <span>Je reconnais →</span>
       </div>
     </motion.div>
   );
@@ -205,10 +205,10 @@ export function TriagePage() {
             <RoundAction label="Écouter et voir la traduction" color={tokens.violetSoft} size={52} onClick={() => { speakEnglish(getVocabularyLemma(top)); if (!triage.visibleTranslations.has(top.id)) triage.toggleTranslation(top.id); }}>
               <Eye />
             </RoundAction>
-            <RoundAction label="Je connais" color={tokens.mint} size={68} onClick={() => decide(top, 'known')}><Check /></RoundAction>
+            <RoundAction label="Je reconnais" color={tokens.mint} size={68} onClick={() => decide(top, 'known')}><Check /></RoundAction>
           </div>
           <p className="mt-4 text-center text-[12.5px] text-faint">
-            « Je connais » retire le mot des révisions · « À apprendre » le garde en priorité
+            « Je reconnais » est une déclaration, pas une maîtrise. Le mot reste révisable et pourra revenir au tri dans 7 jours.
           </p>
         </>
       ) : null}

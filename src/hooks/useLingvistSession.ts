@@ -5,6 +5,7 @@ import { learningApi } from '@/api/learningApi';
 import { analyzeLingvistAnswer } from '@/api/lingvistAnalysisApi';
 import { buildLingvistDecision } from '@/helpers/lingvistAnalysis';
 import { getVocabularyExamples, getVocabularyLemma } from '@/helpers/vocabularyDisplay';
+import { useLearningTracking } from '@/hooks/useLearningTracking';
 import { usePreferences } from '@/hooks/usePreferences';
 import { clearLingvistProgress, loadLingvistProgress, saveLingvistProgress } from '@/services/sessionStorageService';
 import type { LingvistCard, LingvistDecision } from '@/types/learning';
@@ -44,6 +45,7 @@ export function useLingvistSession() {
   const { preferences } = usePreferences();
   const queryClient = useQueryClient();
   const profileId = preferences.profile.id;
+  const tracking = useLearningTracking(profileId);
   const initial = useMemo(() => loadLingvistProgress(profileId), [profileId]);
   const [sessionNumber, setSessionNumber] = useState(0);
   const [cardIndex, setCardIndex] = useState(initial.cardIndex);
@@ -52,6 +54,7 @@ export function useLingvistSession() {
   const [decision, setDecision] = useState<LingvistDecision | null>(null);
   const [hintShown, setHintShown] = useState(false);
   const [variantIndex, setVariantIndex] = useState(0);
+  const audioHelp = useRef(false);
   const startedAtRef = useRef(performance.now());
 
   const cardsQuery = useQuery({
@@ -79,18 +82,14 @@ export function useLingvistSession() {
       await learningApi.submitLingvistAnswer(preferences.profile.id, card, value, nextDecision);
       return nextDecision;
     },
-    onSuccess: (nextDecision) => {
+    onSuccess: (nextDecision, { card, value }) => {
+      tracking.record({ source: 'lingvist', skill: 'guided_usage', targetId: card.wordId ?? card.id,
+        context: card.sentenceWithGap, answer: value, usedHint: hintShown || audioHelp.current || !value || Boolean(card.grammarHint),
+        outcome: nextDecision.resultKind === 'success' ? 'correct' : nextDecision.resultKind === 'almost' ? 'uncertain' : 'incorrect' });
       setDecision(nextDecision);
       if (nextDecision.resultKind === 'success') setCorrectCount((value) => value + 1);
       void queryClient.invalidateQueries({ queryKey: ['dashboard', preferences.profile.id] });
-    },
-  });
-
-  const knownMutation = useMutation({
-    mutationFn: (wordId: string) => learningApi.markWordsKnown(preferences.profile.id, [wordId], 'user_marked_known'),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['srs-session', preferences.profile.id] });
-      void queryClient.invalidateQueries({ queryKey: ['dashboard', preferences.profile.id] });
+      void queryClient.invalidateQueries({ queryKey: ['statistics', preferences.profile.id] });
     },
   });
 
@@ -122,13 +121,15 @@ export function useLingvistSession() {
     setAnswer('');
     setDecision(null);
     setHintShown(false);
+    audioHelp.current = false;
     setVariantIndex(0);
     attemptMutation.reset();
   };
 
   const markAlreadyKnown = () => {
-    if (!currentCard || decision || knownMutation.isPending) return;
-    knownMutation.mutate(currentCard.wordId ?? currentCard.id, { onSuccess: next });
+    if (!currentCard || decision || attemptMutation.isPending) return;
+    if (tracking.record({ source: 'triage', skill: 'recognition', targetId: currentCard.wordId ?? currentCard.id,
+      context: currentCard.lemma, answer: '', usedHint: false, outcome: 'declared' })) next();
   };
 
   const restart = () => {
@@ -139,6 +140,7 @@ export function useLingvistSession() {
     setAnswer('');
     setDecision(null);
     setHintShown(false);
+    audioHelp.current = false;
     setVariantIndex(0);
     attemptMutation.reset();
   };
@@ -157,10 +159,12 @@ export function useLingvistSession() {
     setAnswer,
     checkAnswer,
     reveal,
+    noteAudioHelp: () => { audioHelp.current = true; },
     requestHint: () => setHintShown(true),
     refreshVariant: () => { setVariantIndex((value) => value + 1); setAnswer(''); setDecision(null); },
     markAlreadyKnown,
-    isMarkingKnown: knownMutation.isPending,
+    isMarkingKnown: false,
+    trackingError: tracking.saveError,
     isAnalyzing: attemptMutation.isPending,
     attemptError: attemptMutation.isError,
     next,

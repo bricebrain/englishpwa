@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 
+import { useLearningTracking } from '@/hooks/useLearningTracking';
 import { dictationKey, evaluateDictation, selectDictationSeries } from '@/helpers/dictationSession';
 import { loadDictationHistory, saveDictationAttempt } from '@/services/dictationHistoryService';
 import { canSpeak, speakEnglish, stopEnglishSpeech } from '@/services/speechPlaybackService';
 import type { DictationPhrase } from '@/types/dictation';
 
 export function useDictationSession(pool: DictationPhrase[], profileId: string) {
+  const tracking = useLearningTracking(profileId);
   const [series, setSeries] = useState(() => selectDictationSeries(pool, loadDictationHistory(profileId)));
   const [index, setIndex] = useState(0);
   const [answer, setAnswer] = useState('');
@@ -57,6 +59,8 @@ export function useDictationSession(pool: DictationPhrase[], profileId: string) 
     stop();
     const correct = evaluateDictation(answer, phrase.text);
     saveDictationAttempt(profileId, dictationKey(phrase.text));
+    tracking.record({ source: 'dictation', skill: 'listening', targetId: dictationKey(phrase.text),
+      context: phrase.text, answer, usedHint: false, outcome: correct ? 'correct' : 'incorrect' });
     setResult(correct);
     if (correct) setScore((value) => value + 1);
   };
@@ -84,6 +88,7 @@ export function useDictationSession(pool: DictationPhrase[], profileId: string) 
   };
 
   return {
+    trackingError: tracking.saveError,
     phrase, answer, setAnswer, result, score, speaking, audioError, unseenCount,
     index, total: series.length, completed: index >= series.length,
     isReview: Boolean(phrase && history[dictationKey(phrase.text)] && result === null),

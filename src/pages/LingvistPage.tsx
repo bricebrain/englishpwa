@@ -164,7 +164,7 @@ export function LingvistPage() {
 
                   {!session.decision ? (
                     <div className="flex flex-wrap gap-2">
-                      <ToolChip icon={<Volume2 />} label="Écouter" onClick={() => speakEnglish(card.sentenceFull)} />
+                      <ToolChip icon={<Volume2 />} label="Écouter" onClick={() => { session.noteAudioHelp(); speakEnglish(card.sentenceFull); }} />
                       {!session.hintShown ? <ToolChip icon={<Lightbulb />} label="Indice" onClick={session.requestHint} /> : null}
                       <ToolChip icon={<RefreshCw />} label="Autre phrase" onClick={session.refreshVariant} />
                     </div>
@@ -199,6 +199,7 @@ export function LingvistPage() {
                 className="text-xl"
               />
 
+              {session.trackingError ? <Alert severity="warning" className="mt-3">Le suivi pédagogique local n’a pas pu être enregistré. Les révisions serveur sont conservées ; réessaie la déclaration si nécessaire.</Alert> : null}
               {session.attemptError ? <Alert severity="error" className="mt-3">La réponse n’a pas pu être enregistrée. Réessaie.</Alert> : null}
               {session.decision ? <LingvistResultPanel card={card} answer={session.answer} decision={session.decision} /> : null}
 
@@ -234,7 +235,7 @@ export function LingvistPage() {
                       disabled={session.isMarkingKnown || session.isAnalyzing}
                       className="flex-1"
                     >
-                      Je connais déjà
+                      Je reconnais ce mot
                     </Button>
                   </div>
                 ) : (

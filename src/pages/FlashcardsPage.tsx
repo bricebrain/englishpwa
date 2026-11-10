@@ -3,6 +3,8 @@ import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
+import { Alert } from '@mui/material';
+
 import { QueryState } from '@/components/common/QueryState';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { Button, IconButton } from '@/components/ui/button';
@@ -85,6 +87,7 @@ export function FlashcardsPage() {
 
       <QueryState loading={session.isLoading} error={session.isError} onRetry={() => session.refetch()} skeletons={1} />
 
+      {session.trackingError && <Alert severity="warning">Le suivi pédagogique local est indisponible. La révision SRS reste indépendante.</Alert>}
       {finished ? (
         <CelebrationCard
           title="Pile terminée !"

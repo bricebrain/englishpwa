@@ -11,6 +11,7 @@ const sections = [
   {
     label: 'Pratique',
     items: [
+      { title: 'Sentence Lab', subtitle: 'Lecture, structures et production écrite', path: '/sentence-lab', icon: PenLine, color: '#03915A' },
       { title: 'Lingvist', subtitle: 'Vocabulaire en contexte', path: '/lingvist', icon: BookOpen, color: '#5856D6' },
       { title: 'Tri rapide', subtitle: 'Classer les mots connus', path: '/lingvist-triage', icon: MoveHorizontal, color: '#30B0C7' },
       { title: 'Construire des phrases', subtitle: 'Structures et transformations', path: '/phrases', icon: PenLine, color: '#FF9500' },

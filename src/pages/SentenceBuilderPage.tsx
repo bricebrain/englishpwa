@@ -1,90 +1,25 @@
+import { Alert, Button as MuiButton, Paper, Stack, Typography } from '@mui/material';
+
 import { Check, Delete, Keyboard, LayoutGrid, Volume2, X } from 'lucide-react';
 import { LayoutGroup, motion } from 'motion/react';
-import { useMemo, useRef, useState, type FormEvent } from 'react';
 
 import { QueryState } from '@/components/common/QueryState';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { Button, IconButton } from '@/components/ui/button';
 import { Chip } from '@/components/ui/chip';
 import { Textarea } from '@/components/ui/form';
-import { CelebrationCard, ResultPanel, SessionHeader } from '@/components/ui/SessionChrome';
-import { useCombo } from '@/hooks/useCombo';
-import { useDailySentences } from '@/hooks/useAiFeatures';
-import { evaluateSentence } from '@/helpers/sentenceEvaluation';
+import { ResultPanel, SessionHeader } from '@/components/ui/SessionChrome';
+import { useSentenceBuilder, type Tile } from '@/hooks/useSentenceBuilder';
 import { cn } from '@/lib/utils';
 import { feedback } from '@/services/feedbackService';
 import { speakEnglish } from '@/services/speechPlaybackService';
-import { tokens } from '@/theme';
-import type { SentenceExercise } from '@/types/aiFeatures';
-
-/** Exercices de secours si les phrases du jour ne sont pas disponibles. */
-const FALLBACK_EXERCISES: SentenceExercise[] = [
-  { prompt: 'Je travaille ici depuis trois ans.', expected: 'I have worked here for three years', hint: 'Present perfect + for', distractors: ['since', 'work', 'am'] },
-  { prompt: 'Si j’avais plus de temps, je lirais davantage.', expected: 'If I had more time, I would read more', hint: 'Second conditional', distractors: ['will', 'have', 'reading'] },
-  { prompt: 'Elle avait déjà quitté le bureau.', expected: 'She had already left the office', hint: 'Past perfect', distractors: ['has', 'leaved', 'yet'] },
-];
-
-interface Tile { id: string; word: string }
-
-function shuffle<T>(items: T[]): T[] {
-  const copy = [...items];
-  for (let index = copy.length - 1; index > 0; index -= 1) {
-    const swap = Math.floor(Math.random() * (index + 1));
-    [copy[index], copy[swap]] = [copy[swap]!, copy[index]!];
-  }
-  return copy;
-}
 
 export function SentenceBuilderPage() {
-  const [index, setIndex] = useState(0);
-  const [answer, setAnswer] = useState('');
-  const [placed, setPlaced] = useState<string[]>([]);
-  const [keyboard, setKeyboard] = useState(false);
-  const [correct, setCorrect] = useState<boolean | null>(null);
-  const score = useRef(0);
-  const combo = useCombo(15);
-  const daily = useDailySentences();
-  const exercises = daily.data?.exercises?.length ? daily.data.exercises : FALLBACK_EXERCISES;
-  const generated = Boolean(daily.data?.exercises?.length);
-  const completed = index >= exercises.length;
-  const exercise = exercises[Math.min(index, exercises.length - 1)]!;
-
-  const tiles = useMemo<Tile[]>(
-    () => shuffle([...exercise.expected.split(' '), ...exercise.distractors].map((word, tileIndex) => ({ id: `${index}-${tileIndex}`, word }))),
-    [exercise, index],
-  );
-  const byId = useMemo(() => new Map(tiles.map((tile) => [tile.id, tile])), [tiles]);
-  const builtSentence = keyboard ? answer : placed.map((id) => byId.get(id)?.word ?? '').join(' ');
-
-  const check = () => {
-    if (!builtSentence.trim()) return;
-    const ok = evaluateSentence(builtSentence, exercise.expected);
-    setCorrect(ok);
-    if (ok) { score.current += 1; combo.hit(); } else combo.miss();
-  };
-
-  const next = () => {
-    feedback('tap');
-    setIndex((value) => value + 1);
-    setAnswer('');
-    setPlaced([]);
-    setCorrect(null);
-  };
-
-  const submit = (event: FormEvent) => {
-    event.preventDefault();
-    if (correct !== null) next();
-    else check();
-  };
-
-  const restart = () => {
-    score.current = 0;
-    combo.reset();
-    setIndex(0);
-    setPlaced([]);
-    setAnswer('');
-    setCorrect(null);
-  };
+  const {
+    trackingError, daily, exercise, exercises, generated, completed, index, answer, setAnswer,
+    placed, setPlaced, keyboard, setKeyboard, correct, evaluation, score, pending, combo,
+    tiles, byId, builtSentence, check, next, submit, restart,
+  } = useSentenceBuilder();
 
   if (daily.isLoading) {
     return (
@@ -97,23 +32,21 @@ export function SentenceBuilderPage() {
   if (completed) {
     return (
       <PageLayout reading>
-        <CelebrationCard
-          title="Phrases construites !"
-          subtitle="Ces structures deviennent des réflexes à force de les assembler."
-          score={score.current / exercises.length}
-          stats={[
-            { label: 'Correctes', value: score.current, color: tokens.mint },
-            { label: 'Phrases', value: exercises.length },
-          ]}
-          onRestart={restart}
-          restartLabel="Recommencer"
-        />
+        <Paper variant="outlined" sx={{ p: 3 }}>
+          <Stack spacing={2}>
+            <Typography component="h1" variant="h5">Séance terminée</Typography>
+            <Typography>{score.current} formulation(s) reconnue(s) · {pending.current} réponse(s) à vérifier.</Typography>
+            <Typography variant="body2">Les formulations non reconnues restent à vérifier, sans pénalité. Aucun taux de réussite n’est calculé avec ces réponses.</Typography>
+            <MuiButton variant="contained" onClick={restart}>Recommencer</MuiButton>
+          </Stack>
+        </Paper>
       </PageLayout>
     );
   }
 
   return (
     <PageLayout reading>
+      {trackingError && <Alert severity="warning">Cette réponse n’a pas pu être enregistrée dans le suivi local.</Alert>}
       <SessionHeader
         progress={(index + (correct !== null ? 1 : 0)) / exercises.length}
         combo={combo.combo}
@@ -201,9 +134,9 @@ export function SentenceBuilderPage() {
 
           {correct !== null ? (
             <div className="mt-5">
-              <ResultPanel tone={correct ? 'success' : 'error'} title={correct ? 'Parfait !' : 'Pas tout à fait'} icon={correct ? <Check /> : <X />}>
+              <ResultPanel tone={correct ? 'success' : 'neutral'} title={correct ? 'Formulation reconnue' : 'Formulation à vérifier'} icon={correct ? <Check /> : <X />}>
                 <div className="flex items-center gap-2">
-                  <p className="flex-1 text-[17px] font-bold">{exercise.expected}</p>
+                  <div className="flex-1"><p>{evaluation?.explanation}</p><p className="text-[17px] font-bold">Exemple : {exercise.expected}</p></div>
                   <IconButton aria-label="Écouter la phrase" onClick={() => speakEnglish(exercise.expected)} className="text-violet-soft">
                     <Volume2 />
                   </IconButton>

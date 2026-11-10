@@ -64,6 +64,7 @@ function DictationSession({ pool, profileId, level }: { pool: DictationPhrase[];
           {session.unseenCount} phrase{session.unseenCount > 1 ? 's' : ''} à découvrir sur {pool.length} · Historique dans ce navigateur
         </Typography>
 
+        {session.trackingError && <Alert severity="warning">Le suivi commun n’a pas pu être enregistré dans ce navigateur.</Alert>}
         {session.completed ? (
           <Box aria-live="polite">
             <Typography variant="h6" component="h3">Série terminée : {session.score}/{session.total}</Typography>
